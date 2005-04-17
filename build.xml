@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id$
+// Copyright (c) 2005 The Regents of the University of California. All
+// Rights Reserved. Permission to use, copy, modify, and distribute this
+// software and its documentation without fee, and without a written
+// agreement is hereby granted, provided that the above copyright notice
+// and this paragraph appear in all copies.  This software program and
+// documentation are copyrighted by The Regents of the University of
+// California. The software program and documentation are supplied "AS
+// IS", without any accompanying services from The Regents. The Regents
+// does not warrant that the operation of the program will be
+// uninterrupted or error-free. The end-user understands that the program
+// was developed for research purposes and is advised not to rely
+// exclusively on the program for any reason.  IN NO EVENT SHALL THE
+// UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
+// SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS,
+// ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
+// THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
+// SUCH DAMAGE. THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE
+// PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF
+// CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT,
+// UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+This is the build file for building the Csharp plugins for ArgoUML.
+
+For this file to work you need to have argouml either checked out alongside
+this directory and built using the package target or downloaded a release
+and unpacked in a directory argouml/build alongside this one. Like this:
+
+argouml-csharp/build.xml <- This file.
+argouml/build/argouml-model.jar
+argouml/build/log4j.jar
+etc.
+  -->
+
+<project basedir="." default="compile" name="ArgoUML Csharp module">
+  <!-- =================================================================== -->
+  <!-- Initialization target                                               -->
+  <!-- =================================================================== -->
+  <target name="init">
+    <property name="build.dir" value="build"/>
+    <property name="build.classes" value="build/classes"/>
+
+    <property name="debug" value="yes"/>
+    <property name="deprecation" value="yes"/>
+    <property name="optimize" value="yes"/>
+
+    <property name="argo.root.dir" value="../argouml"/>
+    <property name="argo.build.dir" value="${argo.root.dir}/build"/>
+
+    <property name="result.jar" value="argouml-csharp.jar"/>
+  
+    <path id="compile.classpath">
+      <pathelement location="${argo.build.dir}/log4j.jar"/>
+      <pathelement location="${argo.build.dir}/argouml-model.jar"/>
+      <pathelement location="${argo.build.dir}/argouml.jar"/>
+      <pathelement location="${argo.build.dir}/ocl-argo.jar"/>
+    </path>
+
+    <path id="run.classpath">
+      <fileset dir="${argo.build.dir}" includes="*.jar"/>
+    </path>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Run from classes                                                    -->
+  <!-- =================================================================== -->
+  <target name="run" depends="jar"
+          description="Run with this module.">
+    <java classname="org.argouml.application.Main"
+          fork="yes"
+          taskname="argouml"
+     	  jvmargs="-Xmx500M">
+        <sysproperty key="log4j.configuration"
+                   value="org/argouml/resource/error_console.lcf"/>
+        <classpath>
+	  <pathelement location="${build.dir}/${result.jar}"/>
+	  <path refid="run.classpath"/>
+        </classpath>
+    </java>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Compiles the source directory                                       -->
+  <!-- =================================================================== -->
+  <target name="compile"
+          depends="init"
+          description="Compile the sources.">
+    <!-- create directories -->
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${build.classes}"/>
+
+    <javac srcdir="src"
+           destdir="${build.classes}"
+	   includes="org/argouml/**/*.java"
+	   debug="${debug}"
+	   deprecation="${deprecation}"
+	   optimize="${optimize}"
+	   >
+       <classpath>
+	  <path refid="compile.classpath"/>
+       </classpath>
+    </javac>
+    <copy file="src/manifest.mf" todir="${build.classes}"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Creates the jar file                                                -->
+  <!-- =================================================================== -->
+  <target name="jar" depends="compile"
+          description="Build the ${result.jar} file.">
+    <jar basedir="${build.classes}"
+	 includes="org/argouml/**"
+	 jarfile="${build.dir}/${result.jar}"
+         manifest="${build.classes}/manifest.mf"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Install the jar file                                                -->
+  <!-- =================================================================== -->
+  <target name="install" depends="jar"
+          description="Copy the ${result.jar} file to the ArgoUML directory.">
+    <copy todir="${argo.build.dir}/ext">
+      <fileset dir="${build.dir}" includes="${result.jar}"/>
+    </copy>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Clean targets                                                       -->
+  <!-- =================================================================== -->
+  <target name="clean" depends="init"
+          description="Clean out all built files.">
+    <delete dir="${build.dir}" quiet="true"/>
+    <delete quiet="true">
+      <fileset dir="${build.dir}" includes="${result.jar}"/>
+    </delete>
+  </target>
+</project>

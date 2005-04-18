@@ -582,16 +582,11 @@ public class GeneratorCSharp extends Generator2
 	sb.append(generateConstraintEnrichedDocComment (cls)).append ("\n");
 
 	sb.append(generateVisibility(Model.getFacade().getVisibility(cls)));
-	if (Model.getFacade().isAbstract(cls) 
-            && !(Model.getFacade().isAInterface(cls))) {
-	    if (VERBOSE) {
-	        sb.append("/* abstract */ ");
-	    }
+	if (Model.getFacade().isAbstract(cls) && !(Model.getFacade().isAInterface(cls))) {
+	        sb.append(" abstract ");
 	}
 	if (Model.getFacade().isLeaf(cls)) {
-	    if (VERBOSE) {
-	        sb.append("/* final */ ");
-	    }
+	        sb.append(" final ");
 	}
 	sb.append(classifierKeyword).append(" ").append(generatedName);
 	String baseClass =
@@ -1128,13 +1123,22 @@ public class GeneratorCSharp extends Generator2
 	if (!Model.getFacade().isNavigable(associationEnd)) {
 	    return "";
 	}
-	String s = INDENT + "protected ";
-	//String s = INDENT;
+	
+	String s = INDENT;
 	String tempS = "";
-	if (VERBOSE) {
-	    tempS += "/* public */ ";
-	}
-	// must be public or generate public navigation method!
+	java.util.List stereoTypes = Model.getFacade().getStereotypes(associationEnd);
+
+	s = INDENT;
+        s += generateVisibility(Model.getFacade().getVisibility(associationEnd));
+	
+	if(stereoTypes.size() > 0){
+	    LOG.debug("Found " + stereoTypes.size() + " stereotypes ");
+	    for(int x = 0;x < stereoTypes.size();x++){
+		if (Model.getFacade().getName(stereoTypes.get(x)).equals("event")){
+		    s += "event ";
+		}
+	    }
+	}	// must be public or generate public navigation method!
 
 	if (Model.getScopeKind().getClassifier().equals(
 	        Model.getFacade().getTargetScope(associationEnd))) {
@@ -1175,17 +1179,17 @@ public class GeneratorCSharp extends Generator2
                 + " ";
         } else if ((multi.equals(Model.getMultiplicities().get1N()))
                 || multi.equals(Model.getMultiplicities().get0N())) {
-            s += "ArrayList ";
+            s += " [] ";
         }
 	String associationName = Model.getFacade().getName(association);
 	if (name != null
 	        && name != null && name.length() > 0) {
-	    s += "var $" + generateName(name);
+	    s += " " + generateName(name);
 	} else if (associationName != null
 	        && associationName != null && associationName.length() > 0) {
-	    s += "var $" + generateName(associationName);
+	    s += " " + generateName(associationName);
 	} else {
-	    s += "var $my";
+	    s += " my";
 	    s += generateClassifierRef(Model.getFacade()
                 .getType(associationEnd));
 	}
@@ -1306,7 +1310,7 @@ public class GeneratorCSharp extends Generator2
 	    if (VERBOSE) {
 	        return "/* static */ ";
 	    } else {
-	        return "";
+	        return "static ";
 	    }
 	}
 	return "";

@@ -518,14 +518,21 @@ public class GeneratorCSharp extends Generator2
 	// TODO: stereotypes...
 	s +=  generateClassifierRef(Model.getFacade().getType(param)) + " ";
 	if ((Model.getFacade().getKind(param).equals(
-	        Model.getDirectionKind().getInOutParameter()))
-	    || (Model.getFacade().getKind(param).equals(
-	            Model.getDirectionKind().getOutParameter()))) {
-	    // if OUT or INOUT, then pass by Reference
+	        Model.getDirectionKind().getInOutParameter())))
+	{
+	    // if  INOUT, then pass by Reference
 	    temp = "ref " + s;
             s = temp;
 	}
-	s += generateName(Model.getFacade().getName(param));
+    if (Model.getFacade().getKind(param).equals(
+            Model.getDirectionKind().getOutParameter()))
+    {
+    	// if  OUT
+	    temp = "out " + s;
+        s = temp;
+    }
+    s += generateName(Model.getFacade().getName(param));
+    
 
 	// TODO: initial value
 
@@ -623,7 +630,6 @@ public class GeneratorCSharp extends Generator2
 	String makeConstructor =
 	    Model.getFacade().getTaggedValueValue(cls, "constructor");
 	if ((makeConstructor != null) && (makeConstructor.equals("true"))) {
-	    sb.append(INDENT).append("function ");
 	    sb.append(Model.getFacade().getName(cls)).append("() {\n");
 	    sb.append(generateSection(cls));
 	    sb.append(INDENT).append("}\n");
@@ -670,7 +676,21 @@ public class GeneratorCSharp extends Generator2
 	}
 
 	// TODO: constructors
+
+	Collection ibehs = Model.getCoreHelper().getRealizedInterfaces(cls);
 	Collection behs = Model.getCoreHelper().getOperations(cls);
+
+	// Generate operations for all interfaces the class realizes
+	if(ibehs != null)
+	{
+		Iterator ienum = ibehs.iterator();
+		while(ienum.hasNext())
+		{
+			Object bf = ienum.next();
+			behs.addAll(Model.getCoreHelper().getOperations(bf));
+		}
+	}
+	
 	if (behs != null) {
 	    sb.append ('\n');
 	    sb.append (INDENT).append ("// Operations\n");
@@ -1177,9 +1197,9 @@ public class GeneratorCSharp extends Generator2
             s += generateClassifierRef(Model.getFacade()
                     .getType(associationEnd))
                 + " ";
-        } else if ((multi.equals(Model.getMultiplicities().get1N()))
+        }else if ((multi.equals(Model.getMultiplicities().get1N()))
                 || multi.equals(Model.getMultiplicities().get0N())) {
-            s += " [] ";
+         	s += "ArrayList ";
         }
 	String associationName = Model.getFacade().getName(association);
 	if (name != null
@@ -1326,6 +1346,10 @@ public class GeneratorCSharp extends Generator2
 	if (Model.getFacade().isAbstract(op)) {
 	    return "abstract ";
 	}
+	if (Model.getFacade().isRoot(op)) {
+	    return "virtual ";
+	}
+	
 	return "";
     }
 

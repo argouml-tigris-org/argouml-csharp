@@ -692,6 +692,7 @@ public class GeneratorCSharp extends Generator2
 	}
 	
 	if (behs != null) {
+		StringBuffer sbtemp;
 	    sb.append ('\n');
 	    sb.append (INDENT).append ("// Operations\n");
 
@@ -699,29 +700,38 @@ public class GeneratorCSharp extends Generator2
 
 	    while (behEnum.hasNext()) {
 		Object bf = behEnum.next();
-
-		sb.append('\n').append(INDENT).append(generate (bf));
+		sbtemp = new StringBuffer();
+		
+		sbtemp.append('\n').append(INDENT);
+		Object parent = Model.getFacade().getOwner(bf);
+		//Generate public modifier for interface implementations
+		if(Model.getFacade().isAInterface(parent))
+		{
+			sbtemp.append("public ");
+		}
+		sbtemp.append(generate (bf));
 
 		tv = generateTaggedValues(bf);
 
 		if ((Model.getFacade().isAClass(cls))
 		        && (Model.getFacade().isAOperation(bf))
 		        && (!(Model.getFacade().isAbstract(bf)))) {
-		    sb.append('\n').append(INDENT).append("{\n");
+		    sbtemp.append('\n').append(INDENT).append("{\n");
 
 		    if (tv.length() > 0) {
-		        sb.append (INDENT).append (tv);
+		        sbtemp.append (INDENT).append (tv);
 		    }
 
-		    sb.append(generateMethodBody(bf));
-		    sb.append('\n');
-		    sb.append(INDENT).append ("}\n");
+		    sbtemp.append(generateMethodBody(bf));
+		    sbtemp.append('\n');
+		    sbtemp.append(INDENT).append ("}\n");
 		} else {
-		    sb.append(";\n");
+		    sbtemp.append(";\n");
 		    if (tv.length() > 0) {
-		        sb.append(INDENT).append(tv).append('\n');
+		        sbtemp.append(INDENT).append(tv).append('\n');
 		    }
 		}
+		sb.append(sbtemp);
 	    }
 	}
 	sb.append("} /* end ").append(classifierKeyword).append(' ');
@@ -1298,9 +1308,15 @@ public class GeneratorCSharp extends Generator2
     }
 
     /**
+     * Generates visibility: public, private, protected
+     * 
      * @see org.argouml.application.api.NotationProvider2#generateVisibility(java.lang.Object)
      *
      * This can be called with either a feature or a visibility.
+     * 
+     * @param handle The object to generate visibility for
+     * 
+     * @return A string with the visibility
      */
     public String generateVisibility(Object handle) {
         Object visibility;
@@ -1322,7 +1338,12 @@ public class GeneratorCSharp extends Generator2
 	    return "";
 	}
     }
-
+    /**
+     * Generate scope.
+     *
+     * @param feature The candidate.
+     * @return Return the scope.
+     */
     private String generateScope(Object feature) {
 	Object scope = Model.getFacade().getOwnerScope(feature);
 	//if (scope == null) return "";
@@ -1337,7 +1358,7 @@ public class GeneratorCSharp extends Generator2
     }
 
     /**
-     * Generate "abstract" keyword for abstract operations.
+     * Generate "abstract" keyword for abstract operations and the virtual keyword for root operations.
      *
      * @param op The candidate.
      * @return Return the abstractness.

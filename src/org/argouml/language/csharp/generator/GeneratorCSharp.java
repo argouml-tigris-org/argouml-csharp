@@ -1781,6 +1781,10 @@ public class GeneratorCSharp extends Generator2
         if (!importSet.isEmpty()) {
             sb.append(LINE_SEPARATOR);
         }
+        // Generate user section for using statements
+        sb.append("// In this section you can add your own using directives");
+        sb.append(LINE_SEPARATOR);
+        sb.append(generateSection(cls));
         return sb.toString();
     }
 

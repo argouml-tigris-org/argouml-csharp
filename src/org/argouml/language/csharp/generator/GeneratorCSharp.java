@@ -326,6 +326,7 @@ public class GeneratorCSharp extends Generator2
     public String generateOperation(Object op, boolean documented) {
 
 	String s = "";
+	boolean isDestructor = false;
 
 	Object cls = Model.getFacade().getOwner(op);
 
@@ -333,6 +334,23 @@ public class GeneratorCSharp extends Generator2
 	String clsName = generateName(Model.getFacade().getName(
             Model.getFacade().getOwner(op)));
 
+	String tagStr = "";
+	String tag = Model.getFacade().getTaggedValueValue(op,"override");
+	if(tag.equals("true"))
+	{
+			tagStr = " override ";
+	}
+	// Check if this is a destructor
+	Collection stereo = Model.getFacade().getStereotypes(op);
+	Iterator iter = stereo.iterator();
+	while(iter.hasNext())
+	{
+		String name = Model.getFacade().getName(iter.next());
+		if(name.equals("destroy")){
+			nameStr = "~" + nameStr;
+			isDestructor = true;
+		}
+	}
 	/*
 	 * Replaced 2001-09-26 STEFFEN ZSCHALER
 	 *
@@ -347,12 +365,14 @@ public class GeneratorCSharp extends Generator2
 
 	//    s += "function ";
 
-	if (!(Model.getFacade().isAInterface(cls))) {
+	if (!(Model.getFacade().isAInterface(cls)) && !isDestructor) {
 	    s += generateAbstractness (op);
 	    s += generateScope (op);
 	    s += generateChangeability (op);
 	    s += generateVisibility (op);
 	}
+	
+	s += tagStr;
 	// pick out return type
 	Object rp = Model.getCoreHelper().getReturnParameter(op);
 	if (rp != null) {
@@ -368,6 +388,8 @@ public class GeneratorCSharp extends Generator2
 	// name and params
 	Vector params = new Vector(Model.getFacade().getParameters(op));
 	params.remove (rp);
+
+
 
 	s += nameStr + "(";
 

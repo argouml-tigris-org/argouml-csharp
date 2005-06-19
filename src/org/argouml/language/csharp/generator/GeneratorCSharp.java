@@ -1178,15 +1178,16 @@ public class GeneratorCSharp extends Generator2
 	
 	String s = INDENT;
 	String tempS = "";
-	java.util.List stereoTypes = Model.getFacade().getStereotypes(associationEnd);
+	Collection stereoTypes = Model.getFacade().getStereotypes(associationEnd);
 
 	s = INDENT;
         s += generateVisibility(Model.getFacade().getVisibility(associationEnd));
 	
 	if(stereoTypes.size() > 0){
 	    LOG.debug("Found " + stereoTypes.size() + " stereotypes ");
-	    for(int x = 0;x < stereoTypes.size();x++){
-		if (Model.getFacade().getName(stereoTypes.get(x)).equals("event")){
+	    Iterator x = stereoTypes.iterator();
+	    while (x.hasNext()) {
+		if (Model.getFacade().getName(x.next()).equals("event")){
 		    s += "event ";
 		}
 	    }

@@ -449,8 +449,9 @@ public class GeneratorCSharp extends Generator2
 
 	s += generateScope(attr);
 	s += generateChangability(attr);
-	if (!Model.getMultiplicities().get11().equals(
-	        Model.getFacade().getMultiplicity(attr))) {
+        Object multi = Model.getFacade().getMultiplicity(attr);
+	if (Model.getFacade().getLower(multi) != 1
+                || Model.getFacade().getUpper(multi) != 1) {
 	    String temp =
 	        generateMultiplicity(Model.getFacade().getMultiplicity(attr));
 	    if (temp.length() > 0) {
@@ -921,8 +922,7 @@ public class GeneratorCSharp extends Generator2
 	String sDocComment = generateConstraintEnrichedDocComment(me);
 
 	Object m = Model.getFacade().getMultiplicity(ae);
-	if (!(Model.getMultiplicities().get11().equals(m)
-	        || Model.getMultiplicities().get01().equals (m))) {
+	if (Model.getFacade().getUpper(m) > 1) {
 	    // Multiplicity greater 1, that means we will generate some sort of
 	    // collection, so we need to specify the element type tag
 
@@ -1225,13 +1225,11 @@ public class GeneratorCSharp extends Generator2
 	String name = Model.getFacade().getName(associationEnd);
 	Object association = Model.getFacade().getAssociation(associationEnd);
         Object multi = Model.getFacade().getMultiplicity(associationEnd);
-        if ((multi.equals(Model.getMultiplicities().get11()))
-                || multi.equals(Model.getMultiplicities().get01())) {
+        if (Model.getFacade().getUpper(multi) == 1 ) {
             s += generateClassifierRef(Model.getFacade()
                     .getType(associationEnd))
                 + " ";
-        }else if ((multi.equals(Model.getMultiplicities().get1N()))
-                || multi.equals(Model.getMultiplicities().get0N())) {
+        } else {
          	s += "ArrayList ";
         }
 	String associationName = Model.getFacade().getName(association);
@@ -1428,45 +1426,7 @@ public class GeneratorCSharp extends Generator2
 	if (multiplicity == null) {
 	    return "";
 	}
-	if (Model.getMultiplicities().get0N().equals(multiplicity)) {
-	    return ANY_RANGE;
-	}
-	String s = "";
-	Iterator iter = Model.getFacade().getRanges(multiplicity);
-	while (iter.hasNext()) {
-	    Object mr = iter.next();
-	    s += generateMultiplicityRange(mr);
-	    if (iter.hasNext()) {
-	        s += ",";
-	    }
-	}
-	return s;
-    }
-
-
-    private static final String ANY_RANGE = "0..*";
-    //public static final String ANY_RANGE = "*";
-    // TODO: user preference between "*" and "0..*"
-
-    private String generateMultiplicityRange(Object multiplicityRange) {
-	Integer lower = 
-	    new Integer(Model.getFacade().getLower(multiplicityRange));
-	Integer upper = 
-	    new Integer(Model.getFacade().getUpper(multiplicityRange));
-	if (lower == null && upper == null) {
-	    return ANY_RANGE;
-	}
-	if (lower == null) {
-	    return "*.." + upper.toString();
-	}
-	if (upper == null) {
-	    return lower.toString() + "..*";
-	}
-	if (lower.intValue() == upper.intValue()) {
-	    return lower.toString();
-	}
-	return lower.toString() + ".." + upper.toString();
-
+        return Model.getFacade().toString(multiplicity);
     }
 
     /**
@@ -1777,10 +1737,7 @@ public class GeneratorCSharp extends Generator2
                         // association end found
                         Object multiplicity =
 			    Model.getFacade().getMultiplicity(associationEnd2);
-                        if (!Model.getMultiplicities().get11()
-                                .equals(multiplicity)
-                                && !Model.getMultiplicities().get01().equals(
-                                        multiplicity)) {
+                        if (Model.getFacade().getUpper(multiplicity) > 1 ) {
                             importSet.add("System.Collections");
                         } else {
 			    ftype =

@@ -60,6 +60,8 @@ public class GeneratorCSharp extends Generator2
     private static final boolean VERBOSE = false;
     private static final String LINE_SEPARATOR =
 	System.getProperty("line.separator");
+    private static final String FILE_SEPARATOR =
+    	System.getProperty("file.separator");
 
     private static Section sect;
 
@@ -536,24 +538,34 @@ public class GeneratorCSharp extends Generator2
      */
     public String generateParameter(Object param) {
 	String s = "";
-        String temp = "";
+    String temp = "";
 	// TODO: qualifiers (e.g., const)
 	// TODO: stereotypes...
 	s +=  generateClassifierRef(Model.getFacade().getType(param)) + " ";
-	if ((Model.getFacade().getKind(param).equals(
-	        Model.getDirectionKind().getInOutParameter())))
+	org.argouml.model.Facade fac = Model.getFacade();
+	Object kind = fac.getKind(param);
+	org.argouml.model.DirectionKind dirkind = Model.getDirectionKind();
+	Object inoutParam = dirkind.getInOutParameter();
+	
+	//if ((Model.getFacade().getKind(param).equals(
+	//        Model.getDirectionKind().getInOutParameter())))
+	if(kind != null)
 	{
-	    // if  INOUT, then pass by Reference
-	    temp = "ref " + s;
-            s = temp;
+		if(kind.equals(inoutParam))
+		{
+		    // if  INOUT, then pass by Reference
+		    temp = "ref " + s;
+	            s = temp;
+		}
+	
+	    if (Model.getFacade().getKind(param).equals(
+	            Model.getDirectionKind().getOutParameter()))
+	    {
+	    	// if  OUT
+		    temp = "out " + s;
+	        s = temp;
+	    }
 	}
-    if (Model.getFacade().getKind(param).equals(
-            Model.getDirectionKind().getOutParameter()))
-    {
-    	// if  OUT
-	    temp = "out " + s;
-        s = temp;
-    }
     s += generateName(Model.getFacade().getName(param));
     
 

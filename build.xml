@@ -1,32 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$
-// Copyright (c) 2005 The Regents of the University of California. All
-// Rights Reserved. Permission to use, copy, modify, and distribute this
-// software and its documentation without fee, and without a written
-// agreement is hereby granted, provided that the above copyright notice
-// and this paragraph appear in all copies.  This software program and
-// documentation are copyrighted by The Regents of the University of
-// California. The software program and documentation are supplied "AS
-// IS", without any accompanying services from The Regents. The Regents
-// does not warrant that the operation of the program will be
-// uninterrupted or error-free. The end-user understands that the program
-// was developed for research purposes and is advised not to rely
-// exclusively on the program for any reason.  IN NO EVENT SHALL THE
-// UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT,
-// SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS,
-// ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF
-// THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF
-// SUCH DAMAGE. THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY
-// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE
-// PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE UNIVERSITY OF
-// CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, SUPPORT,
-// UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
-This is the build file for building the Csharp plugins for ArgoUML.
+  Build file for ArgoUML Csharp(C#) plugins.
 
 For this file to work you need to have argouml either checked out alongside
-this directory and built using the package target or downloaded a release
+this directory and built using the 'package' target or downloaded a release
 and unpacked in a directory argouml/build alongside this one. Like this:
 
 argouml-csharp/build.xml <- This file.
@@ -41,13 +19,21 @@ etc.
   <!-- =================================================================== -->
   <target name="init">
     <property name="build.dir" value="build"/>
-    <property name="build.classes" value="build/classes"/>
+    <property name="build.classes" value="${build.dir}/classes"/>
+    <property name="module.src.dir" value="src" />
 
     <property name="debug" value="yes"/>
     <property name="deprecation" value="yes"/>
     <property name="optimize" value="yes"/>
 
-    <property name="argo.root.dir" value="../argouml"/>
+
+    <!-- Load ArgoUML properties, including the version -->
+    <!-- we really need an absolute path for argo.root.dir -->
+    <!-- if it is set in a property file before now, it must be absolute -->
+    <property name="argo.root.dir" value="${basedir}/../argouml"/>
+    <property file="${override.build.properties}"/>
+    <property file="${argo.src.dir}/default.properties"/>
+    
     <property name="argo.build.dir" value="${argo.root.dir}/build"/>
 
     <property name="result.jar" value="argouml-csharp.jar"/>
@@ -62,6 +48,12 @@ etc.
     <path id="run.classpath">
       <fileset dir="${argo.build.dir}" includes="*.jar"/>
     </path>
+     
+    <echo message="Antlr = ${antlrall.jar.path}" />
+    <path id="module.antlr-genparser.classpath">
+      <pathelement location="${antlrall.jar.path}"/>
+    </path> 
+   
   </target>
 
   <!-- =================================================================== -->
@@ -92,7 +84,7 @@ etc.
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
 
-    <javac srcdir="src"
+    <javac srcdir="src" 
            destdir="${build.classes}"
 	   includes="org/argouml/**/*.java"
 	   debug="${debug}"
@@ -137,4 +129,62 @@ etc.
       <fileset dir="${build.dir}" includes="${result.jar}"/>
     </delete>
   </target>
+  
+  
+  <!-- =================================================================== -->
+  <!-- Generates the parser and lexer classes                              -->
+  <!-- This target was added as a template only during the upgrade of the  -->
+  <!-- build processes to show how a Csharp parser might be integrated     -->
+  <!-- =================================================================== -->
+  <target name="generateparser" depends="init" 
+          description="TEMPLATE ONLY - NON-functional - Generates the parser and lexer classes">
+    <uptodate property="parser.is.current"
+      targetfile="${module.src.dir}/org/argouml/language/charp/reveng/CSharpTokenTypes.txt">
+      <srcfiles dir="${module.src.dir}/org/argouml/language/csharp/">
+        <include name="CSharpParser.g"/>
+      </srcfiles>
+    </uptodate>
+    <antcall target="generateparser_internal"/>
+  </target>
+   
+  <target name="generateparser_internal" unless="parser.is.current" 
+          depends="init">
+    
+    <!-- These are the Csharp build steps from the Antlr distribution
+    <exec program="java.exe" commandline="-cp ${antlr.dir} antlr.Tool UnicodeLexerBase.g" failonerror="true"/>
+    <exec program="java.exe" commandline="-cp ${antlr.dir} antlr.Tool -glib UnicodeLexerBase.g CSharpLexerBase.g " failonerror="true"/>
+    <exec program="java.exe" commandline="-cp ${antlr.dir} antlr.Tool -glib UnicodeLexerBase.g;CSharpLexerBase.g  CSharpLexer.g                  " failonerror="true"/>
+    <exec program="java.exe" commandline="-cp ${antlr.dir} antlr.Tool -glib UnicodeLexerBase.g;CSharpLexerBase.g  CSharpPreprocessorLexer.g      " failonerror="true"/>
+    <exec program="java.exe" commandline="-cp ${antlr.dir} antlr.Tool -glib UnicodeLexerBase.g;CSharpLexerBase.g  CSharpPreprocessorHooverLexer.g" failonerror="true"/>
+    <exec program="java.exe" commandline="-cp ${antlr.dir} antlr.Tool CSharpParser.g" failonerror="true"/>
+    <exec program="java.exe" commandline="-cp ${antlr.dir} antlr.Tool CSharpPrettyPrinter.g" failonerror="true"/>
+    -->
+    
+    <java classname="antlr.Tool" fork="yes" failonerror="true">
+      <!-- For debugging the parser or lexer you may want to use the options 
+      -traceParser or / and -traceLexer. -->
+      <arg value="-o"/>
+      <arg file="${module.src.dir}/org/argouml/language/csharp/reveng"/>
+      <arg file="${module.src.dir}/org/argouml/language/csharp/reveng/UnicodeLexerBase.g"/>
+      <classpath>
+        <path refid="module.antlr-genparser.classpath"/>
+      </classpath>
+    </java>
+
+    <!-- Additional steps required here -->
+    <!-- or choose a different parser generator -->
+      
+  </target>
+  
+  <target name="cleanparser" depends="init">
+    <delete>
+    	<fileset dir="${module.src.dir}/org/argouml/language/csharp/reveng">
+        <include name="CSharpTokenTypes.txt"/> 
+        <include name="CSharpTokenTypes.java"/> 
+        <include name="CSharpParser.java"/> 
+        <include name="CSharpLexer.java"/> 
+      </fileset>
+    </delete> 
+  </target> 
+
 </project>

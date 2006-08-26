@@ -90,17 +90,6 @@ public class GeneratorCSharp extends Generator2
     }
 
     /**
-     * Generate the CSharp representation for an object.
-     *
-     * @param o The object.
-     * @return The String representation.
-     * @deprecated by Linus Tolke as of 0.17.1. Use {link #generate(Object)}.
-     */
-    public static String cSharpGenerate(Object o) {
-	return INSTANCE.generate(o);
-    }
-
-    /**
      * Generates a file for the classifier.
      * This method could have been static if it where not for the need to
      * call it through the Generatorinterface.

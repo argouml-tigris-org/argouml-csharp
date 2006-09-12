@@ -1,0 +1,5 @@
+#Sun May 28 03:59:34 EDT 2006
+filenames.properties=/argouml-core-tools/checkstyle/checkstyle.properties
+enabled=true
+projectclassloader=false
+filenames.config=/argouml-core-tools/checkstyle/checkstyle_argouml.xml

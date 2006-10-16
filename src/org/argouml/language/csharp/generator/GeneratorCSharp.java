@@ -51,7 +51,7 @@ import tudresden.ocl.parser.node.AConstraintBody;
  * Generator2 subclass to generate text for display in diagrams in in
  * text fields in the ArgoUML user interface.  The generated code
  * looks a lot like (invalid) Java.  The idea is that other generators
- * could be written for outher languages.  This code is just a
+ * could be written for other languages.  This code is just a
  * placeholder for future development, I expect it to be totally
  * replaced.
  */
@@ -702,21 +702,21 @@ public class GeneratorCSharp extends Generator2
 	// TODO: constructors
 
 	Collection ibehs = Model.getCoreHelper().getRealizedInterfaces(cls);
-	Collection behs = Model.getCoreHelper().getOperations(cls);
+	Collection behs = Model.getFacade().getOperations(cls);
 
 	// Generate operations for all interfaces the class realizes
-	if(ibehs != null)
+	if (ibehs != null)
 	{
-		Iterator ienum = ibehs.iterator();
-		while(ienum.hasNext())
-		{
-			Object bf = ienum.next();
-			behs.addAll(Model.getCoreHelper().getOperations(bf));
-		}
+	    Iterator ienum = ibehs.iterator();
+	    while(ienum.hasNext())
+	    {
+	        Object bf = ienum.next();
+	        behs.addAll(Model.getFacade().getOperations(bf));
+	    }
 	}
 	
 	if (behs != null) {
-		StringBuffer sbtemp;
+	    StringBuffer sbtemp;
 	    sb.append ('\n');
 	    sb.append (INDENT).append ("// Operations\n");
 
@@ -729,10 +729,9 @@ public class GeneratorCSharp extends Generator2
 		sbtemp.append('\n').append(INDENT);
 		Object parent = Model.getFacade().getOwner(bf);
 		//Generate public modifier for interface implementations
-		if(Model.getFacade().isAInterface(parent))
-		{
-			sbtemp.append("public ");
-		}
+		if (Model.getFacade().isAInterface(parent)) {
+                    sbtemp.append("public ");
+                }
 		sbtemp.append(generate (bf));
 
 		tv = generateTaggedValues(bf);

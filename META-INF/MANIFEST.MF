@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ArgoUML C# module
+Bundle-SymbolicName: org.argouml.module.csharp
+Bundle-Version: 1.0.0
+Bundle-Localization: plugin
+Bundle-Vendor: ArgoUML team
+Require-Bundle: org.argouml

@@ -28,41 +28,41 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.argouml.application.api.Argo;
-import org.argouml.application.api.PluggableNotation;
+import org.argouml.application.helpers.ResourceLoaderWrapper;
 import org.argouml.model.Model;
-import org.argouml.notation.Notation;
+import org.argouml.moduleloader.ModuleInterface;
 import org.argouml.uml.DocumentationManager;
 import org.argouml.uml.UUIDHelper;
-import org.argouml.uml.generator.FileGenerator;
-import org.argouml.uml.generator.Generator2;
+import org.argouml.uml.generator.CodeGenerator;
+import org.argouml.uml.generator.GeneratorHelper;
+import org.argouml.uml.generator.GeneratorManager;
+import org.argouml.uml.generator.Language;
+import org.argouml.uml.generator.TempFileUtils;
 
 import tudresden.ocl.parser.node.AConstraintBody;
 
 /**
- * Generator2 subclass to generate text for display in diagrams in in
- * text fields in the ArgoUML user interface.  The generated code
- * looks a lot like (invalid) Java.  The idea is that other generators
- * could be written for other languages.  This code is just a
- * placeholder for future development, I expect it to be totally
- * replaced.
+ * C# (Csharp) code generator
  */
-public class GeneratorCSharp extends Generator2
-    implements PluggableNotation, FileGenerator {
+public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     private static final boolean VERBOSE = false;
     private static final String LINE_SEPARATOR =
-	System.getProperty("line.separator");
+	System.getProperty("line.separator"); //$NON-NLS-1$
     private static final String FILE_SEPARATOR =
-    	System.getProperty("file.separator");
-
+    	System.getProperty("file.separator"); //$NON-NLS-1$
+    
+    private static final String LANGUAGE_NAME = "CSharp";
+    private static final String INDENT = "    ";
+    
     private static Section sect;
 
     private static final Logger LOG = Logger.getLogger(GeneratorCSharp.class);
@@ -71,6 +71,11 @@ public class GeneratorCSharp extends Generator2
      * The singleton.
      */
     private static final GeneratorCSharp INSTANCE = new GeneratorCSharp();
+    
+    /**
+     * The language name.
+     */
+    private Language myLang;
 
     /**
      * Get this object.
@@ -85,20 +90,16 @@ public class GeneratorCSharp extends Generator2
      * Constructor.
      */
     public GeneratorCSharp() {
-	super(Notation.makeNotation("CSharp", null,
-				    Argo.lookupIconResource("CSharpNotation")));
+        myLang = GeneratorHelper.makeLanguage(LANGUAGE_NAME,
+                ResourceLoaderWrapper.lookupIconResource(
+                        LANGUAGE_NAME + "Notation"));
     }
 
-    /**
+    /*
      * Generates a file for the classifier.
-     * This method could have been static if it where not for the need to
-     * call it through the Generatorinterface.
      * Returns the full path name of the the generated file.
-     *
-     * @see org.argouml.uml.generator.FileGenerator#generateFile2(
-     * java.lang.Object, java.lang.String)
      */
-    public String generateFile2(Object cls, String path) {
+    private static String generateFile(Object cls, String path) {
 	sect = new Section();
 
 	String name = Model.getFacade().getName(cls);
@@ -159,7 +160,7 @@ public class GeneratorCSharp extends Generator2
 	    LOG.debug("Generating (new) " + f.getPath());
 	}
 	String header = INSTANCE.generateHeader(cls, pathname, packagePath);
-	String src = INSTANCE.generate(cls);
+	String src = INSTANCE.generateClassifier(cls);
 	if (packagePath.length() > 0) {
 	    src += "\n}";
 	}
@@ -204,7 +205,14 @@ public class GeneratorCSharp extends Generator2
     }
 
 
-
+    /*
+     * Generate the module header.
+     * 
+     * @param cls classifer to generate module for
+     * @param pathname path for this source module
+     * @param packagePath path for containing package
+     * @return String containing header
+     */
     private String generateHeader(
             Object cls,
             String pathname,
@@ -266,26 +274,8 @@ public class GeneratorCSharp extends Generator2
 	return s;
     }
 
-    /**
-     * Generate code for an extension point.<p>
-     *
-     * Provided to comply with the interface, but returns null
-     * since no code will be generated. This should prevent a source tab
-     * being shown.<p>
-     *
-     * @param ep  The extension point to generate for
-     *
-     * @return    The generated code string. Always empty in this
-     *            implementation.
-     */
-    public String generateExtensionPoint(Object ep) {
-	return null;
-    }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateSubmachine(java.lang.Object)
-     */
-    public String generateSubmachine(Object m) {
+    private String generateSubmachine(Object m) {
         Object c = Model.getFacade().getSubmachine(m);
         if (c == null) {
             return "include / ";
@@ -296,13 +286,10 @@ public class GeneratorCSharp extends Generator2
         if (Model.getFacade().getName(c).length() == 0) {
             return "include / ";
         }
-        return ("include / " + generateName(Model.getFacade().getName(c)));
+        return ("include / " + Model.getFacade().getName(c));
     }
-    
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateObjectFlowState(java.lang.Object)
-     */
-    public String generateObjectFlowState(Object m) {
+
+    private String generateObjectFlowState(Object m) {
         Object c = Model.getFacade().getType(m);
         if (c == null) {
             return "";
@@ -310,46 +297,34 @@ public class GeneratorCSharp extends Generator2
         return Model.getFacade().getName(c);
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateOperation(
-     *         java.lang.Object, boolean)
-     */
-    public String generateOperation(Object op, boolean documented) {
+
+    private String generateOperation(Object op, boolean documented) {
 
 	String s = "";
 	boolean isDestructor = false;
 
 	Object cls = Model.getFacade().getOwner(op);
 
-	String nameStr = generateName(Model.getFacade().getName(op));
-	String clsName = generateName(Model.getFacade().getName(
-            Model.getFacade().getOwner(op)));
+	String nameStr = Model.getFacade().getName(op);
+	String clsName = Model.getFacade().getName(
+            Model.getFacade().getOwner(op));
 
 	String tagStr = "";
-	String tag = Model.getFacade().getTaggedValueValue(op,"override");
-	if(tag.equals("true"))
-	{
-			tagStr = " override ";
-	}
+	String tag = Model.getFacade().getTaggedValueValue(op, "override");
+        if ("true".equals(tag)) {
+            tagStr = " override ";
+        }
 	// Check if this is a destructor
 	Collection stereo = Model.getFacade().getStereotypes(op);
 	Iterator iter = stereo.iterator();
-	while(iter.hasNext())
-	{
-		String name = Model.getFacade().getName(iter.next());
-		if(name.equals("destroy")){
-			nameStr = "~" + nameStr;
-			isDestructor = true;
-		}
+	while (iter.hasNext()) {
+	    String name = Model.getFacade().getName(iter.next());
+	    if (name.equals("destroy")) {
+	        nameStr = "~" + nameStr;
+	        isDestructor = true;
+	    }
 	}
-	/*
-	 * Replaced 2001-09-26 STEFFEN ZSCHALER
-	 *
-	 * Was
-	 *
-	 s += DocumentationManager.getDocs(op) + "\n" + INDENT;
-	*/
-
+        
 	if (documented) {
 	    s += generateConstraintEnrichedDocComment(op) + "\n" + INDENT;
 	}
@@ -365,10 +340,19 @@ public class GeneratorCSharp extends Generator2
 	
 	s += tagStr;
 	// pick out return type
-	Object rp = Model.getCoreHelper().getReturnParameter(op);
+        List rps = Model.getCoreHelper().getReturnParameters(op);
+        if (rps.size() > 1) {
+            // TODO: Add better support or error reporting for multiple return
+            // parameters
+            throw new RuntimeException(
+                    "Multiple return parameters not supported");
+        }
+        Object rp = null;
+        if (rps.size() == 1) {
+            rp = rps.get(0);
+        }
 	if (rp != null) {
 	    Object returnType = Model.getFacade().getType(rp);
-
 	    if (returnType == null && !nameStr.equals(clsName)) {
 		s += " void ";
 	    } else if (returnType != null) {
@@ -379,8 +363,6 @@ public class GeneratorCSharp extends Generator2
 	// name and params
 	Vector params = new Vector(Model.getFacade().getParameters(op));
 	params.remove (rp);
-
-
 
 	s += nameStr + "(";
 
@@ -405,11 +387,7 @@ public class GeneratorCSharp extends Generator2
     }
 
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateAttribute(
-     *         java.lang.Object, boolean)
-     */
-    public String generateAttribute(Object attr, boolean documented) {
+    private String generateAttribute(Object attr, boolean documented) {
 	String s = "";
 
 	String makeGet = Model.getFacade().getTaggedValueValue(attr, "get");
@@ -420,14 +398,6 @@ public class GeneratorCSharp extends Generator2
 	genAccessor =
 	    (((makeGet != null) && (makeGet.equals("true")))
 	        || ((makeSet != null) && (makeSet.equals("true"))));
-
-	/*
-	 * Replaced 2001-09-26 STEFFEN ZSCHALER
-	 *
-	 * Was:
-	 *
-	 s += DocumentationManager.getDocs(attr) + "\n" + INDENT;
-	*/
 
 	if (documented) {
 	    s += generateConstraintEnrichedDocComment (attr) + "\n" + INDENT;
@@ -476,7 +446,7 @@ public class GeneratorCSharp extends Generator2
 	    attrName = "m_" + attrName;
 	}
 
-	s += slash + generateName(attrName);
+	s += slash + attrName;
 	Object init = Model.getFacade().getInitialValue(attr);
 	if (init != null) {
 	    String initStr = generateExpression(init).trim();
@@ -522,12 +492,9 @@ public class GeneratorCSharp extends Generator2
     }
 
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateParameter(java.lang.Object)
-     */
-    public String generateParameter(Object param) {
-	String s = "";
-    String temp = "";
+    private String generateParameter(Object param) {
+        String s = "";
+        String temp = "";
 	// TODO: qualifiers (e.g., const)
 	// TODO: stereotypes...
 	s +=  generateClassifierRef(Model.getFacade().getType(param)) + " ";
@@ -538,24 +505,21 @@ public class GeneratorCSharp extends Generator2
 	
 	//if ((Model.getFacade().getKind(param).equals(
 	//        Model.getDirectionKind().getInOutParameter())))
-	if(kind != null)
-	{
-		if(kind.equals(inoutParam))
-		{
-		    // if  INOUT, then pass by Reference
-		    temp = "ref " + s;
-	            s = temp;
-		}
-	
-	    if (Model.getFacade().getKind(param).equals(
-	            Model.getDirectionKind().getOutParameter()))
-	    {
-	    	// if  OUT
-		    temp = "out " + s;
+	if (kind != null) {
+	    if (kind.equals(inoutParam)) {
+	        // if  INOUT, then pass by Reference
+	        temp = "ref " + s;
 	        s = temp;
 	    }
-	}
-    s += generateName(Model.getFacade().getName(param));
+	
+	    if (Model.getFacade().getKind(param).equals(
+                    Model.getDirectionKind().getOutParameter())) {
+                // if OUT
+                temp = "out " + s;
+                s = temp;
+            }
+        }
+	s += Model.getFacade().getName(param);
     
 
 	// TODO: initial value
@@ -569,34 +533,8 @@ public class GeneratorCSharp extends Generator2
     }
 
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generatePackage(java.lang.Object)
-     */
-    public String generatePackage(Object p) {
-	String s = "";
-	String packName = generateName(Model.getFacade().getName(p));
-	s += "namespace " + packName + " {\n";
-	Collection ownedElements = Model.getFacade().getOwnedElements(p);
-	if (ownedElements != null) {
-	    Iterator ownedEnum = ownedElements.iterator();
-	    while (ownedEnum.hasNext()) {
-		Object me = ownedEnum.next();
-		s += generate(me);
-		s += "\n\n";
-	    }
-	} else {
-	    s += "(no elements)";
-	}
-	s += "\n}\n";
-	return s;
-    }
-
-
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateClassifier(java.lang.Object)
-     */
-    public String generateClassifier(Object cls) {
-	String generatedName = generateName(Model.getFacade().getName(cls));
+    private String generateClassifier(Object cls) {
+	String generatedName = Model.getFacade().getName(cls);
 	String classifierKeyword;
 	if (Model.getFacade().isAClass(cls)) {
 	    classifierKeyword = "class";
@@ -613,12 +551,13 @@ public class GeneratorCSharp extends Generator2
 	sb.append(generateConstraintEnrichedDocComment (cls)).append ("\n");
 
 	sb.append(generateVisibility(Model.getFacade().getVisibility(cls)));
-	if (Model.getFacade().isAbstract(cls) && !(Model.getFacade().isAInterface(cls))) {
-	        sb.append(" abstract ");
-	}
-	if (Model.getFacade().isLeaf(cls)) {
-	        sb.append(" final ");
-	}
+	if (Model.getFacade().isAbstract(cls)
+                && !(Model.getFacade().isAInterface(cls))) {
+            sb.append(" abstract ");
+        }
+        if (Model.getFacade().isLeaf(cls)) {
+            sb.append(" final ");
+        }
 	sb.append(classifierKeyword).append(" ").append(generatedName);
 	String baseClass =
 	    generateGeneralization(Model.getFacade().getGeneralizations(cls));
@@ -669,7 +608,8 @@ public class GeneratorCSharp extends Generator2
 	    Iterator strEnum = strs.iterator();
 	    while (strEnum.hasNext()) {
 		Object sf = strEnum.next();
-		sb.append('\n').append(INDENT).append(generate(sf));
+		sb.append('\n').append(INDENT).append(
+                        generateAttribute(sf, false));
 		tv = generateTaggedValues(sf);
 		if (tv != null && tv.length() > 0) {
 		    sb.append(INDENT).append(tv).append('\n');
@@ -708,7 +648,7 @@ public class GeneratorCSharp extends Generator2
 	if (ibehs != null)
 	{
 	    Iterator ienum = ibehs.iterator();
-	    while(ienum.hasNext())
+	    while (ienum.hasNext())
 	    {
 	        Object bf = ienum.next();
 	        behs.addAll(Model.getFacade().getOperations(bf));
@@ -732,7 +672,7 @@ public class GeneratorCSharp extends Generator2
 		if (Model.getFacade().isAInterface(parent)) {
                     sbtemp.append("public ");
                 }
-		sbtemp.append(generate (bf));
+		sbtemp.append(generateOperation(bf, false));
 
 		tv = generateTaggedValues(bf);
 
@@ -867,14 +807,7 @@ public class GeneratorCSharp extends Generator2
 		buf.append(s);
 	    }
 	}
-	/*
-	 * Corrected 2001-09-26 STEFFEN ZSCHALER
-	 *
-	 * Was:
-	 if (!first) buf.append("}\n");
-	 *
-	 * which caused problems with new-lines in tagged values.
-	 */
+
 	if (!first) {
 	    buf.append ("}*/\n");
 	}
@@ -882,10 +815,8 @@ public class GeneratorCSharp extends Generator2
 	return buf.toString();
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateTaggedValue(java.lang.Object)
-     */
-    public String generateTaggedValue(Object tv) {
+
+    private String generateTaggedValue(Object tv) {
 	if (tv == null) {
 	    return "";
 	}
@@ -893,7 +824,7 @@ public class GeneratorCSharp extends Generator2
 	if (s == null || s.length() == 0 || s.equals("/** */")) {
 	    return "";
 	}
-	return generateName(Model.getFacade().getTagOfTag(tv)) + "=" + s;
+	return Model.getFacade().getTagOfTag(tv) + "=" + s;
     }
 
     /**
@@ -1143,10 +1074,8 @@ public class GeneratorCSharp extends Generator2
 	return s;
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateAssociation(java.lang.Object)
-     */
-    public String generateAssociation(Object a) {
+
+    private String generateAssociation(Object a) {
 	String s = "";
 	//     String generatedName = generateName(a.getName());
 	//     s += "MAssociation " + generatedName + " {\n";
@@ -1161,36 +1090,32 @@ public class GeneratorCSharp extends Generator2
 	return s;
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateAssociationRole(java.lang.Object)
-     */
-    public String generateAssociationRole(Object m) {
-	return "";
-    }
 
     /**
      * @see org.argouml.application.api.NotationProvider2#generateAssociationEnd(java.lang.Object)
      */
-    public String generateAssociationEnd(Object associationEnd) {
-	if (!Model.getFacade().isNavigable(associationEnd)) {
-	    return "";
-	}
+    private String generateAssociationEnd(Object associationEnd) {
+        if (!Model.getFacade().isNavigable(associationEnd)) {
+            return "";
+        }
 	
 	String s = INDENT;
 	String tempS = "";
-	Collection stereoTypes = Model.getFacade().getStereotypes(associationEnd);
+	Collection stereoTypes = Model.getFacade().getStereotypes(
+                associationEnd);
 
-	s = INDENT;
-        s += generateVisibility(Model.getFacade().getVisibility(associationEnd));
-	
-	if(stereoTypes.size() > 0){
-	    LOG.debug("Found " + stereoTypes.size() + " stereotypes ");
-	    Iterator x = stereoTypes.iterator();
-	    while (x.hasNext()) {
-		if (Model.getFacade().getName(x.next()).equals("event")){
-		    s += "event ";
-		}
-	    }
+        s = INDENT;
+        s += generateVisibility(
+                Model.getFacade().getVisibility(associationEnd));
+
+        if (stereoTypes.size() > 0) {
+            LOG.debug("Found " + stereoTypes.size() + " stereotypes ");
+            Iterator x = stereoTypes.iterator();
+            while (x.hasNext()) {
+                if (Model.getFacade().getName(x.next()).equals("event")) {
+                    s += "event ";
+                }
+            }
 	}	// must be public or generate public navigation method!
 
 	if (Model.getScopeKind().getClassifier().equals(
@@ -1230,15 +1155,15 @@ public class GeneratorCSharp extends Generator2
                     .getType(associationEnd))
                 + " ";
         } else {
-         	s += "ArrayList ";
+            s += "ArrayList ";
         }
 	String associationName = Model.getFacade().getName(association);
 	if (name != null
 	        && name != null && name.length() > 0) {
-	    s += " " + generateName(name);
+	    s += " " + name;
 	} else if (associationName != null
 	        && associationName != null && associationName.length() > 0) {
-	    s += " " + generateName(associationName);
+	    s += " " + associationName;
 	} else {
 	    s += " my";
 	    s += generateClassifierRef(Model.getFacade()
@@ -1248,7 +1173,7 @@ public class GeneratorCSharp extends Generator2
 	return s + ";\n";
     }
 
-    //   public String generateConstraints(MModelElement me) {
+    //   private String generateConstraints(MModelElement me) {
     //     Vector constr = me.getConstraint();
     //     if (constr == null || constr.size() == 0) return "";
     //     String s = "{";
@@ -1262,7 +1187,7 @@ public class GeneratorCSharp extends Generator2
     //   }
 
 
-    //   public String generateConstraint(MConstraint c) {
+    //   private String generateConstraint(MConstraint c) {
     //     return generateExpression(c);
     //   }
 
@@ -1339,7 +1264,7 @@ public class GeneratorCSharp extends Generator2
      * 
      * @return A string with the visibility
      */
-    public String generateVisibility(Object handle) {
+    private String generateVisibility(Object handle) {
         Object visibility;
 	if (Model.getFacade().isAFeature(handle)) {
 	    visibility = Model.getFacade().getVisibility(handle);
@@ -1378,10 +1303,12 @@ public class GeneratorCSharp extends Generator2
 	return "";
     }
 
-    /**
-     * Generate "abstract" keyword for abstract operations and the virtual keyword for root operations.
-     *
-     * @param op The candidate.
+    /*
+     * Generate "abstract" keyword for abstract operations and the virtual
+     * keyword for root operations.
+     * 
+     * @param op
+     *            The candidate.
      * @return Return the abstractness.
      */
     private String generateAbstractness(Object op) {
@@ -1395,7 +1322,7 @@ public class GeneratorCSharp extends Generator2
 	return "";
     }
 
-    /**
+    /*
      * Generate "final" keyword for final operations.
      *
      * @param op The candidate.
@@ -1422,36 +1349,32 @@ public class GeneratorCSharp extends Generator2
     /**
      * @see org.argouml.application.api.NotationProvider2#generateMultiplicity(java.lang.Object)
      */
-    public String generateMultiplicity(Object multiplicity) {
+    private String generateMultiplicity(Object multiplicity) {
 	if (multiplicity == null) {
 	    return "";
 	}
         return Model.getFacade().toString(multiplicity);
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateState(java.lang.Object)
-     */
-    public String generateState(Object m) {
+
+    private String generateState(Object m) {
 	return Model.getFacade().getName(m);
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateStateBody(java.lang.Object)
-     */
-    public String generateStateBody(Object state) {
+
+    private String generateStateBody(Object state) {
 	LOG.debug("GeneratorCSharp: generating state body");
 	String s = "";
 	Object entry = Model.getFacade().getEntry(state);
 	Object exit = Model.getFacade().getExit(state);
 	if (entry != null) {
-	    String entryStr = generate(entry);
+	    String entryStr = generateAction(entry);
 	    if (entryStr.length() > 0) {
 	        s += "entry / " + entryStr;
 	    }
 	}
 	if (exit != null) {
-	    String exitStr = generate(exit);
+	    String exitStr = generateAction(exit);
 	    if (s.length() > 0) {
 	        s += "\n";
 	    }
@@ -1481,14 +1404,12 @@ public class GeneratorCSharp extends Generator2
 	return s;
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateTransition(java.lang.Object)
-     */
-    public String generateTransition(Object state) {
-	String s = generate(Model.getFacade().getName(state));
-	String t = generate(Model.getFacade().getTrigger(state));
-	String g = generate(Model.getFacade().getGuard(state));
-	String e = generate(Model.getFacade().getEffect(state));
+
+    private String generateTransition(Object state) {
+	String s = Model.getFacade().getName(state);
+	String t = generateEvent(Model.getFacade().getTrigger(state));
+	String g = generateGuard(Model.getFacade().getGuard(state));
+	String e = generateAction(Model.getFacade().getEffect(state));
 	if (s.length() > 0) {
 	    s += ": ";
 	}
@@ -1518,10 +1439,8 @@ public class GeneratorCSharp extends Generator2
 	    return s;*/
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateAction(java.lang.Object)
-     */
-    public String generateAction(Object m) {
+
+    private String generateAction(Object m) {
 	// return m.getName();
 	Object script = Model.getFacade().getScript(m);
 	if ((script != null) && (Model.getFacade().getBody(script) != null)) {
@@ -1530,10 +1449,8 @@ public class GeneratorCSharp extends Generator2
 	return "";
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateGuard(java.lang.Object)
-     */
-    public String generateGuard(Object guard) {
+
+    private String generateGuard(Object guard) {
 	//return generateExpression(m.getExpression());
 	if (Model.getFacade().getExpression(guard) != null) {
 	    return generateExpression(Model.getFacade().getExpression(guard));
@@ -1541,14 +1458,12 @@ public class GeneratorCSharp extends Generator2
 	return "";
     }
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateMessage(java.lang.Object)
-     */
-    public String generateMessage(Object message) {
+
+    private String generateMessage(Object message) {
 	if (message == null) {
 	    return "";
 	}
-	return generateName(Model.getFacade().getName(message)) + "::"
+	return Model.getFacade().getName(message) + "::"
 		+ generateAction(Model.getFacade().getAction(message));
     }
 
@@ -1559,7 +1474,7 @@ public class GeneratorCSharp extends Generator2
      *
      * @return Generated notation for model element.
      */
-    public String generateEvent(Object modelElement) {
+    private String generateEvent(Object modelElement) {
         if (!Model.getFacade().isAEvent(modelElement)) {
             throw new ClassCastException(modelElement.getClass()
                     + " has wrong object type, Event required");
@@ -1570,11 +1485,7 @@ public class GeneratorCSharp extends Generator2
 
     private String generateSection(Object cls) {
         String id = UUIDHelper.getUUID(cls);
-	if (id == null) {
-	    id = (new UID().toString());
-	    // id = cls.getName() + "__" + static_count;
-	    Model.getCoreHelper().setUUID(cls, id);
-        }
+        assert id != null;
 	// String s = "";
 	// s += INDENT + "// section " + id + " begin\n";
 	// s += INDENT + "// section " + id + " end\n";
@@ -1582,37 +1493,47 @@ public class GeneratorCSharp extends Generator2
     }
 
 
-    /**
-     * @see org.argouml.application.api.ArgoModule#getModuleName()
+    /*
+     * @see org.argouml.moduleloader.ModuleInterface#getName()
      */
-    public String getModuleName() { return "GeneratorCSharp"; }
-
-    /**
-     * @see org.argouml.application.api.ArgoModule#getModuleDescription()
-     */
-    public String getModuleDescription() {
-	return "CSharp Notation and Code Generator";
+    public String getName() {
+        return "GeneratorCSharp";
     }
 
-    /**
-     * @see org.argouml.application.api.ArgoModule#getModuleAuthor()
+    /*
+     * @see org.argouml.moduleloader.ModuleInterface#getInfo(int)
      */
-    public String getModuleAuthor() { return "Mike Lipkie"; }
+    public String getInfo(int type) {
+        switch (type) {
+        case DESCRIPTION:
+            return "CSharp Notation and Code Generator";
+        case AUTHOR:
+            return "Mike Lipki";
+        case VERSION:
+            return "0.1.0 - $Id$";
+        default:
+            return null;
+        }
+    }
 
-    /**
-     * @see org.argouml.application.api.ArgoModule#getModuleVersion()
+    /*
+     * @see org.argouml.moduleloader.ModuleInterface#enable()
      */
-    public String getModuleVersion() { return "0.1.0"; }
+    public boolean enable() {
+        GeneratorManager.getInstance().addGenerator(myLang, this);
+        return true;
+    }
 
-    /**
-     * @see org.argouml.application.api.ArgoModule#getModuleKey()
+    /*
+     * @see org.argouml.moduleloader.ModuleInterface#disable()
      */
-    public String getModuleKey() { return "module.language.csharp.generator"; }
+    public boolean disable() {
+        GeneratorManager.getInstance().removeGenerator(myLang);
+        return true;
+    }
+    
 
-    /**
-     * @see org.argouml.application.api.NotationProvider2#generateActionState(java.lang.Object)
-     */
-    public String generateActionState(Object actionState) {
+    private String generateActionState(Object actionState) {
         String ret = "";
         Object action = Model.getFacade().getEntry(actionState);
         if (action != null) {
@@ -1636,9 +1557,9 @@ public class GeneratorCSharp extends Generator2
             for (j = c.iterator(); j.hasNext();) {
                 Object mFeature = /*(MFeature)*/ j.next();
                 if (Model.getFacade().isAAttribute(mFeature)) {
-                    if ((ftype = generateImportType(Model.getFacade()
-                            .getType(mFeature), packagePath))
-                            != null) {
+                    ftype = generateImportType(Model.getFacade().getType(
+                            mFeature), packagePath);
+                    if (ftype != null) {
                         importSet.add(ftype);
                     }
                 } else if (Model.getFacade().isAOperation(mFeature)) {
@@ -1807,4 +1728,71 @@ public class GeneratorCSharp extends Generator2
         }
         return packagePath;
     }
+    
+    public Collection generate(Collection elements, boolean deps) {
+        LOG.debug("generate() called");
+        File tmpdir = null;
+        try {
+            tmpdir = TempFileUtils.createTempDir();
+            if (tmpdir != null) {
+                generateFiles(elements, tmpdir.getPath(), deps);
+                return TempFileUtils.readAllFiles(tmpdir);
+            }
+            return Collections.EMPTY_LIST;
+        } finally {
+            if (tmpdir != null) {
+                TempFileUtils.deleteDir(tmpdir);
+            }
+            LOG.debug("generate() terminated");
+        }
+    }
+
+    public Collection generateFiles(Collection elements, String path,
+            boolean deps) {
+        LOG.debug("generateFiles() called");
+        // TODO: 'deps' is ignored here
+        for (Iterator it = elements.iterator(); it.hasNext();) {
+            generateFile(it.next(), path);
+        }
+        return TempFileUtils.readFileNames(new File(path));
+    }
+
+    public Collection generateFileList(Collection elements, boolean deps) {
+        LOG.debug("generateFileList() called");
+        // TODO: 'deps' is ignored here
+        File tmpdir = null;
+        try {
+            tmpdir = TempFileUtils.createTempDir();
+            for (Iterator it = elements.iterator(); it.hasNext();) {
+                generateFile(it.next(), tmpdir.getName());
+            }
+            return TempFileUtils.readFileNames(tmpdir);
+        } finally {
+            if (tmpdir != null) {
+                TempFileUtils.deleteDir(tmpdir);
+            }
+        }
+    }
+
+    private static String generateExpression(Object expr) {
+        if (Model.getFacade().isAExpression(expr))
+            return generateUninterpreted(
+                    (String) Model.getFacade().getBody(expr));
+        else if (Model.getFacade().isAConstraint(expr))
+            return generateExpression(Model.getFacade().getBody(expr));
+        return "";
+    }
+    
+    private static String generateUninterpreted(String un) {
+        if (un == null)
+            return "";
+        return un;
+    }
+
+    private static String generateClassifierRef(Object cls) {
+        if (cls == null)
+            return "";
+        return Model.getFacade().getName(cls);
+    }
+
 } /* end class GeneratorCSharp */

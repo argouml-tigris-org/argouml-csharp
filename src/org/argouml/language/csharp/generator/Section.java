@@ -42,6 +42,10 @@ import org.apache.log4j.Logger;
 
 /**
  * This class is used by GeneratorCSharp for handling of code sections.
+ * 
+ * TODO: This is a lightly modified clone of 
+ * {@link org.argouml.uml.generator.AbstractSection}.  Refactor and merge
+ * to eliminate redundant code - tfm.
  */
 public class Section {
     private Map mAry;

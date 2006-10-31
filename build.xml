@@ -90,7 +90,8 @@ etc.
 	   debug="${debug}"
 	   deprecation="${deprecation}"
 	   optimize="${optimize}"
-	   >
+           source="1.4"
+           target="1.4">
        <classpath>
 	  <path refid="compile.classpath"/>
        </classpath>

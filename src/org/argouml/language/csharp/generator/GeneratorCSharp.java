@@ -55,16 +55,30 @@ import tudresden.ocl.parser.node.AConstraintBody;
  */
 public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     private static final boolean VERBOSE = false;
+    /**
+     * System dependent line separator
+     */
     private static final String LINE_SEPARATOR =
 	System.getProperty("line.separator"); //$NON-NLS-1$
+    /**
+     * System dependent file separator
+     */
     private static final String FILE_SEPARATOR =
     	System.getProperty("file.separator"); //$NON-NLS-1$
-    
+    /**
+     * Human readable language name
+     */
     private static final String LANGUAGE_NAME = "CSharp";
+    /**
+     * Defines indentation width
+     */
     private static final String INDENT = "    ";
     
     private static Section sect;
 
+    /**
+     * The module logger
+     */
     private static final Logger LOG = Logger.getLogger(GeneratorCSharp.class);
 
     /**
@@ -95,7 +109,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
                         LANGUAGE_NAME + "Notation"));
     }
 
-    /*
+    /**
      * Generates a file for the classifier.
      * Returns the full path name of the the generated file.
      */
@@ -205,7 +219,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     }
 
 
-    /*
+    /**
      * Generate the module header.
      * 
      * @param cls classifer to generate module for
@@ -298,6 +312,12 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     }
 
 
+    /**
+     * Generates the operation of a class
+     * @param op The operation object
+     * @param documented True to generate constraint enriched comment
+     * @return Returns a string with the operation generated
+     */
     private String generateOperation(Object op, boolean documented) {
 
 	String s = "";
@@ -386,7 +406,12 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	return s;
     }
 
-
+/**
+ * Generates attributes
+ * @param attr Attribute to generate code for
+ * @param documented True to generate constraint enriched comment
+ * @return The code for this attribute
+ */
     private String generateAttribute(Object attr, boolean documented) {
 	String s = "";
 
@@ -491,7 +516,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	return s;
     }
 
-
+/**
+ * Generates a parameter
+ * @param param The parametere to generate code for
+ * @return The generated code
+ */
     private String generateParameter(Object param) {
         String s = "";
         String temp = "";
@@ -532,7 +561,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	return s;
     }
 
-
+/**
+ * Generates a classifier
+ * @param cls The classifier to generate code for
+ * @return The generated code
+ */
     private String generateClassifier(Object cls) {
 	String generatedName = Model.getFacade().getName(cls);
 	String classifierKeyword;
@@ -747,6 +780,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	return generateDefaultReturnStatement (null);
     }
 
+    /**
+     * Generate default return statement
+     * @param cls The object to generetae the code for
+     * @return The generated code
+     */
     private String generateDefaultReturnStatement(Object cls) {
 	if (cls == null) {
 	    return "";
@@ -774,6 +812,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	}
     }
 
+    /**
+     * Generate code for tagged values
+     * @param e The tagged value to generate code for
+     * @return The generated code
+     */
     private String generateTaggedValues(Object e) {
 	Iterator iter = Model.getFacade().getTaggedValues(e);
 	if (!iter.hasNext()) {
@@ -816,6 +859,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     }
 
 
+    /**
+     * Generate code for a tagged value
+     * @param tv The tagged value
+     * @return The generated code
+     */
     private String generateTaggedValue(Object tv) {
 	if (tv == null) {
 	    return "";
@@ -1040,6 +1088,12 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	return sDocComment;
     }
 
+    /**
+     * Generate code for AssociationFrom
+     * @param association The association
+     * @param associationEnd The end of the association
+     * @return The generated code
+     */
     private String generateAssociationFrom(Object association,
             				  Object associationEnd) {
 	// TODO: does not handle n-ary associations
@@ -1194,7 +1248,10 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     ////////////////////////////////////////////////////////////////
     // internal methods?
 
-
+/**
+ * @param generalizations The generalization we are generating
+ * @return The generated code
+ */
     private String generateGeneralization(Collection generalizations) {
 	if (generalizations == null) {
 	    return "";
@@ -1237,7 +1294,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 
 	return s;
     }
-
+/**
+ * Generates , seperated list of classes
+ * @param classifiers A collection of classifiers
+ * @return The generated list as a String
+ */
     private String generateClassList(Collection classifiers) {
 	String s = "";
 	if (classifiers == null) {
@@ -1303,7 +1364,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	return "";
     }
 
-    /*
+    /**
      * Generate "abstract" keyword for abstract operations and the virtual
      * keyword for root operations.
      * 
@@ -1322,7 +1383,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	return "";
     }
 
-    /*
+    /**
      * Generate "final" keyword for final operations.
      *
      * @param op The candidate.
@@ -1335,7 +1396,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	    return "";
 	}
     }
-
+/**
+ * Generate changeability
+ * @param sf The object to generate for
+ * @return The generated code
+ */
     private String generateChangability(Object sf) {
 	Object ck = Model.getFacade().getChangeability(sf);
 	//if (ck == null) return "";
@@ -1483,6 +1548,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         return "";
     }
 
+    /**
+     * Generates a section to guard manual modifications to code
+     * @param cls The object
+     * @return The generated section
+     */
     private String generateSection(Object cls) {
         String id = UUIDHelper.getUUID(cls);
         assert id != null;
@@ -1493,14 +1563,14 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     }
 
 
-    /*
+    /**
      * @see org.argouml.moduleloader.ModuleInterface#getName()
      */
     public String getName() {
         return "GeneratorCSharp";
     }
 
-    /*
+    /**
      * @see org.argouml.moduleloader.ModuleInterface#getInfo(int)
      */
     public String getInfo(int type) {
@@ -1516,7 +1586,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         }
     }
 
-    /*
+    /**
      * @see org.argouml.moduleloader.ModuleInterface#enable()
      */
     public boolean enable() {
@@ -1524,7 +1594,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         return true;
     }
 
-    /*
+    /**
      * @see org.argouml.moduleloader.ModuleInterface#disable()
      */
     public boolean disable() {
@@ -1545,6 +1615,12 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         return ret;
     }
 
+    /**
+     * Generates the import statements of a source file
+     * @param cls The file
+     * @param packagePath the path to the package
+     * @return The generated import statement
+     */
     private String generateImports(Object cls, String packagePath) {
         // TODO: check also generalizations
         StringBuffer sb = new StringBuffer(80);
@@ -1689,6 +1765,12 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         return sb.toString();
     }
 
+    /**
+     * Generate the import type
+     * @param type
+     * @param exclude
+     * @return The genrated code
+     */
     private String generateImportType(Object type, String exclude) {
         String ret = null;
         if (type != null && Model.getFacade().getNamespace(type) != null) {
@@ -1728,7 +1810,13 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         }
         return packagePath;
     }
-    
+    /**
+     * 
+     * @param elements
+     * @param deps
+     * @return N/A
+     * @see org.argouml.uml.generator.CodeGenerator#generate(java.util.Collection, boolean)
+     */
     public Collection generate(Collection elements, boolean deps) {
         LOG.debug("generate() called");
         File tmpdir = null;
@@ -1746,7 +1834,14 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
             LOG.debug("generate() terminated");
         }
     }
-
+/**
+ * 
+ * @param elements
+ * @param path
+ * @param deps
+ * @return THe generated files?
+ * @see org.argouml.uml.generator.CodeGenerator#generateFiles(java.util.Collection, java.lang.String, boolean)
+ */
     public Collection generateFiles(Collection elements, String path,
             boolean deps) {
         LOG.debug("generateFiles() called");
@@ -1756,7 +1851,13 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         }
         return TempFileUtils.readFileNames(new File(path));
     }
-
+/**
+ * @see org.argouml.uml.generator.CodeGenerator#generateFileList(java.util.Collection, boolean)
+ * @param elements
+ * @param deps
+ * @return A list of files
+ * 
+ */
     public Collection generateFileList(Collection elements, boolean deps) {
         LOG.debug("generateFileList() called");
         // TODO: 'deps' is ignored here
@@ -1774,6 +1875,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         }
     }
 
+    /**
+     * 
+     * @param expr
+     * @return The generated expression
+     */
     private static String generateExpression(Object expr) {
         if (Model.getFacade().isAExpression(expr))
             return generateUninterpreted(
@@ -1783,12 +1889,22 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         return "";
     }
     
+    /**
+     * 
+     * @param un
+     * @return un or an empty String
+     */
     private static String generateUninterpreted(String un) {
         if (un == null)
             return "";
         return un;
     }
 
+    /**
+     * 
+     * @param cls
+     * @return Empty string or name of cls
+     */
     private static String generateClassifierRef(Object cls) {
         if (cls == null)
             return "";

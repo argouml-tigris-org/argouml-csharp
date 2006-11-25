@@ -1145,7 +1145,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     }
 
 
-    /**
+    /*
      * @see org.argouml.application.api.NotationProvider2#generateAssociationEnd(java.lang.Object)
      */
     private String generateAssociationEnd(Object associationEnd) {
@@ -1411,7 +1411,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	return "";
     }
 
-    /**
+    /*
      * @see org.argouml.application.api.NotationProvider2#generateMultiplicity(java.lang.Object)
      */
     private String generateMultiplicity(Object multiplicity) {
@@ -1563,14 +1563,14 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     }
 
 
-    /**
+    /*
      * @see org.argouml.moduleloader.ModuleInterface#getName()
      */
     public String getName() {
         return "GeneratorCSharp";
     }
 
-    /**
+    /*
      * @see org.argouml.moduleloader.ModuleInterface#getInfo(int)
      */
     public String getInfo(int type) {
@@ -1586,7 +1586,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         }
     }
 
-    /**
+    /*
      * @see org.argouml.moduleloader.ModuleInterface#enable()
      */
     public boolean enable() {
@@ -1594,7 +1594,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         return true;
     }
 
-    /**
+    /*
      * @see org.argouml.moduleloader.ModuleInterface#disable()
      */
     public boolean disable() {
@@ -1631,7 +1631,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         if (c != null) {
             // now check packages of all feature types
             for (j = c.iterator(); j.hasNext();) {
-                Object mFeature = /*(MFeature)*/ j.next();
+                Object mFeature = j.next();
                 if (Model.getFacade().isAAttribute(mFeature)) {
                     ftype = generateImportType(Model.getFacade().getType(
                             mFeature), packagePath);
@@ -1654,7 +1654,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
                     // check the return parameter types
                     it =
                         Model.getCoreHelper()
-			        .getReturnParameters(/*(MOperation)*/mFeature)
+			        .getReturnParameters(mFeature)
 			            .iterator();
                     while (it.hasNext()) {
                         Object parameter = it.next();
@@ -1688,7 +1688,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	if (c != null) {
 	    // now check packages of all generalized types
 	    for (j = c.iterator(); j.hasNext();) {
-		Object gen = /*(MGeneralization)*/ j.next();
+		Object gen = j.next();
 		Object parent = Model.getFacade().getParent(gen);
 		if (parent == cls) {
 		    continue;
@@ -1705,7 +1705,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	if (c != null) {
 	    // now check packages of the interfaces
 	    for (j = c.iterator(); j.hasNext();) {
-		Object iface = /*(MInterface)*/ j.next();
+		Object iface = j.next();
 
 		ftype = generateImportType(iface, packagePath);
 		if (ftype != null) {
@@ -1718,14 +1718,14 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         if (!c.isEmpty()) {
             // check association end types
             for (j = c.iterator(); j.hasNext();) {
-                Object associationEnd = /*(MAssociationEnd)*/ j.next();
+                Object associationEnd = j.next();
                 Object association = 
                     Model.getFacade().getAssociation(associationEnd);
                 Iterator connEnum =
 		    Model.getFacade().getConnections(association).iterator();
                 while (connEnum.hasNext()) {
                     Object associationEnd2 =
-			/*(MAssociationEnd)*/ connEnum.next();
+			connEnum.next();
                     if (associationEnd2 != associationEnd
                             && Model.getFacade().isNavigable(associationEnd2)
                             && !Model.getFacade().isAbstract(
@@ -1851,13 +1851,9 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         }
         return TempFileUtils.readFileNames(new File(path));
     }
-/**
- * @see org.argouml.uml.generator.CodeGenerator#generateFileList(java.util.Collection, boolean)
- * @param elements
- * @param deps
- * @return A list of files
- * 
- */
+    /*
+     * @see org.argouml.uml.generator.CodeGenerator#generateFileList(java.util.Collection, boolean)
+     */
     public Collection generateFileList(Collection elements, boolean deps) {
         LOG.debug("generateFileList() called");
         // TODO: 'deps' is ignored here

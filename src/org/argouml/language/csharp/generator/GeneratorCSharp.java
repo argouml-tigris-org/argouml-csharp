@@ -1352,9 +1352,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
      * @return Return the scope.
      */
     private String generateScope(Object feature) {
-	Object scope = Model.getFacade().getOwnerScope(feature);
-	//if (scope == null) return "";
-	if (Model.getScopeKind().getClassifier().equals(scope)) {
+	if (Model.getFacade().isStatic(feature)) {
 	    if (VERBOSE) {
 	        return "/* static */ ";
 	    } else {

@@ -1261,7 +1261,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	while (iter.hasNext()) {
 	    Object generalization = iter.next();
 	    Object generalizableElement = 
-	        Model.getFacade().getParent(generalization);
+	        Model.getFacade().getGeneral(generalization);
 	    // assert ge != null
 	    if (generalizableElement != null) {
 	        classes.add(generalizableElement);
@@ -1689,7 +1689,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	    // now check packages of all generalized types
 	    for (j = c.iterator(); j.hasNext();) {
 		Object gen = j.next();
-		Object parent = Model.getFacade().getParent(gen);
+		Object parent = Model.getFacade().getGeneral(gen);
 		if (parent == cls) {
 		    continue;
 		}
@@ -1907,4 +1907,4 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         return Model.getFacade().getName(cls);
     }
 
-} /* end class GeneratorCSharp */
+}

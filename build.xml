@@ -32,10 +32,6 @@ etc.
     <!-- if it is set in a property file before now, it must be absolute -->
     <property name="argo.root.dir" value="${basedir}/../argouml"/>
     <property file="${override.build.properties}"/>
-
-    <!-- If not set by the override file we still need this one for antlr. -->
-    <property name="argo.src.dir" value="${argo.root.dir}/src/argouml-app/src"/>
-
     <property file="${argo.src.dir}/default.properties"/>
     
     <property name="argo.build.dir" value="${argo.root.dir}/build"/>
@@ -43,21 +39,13 @@ etc.
     <property name="result.jar" value="argouml-csharp.jar"/>
   
     <path id="compile.classpath">
-      <pathelement location="${argo.build.dir}/log4j.jar"/>
       <pathelement location="${argo.build.dir}/argouml-model.jar"/>
       <pathelement location="${argo.build.dir}/argouml.jar"/>
-      <pathelement location="${argo.build.dir}/ocl-argo.jar"/>
     </path>
 
     <path id="run.classpath">
       <fileset dir="${argo.build.dir}" includes="*.jar"/>
     </path>
-     
-    <echo message="Antlr = ${antlrall.jar.path}" />
-    <path id="module.antlr-genparser.classpath">
-      <pathelement location="${antlrall.jar.path}"/>
-    </path> 
-   
   </target>
 
   <!-- =================================================================== -->
@@ -95,7 +83,8 @@ etc.
 	   deprecation="${deprecation}"
 	   optimize="${optimize}"
            source="1.5"
-           target="1.5">
+           target="1.5"
+           includeAntRuntime="no">
        <classpath>
 	  <path refid="compile.classpath"/>
        </classpath>

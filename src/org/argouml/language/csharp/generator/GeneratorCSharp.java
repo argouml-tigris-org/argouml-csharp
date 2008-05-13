@@ -1,5 +1,5 @@
 // $Id$
-// Copyright (c) 1996-2006 The Regents of the University of California. All
+// Copyright (c) 1996-2008 The Regents of the University of California. All
 // Rights Reserved. Permission to use, copy, modify, and distribute this
 // software and its documentation without fee, and without a written
 // agreement is hereby granted, provided that the above copyright notice
@@ -31,9 +31,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.argouml.application.helpers.ResourceLoaderWrapper;
@@ -45,6 +47,7 @@ import org.argouml.uml.generator.CodeGenerator;
 import org.argouml.uml.generator.GeneratorHelper;
 import org.argouml.uml.generator.GeneratorManager;
 import org.argouml.uml.generator.Language;
+import org.argouml.uml.generator.SourceUnit;
 import org.argouml.uml.generator.TempFileUtils;
 
 import tudresden.ocl.parser.node.AConstraintBody;
@@ -132,7 +135,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
                 Model.getFacade().getName(Model.getFacade().getNamespace(cls));
         }
 	while (parent != null) {
-	    // ommit root package name; it's the model's root
+	    // omit root package name; it's the model's root
 	    if (Model.getFacade().getNamespace(parent) != null) {
 	        packagePath = 
 	            Model.getFacade().getName(parent) + "." + packagePath;
@@ -231,7 +234,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
             String pathname,
             String packagePath) {
 	String s = "";
-	// TODO: add user-defined copyright
+	// TODO: add user-defined copyright / module header
 	s += "// FILE: " + pathname.replace('\\', '/') + "\n\n";
 
         s += generateImports(cls, packagePath);
@@ -248,7 +251,6 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	// check if the class has dependencies
 	//   {
 	//       Collection col = cls.getAssociationEnds();
-	//       if (col != null){
 	//           Iterator itr = col.iterator();
 	//           while (itr.hasNext()) {
 	//               MAssociationEnd ae = (MAssociationEnd) itr.next();
@@ -263,13 +265,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	//                   }
 	//               }
 	//           }
-	//       }
 	//   }
 
 	//   {
 	//       Collection col = cls.getClientDependencies();
 	//       LOG.debug("col: " + col);
-	//       if (col != null){
 	//           Iterator itr = col.iterator();
 	//           while (itr.hasNext()) {
 	//               MDependency dep = (MDependency) itr.next();
@@ -281,7 +281,6 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	//                   s += "require_once \"" + name + ".php\";\n";
 	//               }
 	//           }
-	//       }
 	//   }
 
 	return s;
@@ -380,19 +379,13 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 
 	s += nameStr + "(";
 
-	if (params != null) {
-	    boolean first = true;
-
-	    for (int i = 0; i < params.size(); i++) {
-		Object p = params.get (i);
-
-		if (!first) {
-		    s += ", ";
-		}
-
-		s += generateParameter(p);
-		first = false;
+	boolean first = true;
+	for (Object p : params) {
+	    if (!first) {
+	        s += ", ";
 	    }
+	    s += generateParameter(p);
+	    first = false;
 	}
 
 	s += ")";
@@ -626,15 +619,13 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	}
 
 	Collection strs = Model.getFacade().getAttributes(cls);
-	if (strs != null) {
+	if (strs.size() > 0) {
 	    sb.append('\n');
 
 	    if (Model.getFacade().isAClass(cls)) {
 	        sb.append(INDENT).append("// Attributes\n");
 	    }
-	    Iterator strEnum = strs.iterator();
-	    while (strEnum.hasNext()) {
-		Object sf = strEnum.next();
+	    for (Object sf : strs) {
 		sb.append('\n').append(INDENT).append(
                         generateAttribute(sf, false));
 		tv = generateTaggedValues(sf);
@@ -645,14 +636,12 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	}
 
 	Collection ends = Model.getFacade().getAssociationEnds(cls);
-	if (ends != null) {
+	if (ends.size() > 0) {
 	    sb.append('\n');
 	    if (Model.getFacade().isAClass(cls)) {
 	        sb.append(INDENT).append("// Associations\n");
 	    }
-	    Iterator endEnum = ends.iterator();
-	    while (endEnum.hasNext()) {
-		Object ae = endEnum.next();
+	    for (Object ae : ends) {
 		Object a = Model.getFacade().getAssociation(ae);
 		sb.append('\n');
 		sb.append(INDENT).append(generateAssociationFrom(a, ae));
@@ -668,29 +657,19 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 
 	// TODO: constructors
 
-	Collection ibehs = Model.getCoreHelper().getRealizedInterfaces(cls);
 	Collection behs = Model.getFacade().getOperations(cls);
 
 	// Generate operations for all interfaces the class realizes
-	if (ibehs != null)
-	{
-	    Iterator ienum = ibehs.iterator();
-	    while (ienum.hasNext())
-	    {
-	        Object bf = ienum.next();
+	for (Object bf :  Model.getCoreHelper().getRealizedInterfaces(cls)) {
 	        behs.addAll(Model.getFacade().getOperations(bf));
-	    }
 	}
 	
-	if (behs != null) {
+	if (behs.size() > 0) {
 	    StringBuffer sbtemp;
 	    sb.append ('\n');
 	    sb.append (INDENT).append ("// Operations\n");
 
-	    Iterator behEnum = behs.iterator();
-
-	    while (behEnum.hasNext()) {
-		Object bf = behEnum.next();
+	    for (Object bf : behs) {
 		sbtemp = new StringBuffer();
 		
 		sbtemp.append('\n').append(INDENT);
@@ -993,7 +972,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 
 	class TagExtractor
 		extends tudresden.ocl.parser.analysis.DepthFirstAdapter {
-	    private LinkedList llsTags = new LinkedList();
+	    private LinkedList<String> llsTags = new LinkedList<String>();
 	    private String constraintName;
 	    private int constraintID = 0;
 
@@ -1008,7 +987,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 		constraintName = sConstraintName;
 	    }
 
-	    public Iterator getTags() {
+	    public Iterator<String> getTags() {
 		return llsTags.iterator();
 	    }
 
@@ -1055,8 +1034,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 
 	tudresden.ocl.check.types.ModelFacade mf =
 	    new org.argouml.ocl.ArgoFacade (me);
-	for (Iterator i = cConstraints.iterator(); i.hasNext();) {
-	    Object constraint = i.next();
+	for (Object constraint : cConstraints) {
 
 	    try {
 		tudresden.ocl.OclTree otParsed =
@@ -1101,10 +1079,8 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	 s += DocumentationManager.getDocs(a) + "\n" + INDENT;
 	*/
 
-	Collection connections = Model.getFacade().getConnections(association);
-	Iterator connEnum = connections.iterator();
-	while (connEnum.hasNext()) {
-	    Object associationEnd2 = connEnum.next();
+	for (Object associationEnd2 
+	        : Model.getFacade().getConnections(association)) {
 	    if (associationEnd2 != associationEnd) {
 		/**
 		 * Added generation of doccomment 2001-09-26 STEFFEN ZSCHALER
@@ -1242,13 +1218,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
  * @return The generated code
  */
     private String generateGeneralization(Collection generalizations) {
-	if (generalizations == null) {
+	if (generalizations == null || generalizations.size() == 0) {
 	    return "";
 	}
 	Collection classes = new ArrayList();
-	Iterator iter = generalizations.iterator();
-	while (iter.hasNext()) {
-	    Object generalization = iter.next();
+	for (Object generalization : generalizations) {
 	    Object generalizableElement = 
 	        Model.getFacade().getGeneral(generalization);
 	    // assert ge != null
@@ -1269,7 +1243,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 
 	Collection realizations =
 	    Model.getCoreHelper().getRealizedInterfaces(cls);
-	if (realizations == null) {
+	if (realizations.size() == 0) {
 	    return "";
 	}
 	Iterator clsEnum = realizations.iterator();
@@ -1284,7 +1258,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	return s;
     }
 /**
- * Generates , seperated list of classes
+ * Generates , separated list of classes
  * @param classifiers A collection of classifiers
  * @return The generated list as a String
  */
@@ -1435,14 +1409,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	    }
 	}
 	Collection trans = Model.getFacade().getInternalTransitions(state);
-	if (trans != null) {
-	    Iterator iter = trans.iterator();
-	    while (iter.hasNext()) {
-		if (s.length() > 0) {
-		    s += "\n";
-		}
-		s += generateTransition(iter.next());
+	for (Object tran : trans) {
+	    if (s.length() > 0) {
+	        s += "\n";
 	    }
+	    s += generateTransition(tran);
 	}
 
 	/*   if (trans != null) {
@@ -1611,135 +1582,74 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     private String generateImports(Object cls, String packagePath) {
         // TODO: check also generalizations
         StringBuffer sb = new StringBuffer(80);
-        java.util.HashSet importSet = new java.util.HashSet();
-        String ftype;
-        Iterator j;
-        Collection c = Model.getFacade().getFeatures(cls);
-        if (c != null) {
-            // now check packages of all feature types
-            for (j = c.iterator(); j.hasNext();) {
-                Object mFeature = j.next();
-                if (Model.getFacade().isAAttribute(mFeature)) {
-                    ftype = generateImportType(Model.getFacade().getType(
-                            mFeature), packagePath);
-                    if (ftype != null) {
-                        importSet.add(ftype);
-                    }
-                } else if (Model.getFacade().isAOperation(mFeature)) {
-                    // check the parameter types
-                    Iterator it =
-			Model.getFacade().getParameters(mFeature).iterator();
-                    while (it.hasNext()) {
-                        Object parameter = it.next();
-			ftype = generateImportType(Model.getFacade()
-			        .getType(parameter), packagePath);
-			if (ftype != null) {
-                            importSet.add(ftype);
-                        }
-                    }
+        Set<String> importSet = new HashSet<String>();
 
-                    // check the return parameter types
-                    it =
-                        Model.getCoreHelper()
-			        .getReturnParameters(mFeature)
-			            .iterator();
-                    while (it.hasNext()) {
-                        Object parameter = it.next();
-			ftype = generateImportType(Model.getFacade()
-			        .getType(parameter), packagePath);
-                        if (ftype != null) {
-                            importSet.add(ftype);
-                        }
+        for (Object mFeature : Model.getFacade().getFeatures(cls)) {
+            if (Model.getFacade().isAAttribute(mFeature)) {
+                addImportType(importSet, mFeature, packagePath);
+            } else if (Model.getFacade().isAOperation(mFeature)) {
+                // check the parameter types
+                for (Object parameter 
+                        : Model.getFacade().getParameters(mFeature)) {
+                    addImportType(importSet, parameter, packagePath);
+                }
+
+                // check the return parameter types
+                for (Object parameter 
+                        : Model.getCoreHelper().getReturnParameters(mFeature)) {
+                    addImportType(importSet, parameter, packagePath);
+                }
+
+                // check raised signals
+                for (Object signal 
+                        : Model.getFacade().getRaisedSignals(mFeature)) {
+                    if (!Model.getFacade().isAException(signal)) {
+                        continue;
                     }
-
-		    // check raised signals
-		    it = 
-		        Model.getFacade().getRaisedSignals(mFeature).iterator();
-		    while (it.hasNext()) {
-			Object signal = it.next();
-			if (!Model.getFacade().isAException(signal)) {
-			    continue;
-			}
-
-			ftype = generateImportType(Model.getFacade()
-			        .getType(signal), packagePath);
-			if (ftype != null) {
-			    importSet.add(ftype);
-			}
-		    }
+                    addImportType(importSet, signal, packagePath);
                 }
             }
         }
 
-	c = Model.getFacade().getGeneralizations(cls);
-	if (c != null) {
-	    // now check packages of all generalized types
-	    for (j = c.iterator(); j.hasNext();) {
-		Object gen = j.next();
-		Object parent = Model.getFacade().getGeneral(gen);
-		if (parent == cls) {
-		    continue;
-		}
+        // now check packages of all generalized types
+        for (Object gen : Model.getFacade().getGeneralizations(cls)) {
+            Object parent = Model.getFacade().getGeneral(gen);
+            if (parent == cls) {
+                continue;
+            }
+            addImportType(importSet, parent, packagePath);
+        }
 
-		ftype = generateImportType(parent, packagePath);
-		if (ftype != null) {
-		    importSet.add(ftype);
-		}
-	    }
-	}
+        // now check packages of the interfaces
+        for (Object iface : Model.getFacade().getSpecifications(cls)) {
+            addImportType(importSet, iface, packagePath);
+        }
 
-	c = Model.getFacade().getSpecifications(cls);
-	if (c != null) {
-	    // now check packages of the interfaces
-	    for (j = c.iterator(); j.hasNext();) {
-		Object iface = j.next();
-
-		ftype = generateImportType(iface, packagePath);
-		if (ftype != null) {
-		    importSet.add(ftype);
-		}
-	    }
-	}
-
-        c = Model.getFacade().getAssociationEnds(cls);
-        if (!c.isEmpty()) {
-            // check association end types
-            for (j = c.iterator(); j.hasNext();) {
-                Object associationEnd = j.next();
-                Object association = 
-                    Model.getFacade().getAssociation(associationEnd);
-                Iterator connEnum =
-		    Model.getFacade().getConnections(association).iterator();
-                while (connEnum.hasNext()) {
-                    Object associationEnd2 =
-			connEnum.next();
-                    if (associationEnd2 != associationEnd
-                            && Model.getFacade().isNavigable(associationEnd2)
-                            && !Model.getFacade().isAbstract(
-                                    Model.getFacade().getAssociation(
-                                            associationEnd2))) {
-                        // association end found
-                        Object multiplicity =
-			    Model.getFacade().getMultiplicity(associationEnd2);
-                        if (Model.getFacade().getUpper(multiplicity) > 1 ) {
-                            importSet.add("System.Collections");
-                        } else {
-			    ftype =
-				generateImportType(Model.getFacade().getType(
-				        associationEnd2),
-						   packagePath);
-			    if (ftype != null) {
-				importSet.add(ftype);
-			    }
-                        }
+        // check association end types
+        for (Object associationEnd 
+                : Model.getFacade().getAssociationEnds(cls)) {
+            Object association = 
+                Model.getFacade().getAssociation(associationEnd);
+            for (Object associationEnd2 
+                    : Model.getFacade().getConnections(association)) {
+                if (associationEnd2 != associationEnd
+                        && Model.getFacade().isNavigable(associationEnd2)
+                        && !Model.getFacade().isAbstract(
+                                Model.getFacade().getAssociation(
+                                        associationEnd2))) {
+                    // association end found
+                    Object multiplicity =
+                        Model.getFacade().getMultiplicity(associationEnd2);
+                    if (Model.getFacade().getUpper(multiplicity) > 1 ) {
+                        importSet.add("System.Collections");
+                    } else {
+                        addImportType(importSet, associationEnd2, packagePath);
                     }
                 }
             }
         }
-        // finally generate the import statements
-        for (j = importSet.iterator(); j.hasNext();) {
-            ftype = (String) j.next();
-            sb.append("using ").append(ftype).append(";");
+        for (String imp : importSet) {
+            sb.append("using ").append(imp).append(";");
 	    sb.append(LINE_SEPARATOR);
         }
         if (!importSet.isEmpty()) {
@@ -1753,10 +1663,14 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     }
 
     /**
-     * Generate the import type
+     * Generate the import type.
+     * 
      * @param type
+     *                the model element to generate the import for
      * @param exclude
-     * @return The genrated code
+     *                a package name to exclude. If the computed package name
+     *                equals this string, null will be returned instead.
+     * @return The generated type
      */
     private String generateImportType(Object type, String exclude) {
         String ret = null;
@@ -1773,13 +1687,24 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         }
         return ret;
     }
+    
+    private void addImportType(Set<String> imports, Object type, 
+            String exclude) {
+        String importType =
+                generateImportType(Model.getFacade().getType(type), exclude);
+        if (importType != null) {
+            imports.add(importType);
+        }
+    }
+    
     /**
-       Gets the .NET package name for a given namespace,
-       ignoring the root namespace (which is the model).
-
-       @param namespace the namespace
-       @return the Java package name
-    */
+     * Gets the .NET package name for a given namespace, ignoring the root
+     * namespace (which is the model).
+     * 
+     * @param namespace
+     *                the namespace
+     * @return the Java package name
+     */
     public String getPackageName(Object namespace) {
         if (namespace == null
 	    || !Model.getFacade().isANamespace(namespace)
@@ -1789,7 +1714,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         String packagePath = Model.getFacade().getName(namespace);
         while ((namespace = Model.getFacade().getNamespace(namespace)) 
                 != null) {
-            // ommit root package name; it's the model's root
+            // omit root package name; it's the model's root
             if (Model.getFacade().getNamespace(namespace) != null) {
                 packagePath =
 		    Model.getFacade().getName(namespace) + '.' + packagePath;
@@ -1804,7 +1729,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
      * @return N/A
      * @see org.argouml.uml.generator.CodeGenerator#generate(java.util.Collection, boolean)
      */
-    public Collection generate(Collection elements, boolean deps) {
+    public Collection<SourceUnit> generate(Collection elements, boolean deps) {
         LOG.debug("generate() called");
         File tmpdir = null;
         try {
@@ -1813,7 +1738,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
                 generateFiles(elements, tmpdir.getPath(), deps);
                 return TempFileUtils.readAllFiles(tmpdir);
             }
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         } finally {
             if (tmpdir != null) {
                 TempFileUtils.deleteDir(tmpdir);
@@ -1821,6 +1746,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
             LOG.debug("generate() terminated");
         }
     }
+    
 /**
  * 
  * @param elements
@@ -1829,26 +1755,28 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
  * @return THe generated files?
  * @see org.argouml.uml.generator.CodeGenerator#generateFiles(java.util.Collection, java.lang.String, boolean)
  */
-    public Collection generateFiles(Collection elements, String path,
+    public Collection<String> generateFiles(Collection elements, String path,
             boolean deps) {
         LOG.debug("generateFiles() called");
         // TODO: 'deps' is ignored here
-        for (Iterator it = elements.iterator(); it.hasNext();) {
-            generateFile(it.next(), path);
+        for (Object element : elements) {
+            generateFile(element, path);
         }
         return TempFileUtils.readFileNames(new File(path));
     }
+    
     /*
      * @see org.argouml.uml.generator.CodeGenerator#generateFileList(java.util.Collection, boolean)
      */
-    public Collection generateFileList(Collection elements, boolean deps) {
+    public Collection<String> generateFileList(Collection elements, 
+            boolean deps) {
         LOG.debug("generateFileList() called");
         // TODO: 'deps' is ignored here
         File tmpdir = null;
         try {
             tmpdir = TempFileUtils.createTempDir();
-            for (Iterator it = elements.iterator(); it.hasNext();) {
-                generateFile(it.next(), tmpdir.getName());
+            for (Object element : elements) {
+                generateFile(element, tmpdir.getName());
             }
             return TempFileUtils.readFileNames(tmpdir);
         } finally {

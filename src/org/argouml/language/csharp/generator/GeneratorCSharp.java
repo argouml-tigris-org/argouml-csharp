@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.argouml.application.helpers.ResourceLoaderWrapper;
@@ -335,15 +334,10 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
             tagStr = " override ";
         }
 	// Check if this is a destructor
-	Collection stereo = Model.getFacade().getStereotypes(op);
-	Iterator iter = stereo.iterator();
-	while (iter.hasNext()) {
-	    String name = Model.getFacade().getName(iter.next());
-	    if (name.equals("destroy")) {
-	        nameStr = "~" + nameStr;
-	        isDestructor = true;
-	    }
-	}
+        if (Model.getExtensionMechanismsHelper().hasStereotype(op, "destroy")) {
+            nameStr = "~" + nameStr;
+            isDestructor = true;            
+        }
         
 	if (documented) {
 	    s += generateConstraintEnrichedDocComment(op) + "\n" + INDENT;
@@ -381,7 +375,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	}
 
 	// name and params
-	Vector params = new Vector(Model.getFacade().getParameters(op));
+	List params = new ArrayList(Model.getFacade().getParameters(op));
 	params.remove (rp);
 
 	s += nameStr + "(";
@@ -390,7 +384,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	    boolean first = true;
 
 	    for (int i = 0; i < params.size(); i++) {
-		Object p = params.elementAt (i);
+		Object p = params.get (i);
 
 		if (!first) {
 		    s += ", ";
@@ -1155,22 +1149,17 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	
 	String s = INDENT;
 	String tempS = "";
-	Collection stereoTypes = Model.getFacade().getStereotypes(
-                associationEnd);
 
         s = INDENT;
         s += generateVisibility(
                 Model.getFacade().getVisibility(associationEnd));
 
-        if (stereoTypes.size() > 0) {
-            LOG.debug("Found " + stereoTypes.size() + " stereotypes ");
-            Iterator x = stereoTypes.iterator();
-            while (x.hasNext()) {
-                if (Model.getFacade().getName(x.next()).equals("event")) {
-                    s += "event ";
-                }
-            }
-	}	// must be public or generate public navigation method!
+        if (Model.getExtensionMechanismsHelper().hasStereotype(associationEnd, 
+                "event")) {
+            s += "event ";            
+        }
+	
+        // must be public or generate public navigation method!
 
 	if (Model.getScopeKind().getClassifier().equals(
 	        Model.getFacade().getTargetScope(associationEnd))) {
@@ -1228,7 +1217,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     }
 
     //   private String generateConstraints(MModelElement me) {
-    //     Vector constr = me.getConstraint();
+    //     List constr = me.getConstraint();
     //     if (constr == null || constr.size() == 0) return "";
     //     String s = "{";
     //     Iterator conEnum = constr.iterator();

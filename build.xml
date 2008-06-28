@@ -30,8 +30,7 @@ etc.
     <!-- Load ArgoUML properties, including the version -->
     <!-- we really need an absolute path for argo.root.dir -->
     <!-- if it is set in a property file before now, it must be absolute -->
-    <!--<property name="argo.root.dir" value="${basedir}/../argouml"/>-->
-    <property name="argo.root.dir" value="F:\Projects\argouml-mid\VERSION_0_25_6\src\argouml-build"/>
+    <property name="argo.root.dir" value="${basedir}/../argouml"/>
     <property file="${override.build.properties}"/>
     <property file="${argo.src.dir}/default.properties"/>
     

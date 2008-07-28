@@ -37,9 +37,9 @@ public class CompilationUnitNode extends BaseNode
 
         public  void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 			}
 
 			for(UsingDirectiveNode node :UsingDirectives)

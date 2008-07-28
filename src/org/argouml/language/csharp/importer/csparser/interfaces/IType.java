@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public interface IType
     {
-        public List<Integer> RankSpecifiers=new ArrayList<Integer>();
+        public List<Integer> rankSpecifiers =new ArrayList<Integer>();
 
         void ToSource(StringBuilder sb);
     }

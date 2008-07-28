@@ -8,34 +8,34 @@ package org.argouml.language.csharp.importer.csparser.members;
  */
 public class InterfacePropertyNode extends MemberNode
 	{
-		public boolean HasGetter;
+		public boolean hasGetter;
 
-		public boolean HasSetter;
+		public boolean hasSetter;
 
 
 		public void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			this.TraceModifiers(this.Modifiers, sb);
+			this.TraceModifiers(this.modifiers, sb);
 
-			this.Type.ToSource(sb);
+			this.type.ToSource(sb);
 			sb.append(" ");
 
-			this.Names.get(0).ToSource(sb);
+			this.names.get(0).ToSource(sb);
 
 			// start block
 			this.NewLine(sb);
 			sb.append("{");
 
-			if (HasGetter)
+			if (hasGetter)
 			{
 				sb.append("get; ");
 			}
-			if (HasSetter)
+			if (hasSetter)
 			{
 				sb.append("set; ");
 			}

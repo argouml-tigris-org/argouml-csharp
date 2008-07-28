@@ -27,9 +27,9 @@ public class DelegateNode extends BaseNode
 
 		public  void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
 			TraceModifiers(Modifiers, sb);

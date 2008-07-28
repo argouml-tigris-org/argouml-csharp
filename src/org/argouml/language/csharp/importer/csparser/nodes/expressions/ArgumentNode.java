@@ -8,26 +8,26 @@ package org.argouml.language.csharp.importer.csparser.nodes.expressions;
  */
 public class ArgumentNode extends BaseNode
 	{
-		public Boolean IsRef;
+		public Boolean isRef;
 
 
-		public Boolean IsOut;
+		public Boolean isOut;
 		
 
-		public ExpressionNode Expression;
+		public ExpressionNode expression;
 
         public void ToSource(StringBuilder sb)
 		{
-			if (IsRef)
+			if (isRef)
 			{
 				sb.append("ref ");
 			}
-			else if (IsOut)
+			else if (isOut)
 			{
 				sb.append("out ");
 			}
 
-			Expression.ToSource(sb);
+			expression.ToSource(sb);
 
         }
 

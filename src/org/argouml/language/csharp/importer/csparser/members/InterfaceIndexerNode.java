@@ -10,35 +10,35 @@ import org.argouml.language.csharp.importer.csparser.collections.NodeCollection;
  */
 public class InterfaceIndexerNode extends MemberNode
 	{
-		public NodeCollection<ParamDeclNode> Params =new NodeCollection<ParamDeclNode>();
+		public NodeCollection<ParamDeclNode> params =new NodeCollection<ParamDeclNode>();
 
 
-		public boolean HasGetter;
+		public boolean hasGetter;
 
-		public boolean HasSetter;
+		public boolean hasSetter;
 
 
 		public void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			this.TraceModifiers(this.Modifiers, sb);
+			this.TraceModifiers(this.modifiers, sb);
 
-			this.Type.ToSource(sb);
+			this.type.ToSource(sb);
 			sb.append("this [");
-			if (Params != null)
+			if (params != null)
 			{
-				Params.ToSource(sb);
+				params.ToSource(sb);
 			}
 			sb.append("]{");
-			if (HasGetter)
+			if (hasGetter)
 			{
 				sb.append("get;");
 			}
-			if (HasSetter)
+			if (hasSetter)
 			{
 				sb.append("set;");
 			}

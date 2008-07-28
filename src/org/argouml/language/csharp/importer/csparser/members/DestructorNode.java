@@ -10,24 +10,24 @@ import org.argouml.language.csharp.importer.csparser.statements.BlockStatement;
  */
 public class DestructorNode extends MemberNode
 	{
-		public BlockStatement StatementBlock = new BlockStatement();
+		public BlockStatement statementBlock = new BlockStatement();
 
 
 		public void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			this.TraceModifiers(this.Modifiers, sb);
+			this.TraceModifiers(this.modifiers, sb);
 
 			sb.append("~");
-			this.Names.get(0).ToSource(sb);
+			this.names.get(0).ToSource(sb);
 			sb.append("()");
 			this.NewLine(sb);
 
-			StatementBlock.ToSource(sb);
+			statementBlock.ToSource(sb);
 		}
 
 	}

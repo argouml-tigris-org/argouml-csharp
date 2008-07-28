@@ -4,7 +4,6 @@ import org.argouml.language.csharp.importer.csparser.nodes.expressions.BaseNode;
 import org.argouml.language.csharp.importer.csparser.nodes.expressions.TypeNode;
 import org.argouml.language.csharp.importer.csparser.nodes.expressions.ExpressionNode;
 import org.argouml.language.csharp.importer.csparser.nodes.expressions.IdentifierExpression;
-import org.argouml.language.csharp.importer.csparser.enums.Modifier;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,11 +29,11 @@ public class EnumNode extends BaseNode
 		{
 			//todo: enumNode to source
 
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			// todo: enum members can have Attributes
+			// todo: enum members can have attributes
 		}
 	}

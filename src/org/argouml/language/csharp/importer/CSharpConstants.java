@@ -1,11 +1,9 @@
 package org.argouml.language.csharp.importer;
 
 /**
- * Created by IntelliJ IDEA.
- * User: THILINAH
- * Date: Jun 5, 2008
- * Time: 4:32:13 PM
- * To change this template use File | Settings | File Templates.
+ * @author  THILINAH
+ * @date: Jun 5, 2008
+ * @time: 4:32:13 PM
  */
 public class CSharpConstants {
     // Constants for access modifiers according to the JVM specs chapter 4

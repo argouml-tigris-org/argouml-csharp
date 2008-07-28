@@ -8,24 +8,24 @@ package org.argouml.language.csharp.importer.csparser.members;
  */
 public class PropertyNode extends MemberNode
 	{
-		public AccessorNode Getter;
+		public AccessorNode getter;
 
 
-		public AccessorNode Setter;
+		public AccessorNode setter;
 
         public  void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			this.TraceModifiers(this.Modifiers, sb);
+			this.TraceModifiers(this.modifiers, sb);
 
-			this.Type.ToSource(sb);
+			this.type.ToSource(sb);
 			sb.append(" ");
 
-			this.Names.get(0).ToSource(sb);
+			this.names.get(0).ToSource(sb);
 
 			// start block
 			this.NewLine(sb);
@@ -33,13 +33,13 @@ public class PropertyNode extends MemberNode
 			indent++;
 			this.NewLine(sb);
 
-			if (Getter != null)
+			if (getter != null)
 			{
-				Getter.ToSource(sb);
+				getter.ToSource(sb);
 			}
-			if (Setter != null)
+			if (setter != null)
 			{
-				Setter.ToSource(sb);
+				setter.ToSource(sb);
 			}
 
 			indent--;

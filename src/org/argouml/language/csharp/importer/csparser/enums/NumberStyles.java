@@ -8,7 +8,7 @@ package org.argouml.language.csharp.importer.csparser.enums;
  */
 // Summary:
     //     Determines the styles permitted in numeric string arguments that are passed
-    //     to the Parse methods of the numeric base type classes.
+    //     to the parse methods of the numeric base type classes.
     public class NumberStyles
     {
         // Summary:

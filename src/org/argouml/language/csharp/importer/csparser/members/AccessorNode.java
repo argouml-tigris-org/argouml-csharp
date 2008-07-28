@@ -9,26 +9,26 @@ import org.argouml.language.csharp.importer.csparser.statements.BlockStatement;
  * Time: 7:25:37 PM
  */
 public class AccessorNode extends MemberNode {
-    public String Kind;
+    public String kind;
 
 
-    public boolean IsAbstractOrInterface = false;
+    public boolean isAbstractOrInterface = false;
 
-    public BlockStatement StatementBlock = new BlockStatement();
+    public BlockStatement statementBlock = new BlockStatement();
 
 
     public void ToSource(StringBuilder sb) {
-        if (Attributes != null) {
-            Attributes.ToSource(sb);
+        if (attributes != null) {
+            attributes.ToSource(sb);
             this.NewLine(sb);
         }
-        sb.append(Kind);
-        if (IsAbstractOrInterface) {
+        sb.append(kind);
+        if (isAbstractOrInterface) {
             sb.append(";");
         } else {
             this.NewLine(sb);
             // statements
-            this.StatementBlock.ToSource(sb);
+            this.statementBlock.ToSource(sb);
         }
     }
 

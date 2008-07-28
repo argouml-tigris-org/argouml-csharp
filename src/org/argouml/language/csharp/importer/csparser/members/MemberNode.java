@@ -17,12 +17,12 @@ import java.util.ArrayList;
  */
 public abstract class MemberNode extends BaseNode
 	{
-		public long Modifiers;
+		public long modifiers;
 
 
-		public List<IdentifierExpression> Names = new ArrayList<IdentifierExpression>();
+		public List<IdentifierExpression> names = new ArrayList<IdentifierExpression>();
 
-		public TypeNode Type;
+		public TypeNode type;
 
 
 		public ConstantExpression Value;

@@ -11,38 +11,38 @@ import org.argouml.language.csharp.importer.csparser.nodes.expressions.TypeNode;
  */
 public class IndexerNode extends MemberNode
 	{
-		public TypeNode InterfaceType;
+		public TypeNode interfaceType;
 
 
-		public NodeCollection<ParamDeclNode> Params=new NodeCollection<ParamDeclNode>();
+		public NodeCollection<ParamDeclNode> params =new NodeCollection<ParamDeclNode>();
 
-		public AccessorNode Getter;
+		public AccessorNode getter;
 
 
-		public AccessorNode Setter;
+		public AccessorNode setter;
 
 
         public  void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			TraceModifiers(Modifiers, sb);
+			TraceModifiers(modifiers, sb);
 
-			Type.ToSource(sb);
+			type.ToSource(sb);
 			sb.append(" ");
-			if (InterfaceType != null)
+			if (interfaceType != null)
 			{
-				InterfaceType.ToSource(sb);
+				interfaceType.ToSource(sb);
 				sb.append(".");
 			}
 			sb.append("this[");
-			if (Params != null)
+			if (params != null)
 			{
 				String comma = "";
-				for (ParamDeclNode pdn:Params)
+				for (ParamDeclNode pdn: params)
 				{
 					sb.append(comma);
 					comma = ", ";
@@ -57,13 +57,13 @@ public class IndexerNode extends MemberNode
 			indent++;
 			this.NewLine(sb);
 
-			if (Getter != null)
+			if (getter != null)
 			{
-				Getter.ToSource(sb);
+				getter.ToSource(sb);
 			}
-			if (Setter != null)
+			if (setter != null)
 			{
-				Setter.ToSource(sb);
+				setter.ToSource(sb);
 			}
 
 			indent--;

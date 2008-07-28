@@ -17,7 +17,7 @@ public abstract class BaseNode implements ISourceCode
         private final String tabChar = "    ";
 
         protected static int indent = 0;
-        public NodeCollection<AttributeNode> Attributes = new NodeCollection<AttributeNode>();
+        public NodeCollection<AttributeNode> attributes = new NodeCollection<AttributeNode>();
 
 
         /// <summary>

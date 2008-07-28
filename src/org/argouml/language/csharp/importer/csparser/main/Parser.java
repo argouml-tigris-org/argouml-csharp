@@ -130,7 +130,7 @@ public class Parser{
 			preprocessor.put("pragma", PreprocessorID.Pragma);
         }
 
-		public CompilationUnitNode Parse(TokenCollection tokens, List<String> strings)
+		public CompilationUnitNode parse(TokenCollection tokens, List<String> strings)
 		{
 			this.tokens = tokens;
 			this.strings = strings;
@@ -147,34 +147,34 @@ public class Parser{
 			exprStack = new org.argouml.language.csharp.importer.csparser.collections.Stack<ExpressionNode>();
 
 			// begin parse
-			Advance();
-			ParseNamespaceOrTypes();
+			advance();
+			parseNamespaceOrTypes();
 
 			return cu;
 		}
 
-		private void ParseNamespaceOrTypes()
+		private void parseNamespaceOrTypes()
 		{
 			while(!curtok.equals(EOF))
 			{
-				// todo: account for assembly Attributes
-				ParsePossibleAttributes(true);
+				// todo: account for assembly attributes
+				parsePossibleAttributes(true);
 				if (curAttributes.size() > 0)
 				{
 					for (AttributeNode an : curAttributes)
 					{
-						cu.Attributes.add(an);
+						cu.attributes.add(an);
 					}
 					curAttributes.clear();
 				}
 
 				// can be usingDirectives, globalAttribs, or NamespaceMembersDecls
 				// NamespaceMembersDecls include namespaces, class, struct, interface, enum, delegate
-				switch (curtok.ID)
+				switch (curtok.id)
 				{
 					case TokenID.Using:
 						// using directive
-						ParseUsingDirectives();
+						parseUsingDirectives();
 						break;
 
 					case TokenID.New:
@@ -187,36 +187,36 @@ public class Parser{
 					case TokenID.Abstract:
 					case TokenID.Sealed:
 						//parseTypeModifier();
-						curmods |= modMap.get(curtok.ID);
-						Advance();
+						curmods |= modMap.get(curtok.id);
+						advance();
 						break;
 
 					case TokenID.Namespace:
-						ParseNamespace();
+						parseNamespace();
 						break;
 
 					case TokenID.Class:
-						ParseClass();
+						parseClass();
 						break;
 
 					case TokenID.Struct:
-						ParseStruct();
+						parseStruct();
 						break;
 
 					case TokenID.Interface:
-						ParseInterface();
+						parseInterface();
 						break;
 
 					case TokenID.Enum:
-						ParseEnum();
+						parseEnum();
 						break;
 
 					case TokenID.Delegate:
-						ParseDelegate();
+						parseDelegate();
 						break;
 
 					case TokenID.Semi:
-						Advance();
+						advance();
 						break;
 
 					default:
@@ -224,18 +224,18 @@ public class Parser{
 				}
 			}
 		}
-		private void ParseUsingDirectives()
+		private void parseUsingDirectives()
 		{
 			do
 			{
-				Advance();
+				advance();
 				UsingDirectiveNode node = new UsingDirectiveNode();
 
-				IdentifierExpression nameOrAlias = ParseQualifiedIdentifier();
-				if (curtok.ID == TokenID.Equal)
+				IdentifierExpression nameOrAlias = parseQualifiedIdentifier();
+				if (curtok.id == TokenID.Equal)
 				{
-					Advance();
-					IdentifierExpression target = ParseQualifiedIdentifier();
+					advance();
+					IdentifierExpression target = parseQualifiedIdentifier();
 					node.setAliasName(nameOrAlias);
 					node.Target = target;
 				}
@@ -247,17 +247,17 @@ public class Parser{
 
 				cu.UsingDirectives.add(node);
 
-			} while (curtok.ID == TokenID.Using);
+			} while (curtok.id == TokenID.Using);
 		}
-		private PPNode ParsePreprocessorDirective()
+		private PPNode parsePreprocessorDirective()
 		{
 			PPNode result = null;
 			int startLine = lineCount;
 
 			inPPDirective = true;
-			Advance(); // over hash
+			advance(); // over hash
 
-			IdentifierExpression ie = ParseIdentifierOrKeyword();
+			IdentifierExpression ie = parseIdentifierOrKeyword();
 			String ppKind = ie.Identifier[0];
 
 			byte id = PreprocessorID.Empty;
@@ -274,7 +274,7 @@ public class Parser{
 			{
 				case PreprocessorID.Define:
 					// conditional-symbol pp-newline
-					IdentifierExpression def = ParseIdentifierOrKeyword();
+					IdentifierExpression def = parseIdentifierOrKeyword();
 					if (!ppDefs.containsKey(def.Identifier[0]))
 					{
 						ppDefs.put(def.Identifier[0], PreprocessorID.Empty);
@@ -283,7 +283,7 @@ public class Parser{
 					break;
 				case PreprocessorID.Undef:
 					// conditional-symbol pp-newline
-					IdentifierExpression undef = ParseIdentifierOrKeyword();
+					IdentifierExpression undef = parseIdentifierOrKeyword();
 					if(ppDefs.containsKey(undef.Identifier[0]))
 					{
 						ppDefs.remove(undef.Identifier[0]);
@@ -292,23 +292,23 @@ public class Parser{
 					break;
 				case PreprocessorID.If:
 					// pp-expression pp-newline conditional-section(opt)
-					if (curtok.ID == TokenID.LParen)
+					if (curtok.id == TokenID.LParen)
 					{
-						Advance();
+						advance();
 					}
 					int startCount = lineCount;
 					ppCondition = false;
 
 					// todo: account for true, false, ||, &&, ==, !=, !
-					IdentifierExpression ifexpr = ParseIdentifierOrKeyword();
+					IdentifierExpression ifexpr = parseIdentifierOrKeyword();
 					if (ppDefs.containsKey(ifexpr.Identifier[0]))
 					{
 						ppCondition = true;
 					}
 					//result = new PPIfNode(ParseExpressionToNewline());
-					if (curtok.ID == TokenID.RParen)
+					if (curtok.id == TokenID.RParen)
 					{
-						Advance();
+						advance();
 					}
 					if (ppCondition == false)
 					{
@@ -363,23 +363,23 @@ public class Parser{
 			inPPDirective = false;
 			return result;
 		}
-		private void ParsePossibleAttributes(boolean isGlobal)
+		private void parsePossibleAttributes(boolean isGlobal)
 		{
-			while (curtok.ID == TokenID.LBracket)
+			while (curtok.id == TokenID.LBracket)
 			{
 
-				Advance(); // advance over LBracket token
-				curmods = ParseAttributeModifiers();
+				advance(); // advance over LBracket token
+				curmods = parseAttributeModifiers();
 
 				if (isGlobal && curmods == Modifier.GlobalAttributeMods)
 				{
-					// nothing to check, globally positioned Attributes can still apply to namespaces etc
+					// nothing to check, globally positioned attributes can still apply to namespaces etc
 				}
 				else
 				{
 					long attribMask = ~(Modifier.AttributeMods);
 					if (((long)curmods & attribMask) != (long)Modifier.Empty)
-						ReportError("Attribute contains illegal Modifiers.");
+						ReportError("Attribute contains illegal modifiers.");
 				}
 
 				long curAttribMods = curmods;
@@ -394,61 +394,61 @@ public class Parser{
 				curAttributes.add(node);
 				node.Modifiers = curAttribMods;
 
-				while (curtok.ID != TokenID.RBracket && curtok.ID != TokenID.Eof)
+				while (curtok.id != TokenID.RBracket && curtok.id != TokenID.Eof)
 				{
-					node.Name = ParseQualifiedIdentifier();
+					node.Name = parseQualifiedIdentifier();
 
-					if (curtok.ID == TokenID.LParen)
+					if (curtok.id == TokenID.LParen)
 					{
 						// has attribute arguments
-						Advance(); // over lparen
+						advance(); // over lparen
 
 						// named args are ident = expr
 						// positional args are just expr
-						while (curtok.ID != TokenID.RParen && curtok.ID != TokenID.Eof)
+						while (curtok.id != TokenID.RParen && curtok.id != TokenID.Eof)
 						{
 							AttributeArgumentNode aNode = new AttributeArgumentNode();
 
 							if (tokens.size() > index + 2 &&
-								curtok.ID == TokenID.Ident &&
-								tokens.get(index).ID == TokenID.Equal)
+								curtok.id == TokenID.Ident &&
+								tokens.get(index).id == TokenID.Equal)
 							{
 								// named argument
-								aNode.ArgumentName = ParseQualifiedIdentifier();
-								Advance(); // over '='
+								aNode.ArgumentName = parseQualifiedIdentifier();
+								advance(); // over '='
 							}
 							aNode.Expression = ParseExpression();
 							node.Arguments.add(aNode);
 
-							if (curtok.ID == TokenID.Comma)
+							if (curtok.id == TokenID.Comma)
 							{
-								Advance(); // over comma
+								advance(); // over comma
 							}
 						}
 						AssertAndAdvance(TokenID.RParen);  // over rparen
 						if (tokens.size() > index + 2 &&
-							curtok.ID == TokenID.Comma &&
-							tokens.get(index).ID != TokenID.RBracket)
+							curtok.id == TokenID.Comma &&
+							tokens.get(index).id != TokenID.RBracket)
 						{
-							Advance(); // over comma
+							advance(); // over comma
 							node = new AttributeNode();
 							curAttributes.add(node);
 							node.Modifiers = curAttribMods;
 						}
 					}
-					if (curtok.ID == TokenID.Comma)
+					if (curtok.id == TokenID.Comma)
 					{
 						// comma can hang a t end like enums
-						Advance();
+						advance();
 					}
 				}
 				AssertAndAdvance(TokenID.RBracket); // over rbracket
 			}
 		}
-		private void ParseNamespace()
+		private void parseNamespace()
 		{
 			if (curmods != Modifier.Empty)
-				ReportError("Namespace can not contain Modifiers");
+				ReportError("Namespace can not contain modifiers");
 
 			NamespaceNode node = new NamespaceNode();
 			if (cu.Namespaces.size() == 1 && cu.Namespaces.get(0) == cu.DefaultNamespace)
@@ -459,23 +459,23 @@ public class Parser{
 			cu.Namespaces.add(node);
 			namespaceStack.push(node);
 
-			Advance(); // advance over Namespace token
-			node.Name = ParseQualifiedIdentifier();
+			advance(); // advance over Namespace token
+			node.Name = parseQualifiedIdentifier();
 
 			AssertAndAdvance(TokenID.LCurly);
 
-			ParseNamespaceOrTypes();
+			parseNamespaceOrTypes();
 
 			AssertAndAdvance(TokenID.RCurly);
 			namespaceStack.pop();
 		}
 
 		// types
-		private void ParseClass()
+		private void parseClass()
 		{
 			long classMask = ~((long)Modifier.ClassMods);
 			if ( ((long)curmods & classMask) != (long)Modifier.Empty)
-				ReportError("Class contains illegal Modifiers.");
+				ReportError("Class contains illegal modifiers.");
 
 			ClassNode node = new ClassNode();
 			typeStack.push(node);
@@ -483,31 +483,31 @@ public class Parser{
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			node.Modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			Advance(); // advance over Class token
-			node.Name = ParseQualifiedIdentifier();
+			advance(); // advance over Class token
+			node.Name = parseQualifiedIdentifier();
 
-			if (curtok.ID == TokenID.Colon) // for base members
+			if (curtok.id == TokenID.Colon) // for base members
 			{
-				Advance();
-				node.BaseClasses.add(ParseType());
-				while (curtok.ID == TokenID.Comma)
+				advance();
+				node.BaseClasses.add(parseType());
+				while (curtok.id == TokenID.Comma)
 				{
-					Advance();
-					node.BaseClasses.add(ParseType());
+					advance();
+					node.BaseClasses.add(parseType());
 				}
 			}
 			AssertAndAdvance(TokenID.LCurly);
 
-			while (curtok.ID != TokenID.RCurly) // guard for empty
+			while (curtok.id != TokenID.RCurly) // guard for empty
 			{
-				ParseClassMember();
+				parseClassMember();
 			}
 
 			AssertAndAdvance(TokenID.RCurly);
@@ -515,7 +515,7 @@ public class Parser{
 			typeStack.pop();
 
 		}
-		private void ParseInterface()
+		private void parseInterface()
 		{
 
             InterfaceNode node = new InterfaceNode();
@@ -524,35 +524,35 @@ public class Parser{
 
 			long interfaceMask = ~(long)Modifier.InterfaceMods;
 			if (((long)curmods & interfaceMask) != (long)Modifier.Empty)
-				ReportError("Interface contains illegal Modifiers");
+				ReportError("Interface contains illegal modifiers");
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			node.Modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			Advance(); // advance over Interface token
-			node.Name = ParseQualifiedIdentifier();
+			advance(); // advance over Interface token
+			node.Name = parseQualifiedIdentifier();
 
-			if (curtok.ID == TokenID.Colon) // for base members
+			if (curtok.id == TokenID.Colon) // for base members
 			{
-				Advance();
-				node.BaseClasses.add(ParseType());
-				while (curtok.ID == TokenID.Comma)
+				advance();
+				node.BaseClasses.add(parseType());
+				while (curtok.id == TokenID.Comma)
 				{
-					Advance();
-					node.BaseClasses.add(ParseType());
+					advance();
+					node.BaseClasses.add(parseType());
 				}
 			}
 			AssertAndAdvance(TokenID.LCurly);
 
-			while (curtok.ID != TokenID.RCurly) // guard for empty
+			while (curtok.id != TokenID.RCurly) // guard for empty
 			{
-				ParseInterfaceMember();
+				parseInterfaceMember();
 			}
 
 			AssertAndAdvance(TokenID.RCurly);
@@ -560,7 +560,7 @@ public class Parser{
 			curInterface = null;
 
 		}
-		private void ParseStruct()
+		private void parseStruct()
 		{
 			StructNode node = new StructNode();
 			typeStack.push(node);
@@ -568,42 +568,42 @@ public class Parser{
 
 			long structMask = ~(long)Modifier.StructMods;
 			if (((long)curmods & structMask) != (long)Modifier.Empty)
-				ReportError("Struct contains illegal Modifiers");
+				ReportError("Struct contains illegal modifiers");
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			node.Modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			Advance(); // advance over Struct token
-			node.Name = ParseQualifiedIdentifier();
+			advance(); // advance over Struct token
+			node.Name = parseQualifiedIdentifier();
 
-			if (curtok.ID == TokenID.Colon) // for base members
+			if (curtok.id == TokenID.Colon) // for base members
 			{
-				Advance();
-				node.BaseClasses.add(ParseType());
-				while (curtok.ID == TokenID.Comma)
+				advance();
+				node.BaseClasses.add(parseType());
+				while (curtok.id == TokenID.Comma)
 				{
-					Advance();
-					node.BaseClasses.add(ParseType());
+					advance();
+					node.BaseClasses.add(parseType());
 				}
 			}
 			AssertAndAdvance(TokenID.LCurly);
 
-			while (curtok.ID != TokenID.RCurly) // guard for empty
+			while (curtok.id != TokenID.RCurly) // guard for empty
 			{
-				ParseClassMember();
+				parseClassMember();
 			}
 
 			AssertAndAdvance(TokenID.RCurly);
 
 			typeStack.pop();
 		}
-		private void ParseEnum()
+		private void parseEnum()
 		{
 			EnumNode node = new EnumNode();
 			// todo: this needs to have any nested class info, or go in potential container class
@@ -611,147 +611,147 @@ public class Parser{
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			long enumMask = ~(long)Modifier.EnumMods;
 			if (((long)curmods & enumMask) != (long)Modifier.Empty)
-				ReportError("Enum contains illegal Modifiers");
+				ReportError("Enum contains illegal modifiers");
 
 			node.Modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			Advance(); // advance over Enum token
-			node.Name = ParseQualifiedIdentifier();
+			advance(); // advance over Enum token
+			node.Name = parseQualifiedIdentifier();
 
-			if (curtok.ID == TokenID.Colon) // for base type
+			if (curtok.id == TokenID.Colon) // for base type
 			{
-				Advance();
-				node.BaseClass = ParseType();
+				advance();
+				node.BaseClass = parseType();
 			}
 			AssertAndAdvance(TokenID.LCurly);
 
-			while (curtok.ID != TokenID.RCurly) // guard for empty
+			while (curtok.id != TokenID.RCurly) // guard for empty
 			{
-				ParseEnumMember();
+				parseEnumMember();
 			}
 
 			AssertAndAdvance(TokenID.RCurly);
-			if (curtok.ID == TokenID.Semi)
+			if (curtok.id == TokenID.Semi)
 			{
-				Advance();
+				advance();
 			}
 		}
-		private void ParseDelegate()
+		private void parseDelegate()
 		{
 			DelegateNode node = new DelegateNode();
 			namespaceStack.peek().Delegates.add(node);
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			long delegateMask = ~(long)Modifier.DelegateMods;
 			if (((long)curmods & delegateMask) != (long)Modifier.Empty)
-				ReportError("Delegate contains illegal Modifiers");
+				ReportError("Delegate contains illegal modifiers");
 
 			node.Modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			Advance(); // advance over delegate token
-			node.Type = ParseType();
-			node.Name = ParseQualifiedIdentifier();
-			node.Params = ParseParamList();
+			advance(); // advance over delegate token
+			node.Type = parseType();
+			node.Name = parseQualifiedIdentifier();
+			node.Params = parseParamList();
 
 			AssertAndAdvance(TokenID.Semi);
 		}
 
 		// members
-		private void ParseClassMember()
+		private void parseClassMember()
 		{
 			// const field method property event indexer operator ctor ~ctor cctor typedecl
-			ParsePossibleAttributes(false);
-			ParseModifiers();
-			switch (curtok.ID)
+			parsePossibleAttributes(false);
+			parseModifiers();
+			switch (curtok.id)
 			{
 				case TokenID.Class:
-					ParseClass();
+					parseClass();
 					break;
 
 				case TokenID.Interface:
-					ParseInterface();
+					parseInterface();
 					break;
 
 				case TokenID.Struct:
-					ParseStruct();
+					parseStruct();
 					break;
 
 				case TokenID.Enum:
-					ParseEnum();
+					parseEnum();
 					break;
 
 				case TokenID.Delegate:
-					ParseDelegate();
+					parseDelegate();
 					break;
 
 				case TokenID.Const:
-					ParseConst();
+					parseConst();
 					break;
 
 				case TokenID.Event:
-					ParseEvent();
+					parseEvent();
 					break;
 
 				case TokenID.Tilde:
-					ParseDestructor();
+					parseDestructor();
 					break;
 
 				case TokenID.Explicit:
 				case TokenID.Implicit:
-					ParseOperatorDecl(null);
+					parseOperatorDecl(null);
 					break;
 
 				default:
-					TypeNode type = ParseType();
+					TypeNode type = parseType();
 					if (type == null)
 					{
 						ReportError("Expected type or ident in member definition");
 					}
-					switch (curtok.ID)
+					switch (curtok.id)
 					{
 						case TokenID.Operator:
-							ParseOperatorDecl(type);
+							parseOperatorDecl(type);
 							break;
 						case TokenID.LParen:
-							ParseCtor(type);
+							parseCtor(type);
 							break;
 						case TokenID.This: // can be iface.this too, see below
-							ParseIndexer(type, null);
+							parseIndexer(type, null);
 							break;
 						default:
-							IdentifierExpression name2 = ParseQualifiedIdentifier();
+							IdentifierExpression name2 = parseQualifiedIdentifier();
 							if (name2 == null)
 							{
-								ReportError("Expected Name or ident in member definition");
+								ReportError("Expected name or ident in member definition");
 							}
-							switch (curtok.ID)
+							switch (curtok.id)
 							{
 								case TokenID.This:
-									ParseIndexer(type, name2);
+									parseIndexer(type, name2);
 									break;
 								case TokenID.Comma:
 								case TokenID.Equal:
 								case TokenID.Semi:
-									ParseField(type, name2);
+									parseField(type, name2);
 									break;
 								case TokenID.LParen:
-									ParseMethod(type, name2);
+									parseMethod(type, name2);
 									break;
 								case TokenID.LCurly:
-									ParseProperty(type, name2);
+									parseProperty(type, name2);
 									break;
 								default:
 									ReportError("Invalid member syntax");
@@ -762,12 +762,12 @@ public class Parser{
 					break;
 			}
 		}
-		private void ParseInterfaceMember()
+		private void parseInterfaceMember()
 		{
-			ParsePossibleAttributes(false);
+			parsePossibleAttributes(false);
 
-			ParseModifiers();
-			switch (curtok.ID)
+			parseModifiers();
+			switch (curtok.id)
 			{
 				case TokenID.Event:
 					// event
@@ -776,54 +776,54 @@ public class Parser{
 
 					if (curAttributes.size() > 0)
 					{
-						node.Attributes = curAttributes;
+						node.attributes = curAttributes;
 						curAttributes = new NodeCollection<AttributeNode>();
 					}
 
-					node.Modifiers = curmods;
+					node.modifiers = curmods;
 					curmods = Modifier.Empty;
 					AssertAndAdvance(TokenID.Event);
-					node.Type = ParseType();
-					node.Names.add(ParseQualifiedIdentifier());
+					node.type = parseType();
+					node.names.add(parseQualifiedIdentifier());
 					AssertAndAdvance(TokenID.Semi);
 
 					break;
 				default:
-					TypeNode type = ParseType();
+					TypeNode type = parseType();
 					if (type == null)
 					{
 						ReportError("Expected type or ident in interface member definition.");
 					}
-					switch (curtok.ID)
+					switch (curtok.id)
 					{
 						case TokenID.This:
 							// interface indexer
 							InterfaceIndexerNode iiNode = new InterfaceIndexerNode();
 							if (curAttributes.size() > 0)
 							{
-								iiNode.Attributes = curAttributes;
+								iiNode.attributes = curAttributes;
 								curAttributes = new NodeCollection<AttributeNode>();
 							}
-							iiNode.Type = type;
-							Advance(); // over 'this'
-							iiNode.Params = ParseParamList(TokenID.LBracket, TokenID.RBracket);
+							iiNode.type = type;
+							advance(); // over 'this'
+							iiNode.params = parseParamList(TokenID.LBracket, TokenID.RBracket);
 
 							//Boolean hasGetter = false;
 							//Boolean hasSetter = false;
                             Boolean[] bx=new Boolean[2];
 
-                            ParseInterfaceAccessors(bx);
-							iiNode.HasGetter = bx[0];
-							iiNode.HasSetter = bx[1];
+                            parseInterfaceAccessors(bx);
+							iiNode.hasGetter = bx[0];
+							iiNode.hasSetter = bx[1];
 							break;
 
 						default:
-							IdentifierExpression name = ParseQualifiedIdentifier();
+							IdentifierExpression name = parseQualifiedIdentifier();
 							if (name == null)
 							{
-								ReportError("Expected Name or ident in member definition.");
+								ReportError("Expected name or ident in member definition.");
 							}
-							switch (curtok.ID)
+							switch (curtok.id)
 							{
 								case TokenID.LParen:
 									// method
@@ -832,16 +832,16 @@ public class Parser{
 
 									if (curAttributes.size() > 0)
 									{
-										mnode.Attributes = curAttributes;
+										mnode.attributes = curAttributes;
 										curAttributes = new NodeCollection<AttributeNode>();
 									}
 
-									mnode.Modifiers = curmods;
+									mnode.modifiers = curmods;
 									curmods = Modifier.Empty;
 
-									mnode.Names.add(name);
-									mnode.Type = type;
-									mnode.Params = ParseParamList();
+									mnode.names.add(name);
+									mnode.type = type;
+									mnode.params = parseParamList();
 
 									AssertAndAdvance(TokenID.Semi);
 									break;
@@ -854,25 +854,25 @@ public class Parser{
 									// these are the prop nodes
 									if (curAttributes.size() > 0)
 									{
-										pnode.Attributes = curAttributes;
+										pnode.attributes = curAttributes;
 										curAttributes = new NodeCollection<AttributeNode>();
 									}
 
-									pnode.Modifiers = curmods;
+									pnode.modifiers = curmods;
 									curmods = Modifier.Empty;
 
-									pnode.Names.add(name);
-									pnode.Type = type;
+									pnode.names.add(name);
+									pnode.type = type;
 
                                     bx=new Boolean[2];
 
-                                    ParseInterfaceAccessors(bx);
+                                    parseInterfaceAccessors(bx);
 
-									ParseInterfaceAccessors(bx);
-									pnode.HasGetter = bx[0];
-									pnode.HasSetter = bx[1];
+									parseInterfaceAccessors(bx);
+									pnode.hasGetter = bx[0];
+									pnode.hasSetter = bx[1];
 
-									if (curtok.ID == TokenID.Semi)
+									if (curtok.id == TokenID.Semi)
 									{
 										AssertAndAdvance(TokenID.Semi);
 									}
@@ -887,403 +887,403 @@ public class Parser{
 					break;
 			}
 		}
-		private void ParseCtor(TypeNode type)
+		private void parseCtor(TypeNode type)
 		{
 			ConstructorNode node = new ConstructorNode();
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			if ((curmods & Modifier.Static) != Modifier.Empty)
 			{
-				node.IsStaticConstructor = true;
+				node.isStaticConstructor = true;
 				curmods = curmods & ~Modifier.Static;
 			}
 			long mask = ~(long)Modifier.ConstructorMods;
 			if (((long)curmods & mask) != (long)Modifier.Empty)
-				ReportError("constructor declaration contains illegal Modifiers");
+				ReportError("constructor declaration contains illegal modifiers");
 
 			typeStack.peek().Constructors.add(node);
-			//node.Attributes.add(curAttributes);
+			//node.attributes.add(curAttributes);
 			//curAttributes.Clear();
-			node.Modifiers = curmods;
+			node.modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			node.Type = type;
-			node.Names.add(typeStack.peek().Name);
+			node.type = type;
+			node.names.add(typeStack.peek().Name);
 
 			// starts at LParen
-			node.Params = ParseParamList();
+			node.params = parseParamList();
 
-			if (curtok.ID == TokenID.Colon)
+			if (curtok.id == TokenID.Colon)
 			{
-				Advance();
-				if (curtok.ID == TokenID.Base)
+				advance();
+				if (curtok.id == TokenID.Base)
 				{
-					Advance();
-					node.HasBase = true;
-					node.ThisBaseArgs = ParseArgs();
+					advance();
+					node.hasBase = true;
+					node.thisBaseArgs = parseArgs();
 				}
-				else if (curtok.ID == TokenID.This)
+				else if (curtok.id == TokenID.This)
 				{
-					Advance();
-					node.HasThis = true;
-					node.ThisBaseArgs = ParseArgs();
+					advance();
+					node.hasThis = true;
+					node.thisBaseArgs = parseArgs();
 				}
 				else
 				{
 					RecoverFromError("constructor requires this or base calls after colon", TokenID.Base);
 				}
 			}
-			ParseBlock(node.StatementBlock);
+			parseBlock(node.statementBlock);
 		}
-		private void ParseDestructor()
+		private void parseDestructor()
 		{
-			Advance(); // over tilde
+			advance(); // over tilde
 
 			DestructorNode node = new DestructorNode();
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 			long mask = ~(long)Modifier.DestructorMods;
 			if (((long)curmods & mask) != (long)Modifier.Empty)
-				ReportError("destructor declaration contains illegal Modifiers");
+				ReportError("destructor declaration contains illegal modifiers");
 
 			typeStack.peek().Destructors.add(node);
 
-			node.Modifiers = curmods;
+			node.modifiers = curmods;
 			curmods = Modifier.Empty;
-			if (curtok.ID == TokenID.Ident)
+			if (curtok.id == TokenID.Ident)
 			{
-				node.Names.add( ParseQualifiedIdentifier() );
+				node.names.add( parseQualifiedIdentifier() );
 			}
 			else
 			{
-				ReportError("Destructor requires identifier as Name.");
+				ReportError("Destructor requires identifier as name.");
 			}
 			// no args in dtor
 			AssertAndAdvance(TokenID.LParen);
 			AssertAndAdvance(TokenID.RParen);
 
-			ParseBlock(node.StatementBlock);
+			parseBlock(node.statementBlock);
 		}
-		private void ParseOperatorDecl(TypeNode type)
+		private void parseOperatorDecl(TypeNode type)
 		{
 			OperatorNode node = new OperatorNode();
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			long mask = ~(long)Modifier.OperatorMods;
 			if (((long)curmods & mask) != (long)Modifier.Empty)
-				ReportError("operator declaration contains illegal Modifiers");
+				ReportError("operator declaration contains illegal modifiers");
 
-			node.Modifiers = curmods;
+			node.modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			if (type == null && curtok.ID == TokenID.Explicit)
+			if (type == null && curtok.id == TokenID.Explicit)
 			{
-				Advance();
-				node.IsExplicit = true;
+				advance();
+				node.isExplicit = true;
 				AssertAndAdvance(TokenID.Operator);
-				type = ParseType();
+				type = parseType();
 			}
-			else if (type == null && curtok.ID == TokenID.Implicit)
+			else if (type == null && curtok.id == TokenID.Implicit)
 			{
-				Advance();
-				node.IsImplicit = true;
+				advance();
+				node.isImplicit = true;
 				AssertAndAdvance(TokenID.Operator);
-				type = ParseType();
+				type = parseType();
 			}
 			else
 			{
 				AssertAndAdvance(TokenID.Operator);
-				node.Operator = curtok.ID;
-				Advance();
+				node.operator = curtok.id;
+				advance();
 			}
-			NodeCollection<ParamDeclNode> paramList = ParseParamList();
+			NodeCollection<ParamDeclNode> paramList = parseParamList();
 			if (paramList.size() == 0 || paramList.size() > 2)
 			{
-				ReportError("Operator declarations must only have one or two parameters.");
+				ReportError("operator declarations must only have one or two parameters.");
 			}
-			node.Param1 = paramList.get(0);
+			node.param1 = paramList.get(0);
 			if (paramList.size() == 2)
 			{
-				node.Param2 = paramList.get(1);
+				node.param2 = paramList.get(1);
 			}
-			ParseBlock(node.Statements);
+			parseBlock(node.statements);
 		}
-		private void ParseIndexer(TypeNode type, IdentifierExpression interfaceType)
+		private void parseIndexer(TypeNode type, IdentifierExpression interfaceType)
 		{
 			IndexerNode node = new IndexerNode();
 			typeStack.peek().Indexers.add(node);
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			long mask = ~(long)Modifier.IndexerMods;
 			if (((long)curmods & mask) != (long)Modifier.Empty)
-				ReportError("indexer declaration contains illegal Modifiers");
+				ReportError("indexer declaration contains illegal modifiers");
 
 
-			node.Modifiers = curmods;
+			node.modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			node.Type = type;
+			node.type = type;
 			if (interfaceType != null)
 			{
-				node.InterfaceType = new TypeNode(interfaceType);
+				node.interfaceType = new TypeNode(interfaceType);
 			}
 
 			AssertAndAdvance(TokenID.This);
-			node.Params = ParseParamList(TokenID.LBracket, TokenID.RBracket);
+			node.params = parseParamList(TokenID.LBracket, TokenID.RBracket);
 
 			// parse accessor part
 			AssertAndAdvance(TokenID.LCurly);
-			if (curtok.ID != TokenID.Ident)
+			if (curtok.id != TokenID.Ident)
 			{
-				RecoverFromError("At least one get or set required in accessor", curtok.ID);
+				RecoverFromError("At least one get or set required in accessor", curtok.id);
 			}
 			boolean parsedGet = false;
-			if (strings.get(curtok.Data).equals("get"))
+			if (strings.get(curtok.data).equals("get"))
 			{
-				node.Getter = ParseAccessor();
+				node.getter = parseAccessor();
 				parsedGet = true;
 			}
-			if (curtok.ID == TokenID.Ident && strings.get(curtok.Data).equals("set"))
+			if (curtok.id == TokenID.Ident && strings.get(curtok.data).equals("set"))
 			{
-				node.Getter = ParseAccessor();
+				node.getter = parseAccessor();
 			}
 			// get might follow set
-			if (!parsedGet && curtok.ID == TokenID.Ident && strings.get(curtok.Data).equals("get"))
+			if (!parsedGet && curtok.id == TokenID.Ident && strings.get(curtok.data).equals("get"))
 			{
-				node.Getter = ParseAccessor();
+				node.getter = parseAccessor();
 			}
 			AssertAndAdvance(TokenID.RCurly);
 		}
-		private void ParseMethod(TypeNode type, IdentifierExpression name)
+		private void parseMethod(TypeNode type, IdentifierExpression name)
 		{
 			long mask = ~(long)Modifier.MethodMods;
 			if (((long)curmods & mask) != (long)Modifier.Empty)
-				ReportError("method declaration contains illegal Modifiers");
+				ReportError("method declaration contains illegal modifiers");
 
 			MethodNode node = new MethodNode();
 			typeStack.peek().Methods.add(node);
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
-			node.Modifiers = curmods;
+			node.modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			node.Type = type;
-			node.Names.add(name);
+			node.type = type;
+			node.names.add(name);
 
 			// starts at LParen
-			node.Params = ParseParamList();
+			node.params = parseParamList();
 
-			ParseBlock(node.StatementBlock);
+			parseBlock(node.statementBlock);
 
 		}
-		private void ParseField(TypeNode type, IdentifierExpression name)
+		private void parseField(TypeNode type, IdentifierExpression name)
 		{
 			long mask = ~(long)Modifier.FieldMods;
 			if (((long)curmods & mask) != (long)Modifier.Empty)
-				ReportError("field declaration contains illegal Modifiers");
+				ReportError("field declaration contains illegal modifiers");
 
 			FieldNode node = new FieldNode();
 			typeStack.peek().Fields.add(node);
-			node.Modifiers = curmods;
+			node.modifiers = curmods;
 			curmods = Modifier.Empty;
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
-			node.Type = type;
-			node.Names.add(name);
+			node.type = type;
+			node.names.add(name);
 
 			//eg: int ok = 0, error, xx = 0;
-			if (curtok.ID == TokenID.Equal)
+			if (curtok.id == TokenID.Equal)
 			{
-				Advance();
-				node.Value = ParseConstExpr();
-				if (curtok.ID == TokenID.Comma)
+				advance();
+				node.Value = parseConstExpr();
+				if (curtok.id == TokenID.Comma)
 				{
 					node = new FieldNode();
 					typeStack.peek().Fields.add(node);
-					node.Modifiers = curmods;
-					node.Type = type;
+					node.modifiers = curmods;
+					node.type = type;
 				}
 			}
 
-			while (curtok.ID == TokenID.Comma)
+			while (curtok.id == TokenID.Comma)
 			{
-				Advance(); // over comma
-				IdentifierExpression ident = ParseQualifiedIdentifier();
-				node.Names.add(ident);
-				if (curtok.ID == TokenID.Equal)
+				advance(); // over comma
+				IdentifierExpression ident = parseQualifiedIdentifier();
+				node.names.add(ident);
+				if (curtok.id == TokenID.Equal)
 				{
-					Advance();
-					node.Value = ParseConstExpr();
+					advance();
+					node.Value = parseConstExpr();
 
-					if (curtok.ID == TokenID.Comma)
+					if (curtok.id == TokenID.Comma)
 					{
 						node = new FieldNode();
 						typeStack.peek().Fields.add(node);
-						node.Modifiers = curmods;
-						node.Type = type;
+						node.modifiers = curmods;
+						node.type = type;
 					}
 				}
 			}
 
-			 if (curtok.ID == TokenID.Semi)
+			 if (curtok.id == TokenID.Semi)
 			{
-				Advance();
+				advance();
 			}
 
 
 
 		}
-		private void ParseProperty(TypeNode type, IdentifierExpression name)
+		private void parseProperty(TypeNode type, IdentifierExpression name)
 		{
             long mask = ~(long)Modifier.PropertyMods;
 			if (((long)curmods & mask) != (long)Modifier.Empty)
-				ReportError("field declaration contains illegal Modifiers");
+				ReportError("field declaration contains illegal modifiers");
 
 			PropertyNode node = new PropertyNode();
 			typeStack.peek().Properties.add(node);
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
-			node.Modifiers = curmods;
+			node.modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			node.Type = type;
-			node.Names.add(name);
+			node.type = type;
+			node.names.add(name);
 
 			// opens on lcurly
 			AssertAndAdvance(TokenID.LCurly);
 
-			// todo: AddNode Attributes to get and setters
-			ParsePossibleAttributes(false);
+			// todo: AddNode attributes to get and setters
+			parsePossibleAttributes(false);
 
 			if (curAttributes.size() > 0)
 			{
-				//node.Attributes = curAttributes;
+				//node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
-			if (curtok.ID != TokenID.Ident)
+			if (curtok.id != TokenID.Ident)
 			{
-				RecoverFromError("At least one get or set required in accessor", curtok.ID);
+				RecoverFromError("At least one get or set required in accessor", curtok.id);
 			}
 
 			boolean parsedGet = false;
-			if (strings.get(curtok.Data).equals("get"))
+			if (strings.get(curtok.data).equals("get"))
 			{
-				node.Getter = ParseAccessor();
+				node.getter = parseAccessor();
 				parsedGet = true;
 			}
 
-			// todo: AddNode Attributes to get and setters
-			ParsePossibleAttributes(false);
+			// todo: AddNode attributes to get and setters
+			parsePossibleAttributes(false);
 
 			if (curAttributes.size() > 0)
 			{
-				//node.Attributes = curAttributes;
+				//node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
-			if (curtok.ID == TokenID.Ident && strings.get(curtok.Data).equals("set"))
+			if (curtok.id == TokenID.Ident && strings.get(curtok.data).equals("set"))
 			{
-				node.Setter = ParseAccessor();
+				node.setter = parseAccessor();
 			}
 
-			// todo: AddNode Attributes to get and setters
-			ParsePossibleAttributes(false);
+			// todo: AddNode attributes to get and setters
+			parsePossibleAttributes(false);
 
 			if (curAttributes.size() > 0)
 			{
-				//node.Attributes = curAttributes;
+				//node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			// get might follow set
-			if (!parsedGet && curtok.ID == TokenID.Ident && strings.get(curtok.Data) .equals("get"))
+			if (!parsedGet && curtok.id == TokenID.Ident && strings.get(curtok.data) .equals("get"))
 			{
-				node.Getter = ParseAccessor();
+				node.getter = parseAccessor();
 			}
 
 			AssertAndAdvance(TokenID.RCurly);
 		}
-		private void ParseEvent()
+		private void parseEvent()
 		{
 			long mask = ~(long)Modifier.EventMods;
 			if (((long)curmods & mask) != (long)Modifier.Empty)
-				ReportError("Event contains illegal Modifiers");
+				ReportError("Event contains illegal modifiers");
 
 			EventNode node = new EventNode();
 			typeStack.peek().Events.add(node);
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
-			node.Modifiers = curmods;
+			node.modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			Advance(); // advance over event keyword
+			advance(); // advance over event keyword
 
-			node.Type = ParseType();
+			node.type = parseType();
 
-			if (curtok.ID != TokenID.Ident)
-				ReportError("Expected event member Name.");
+			if (curtok.id != TokenID.Ident)
+				ReportError("Expected event member name.");
 
-			while (curtok.ID == TokenID.Ident)
+			while (curtok.id == TokenID.Ident)
 			{
-				node.Names.add(ParseQualifiedIdentifier());
+				node.names.add(parseQualifiedIdentifier());
 			}
-			if (curtok.ID == TokenID.LCurly)
+			if (curtok.id == TokenID.LCurly)
 			{
-				Advance(); // over lcurly
-				// todo: may be Attributes
-				if (curtok.ID != TokenID.Ident)
+				advance(); // over lcurly
+				// todo: may be attributes
+				if (curtok.id != TokenID.Ident)
 				{
 					ReportError("Event accessor requires add or remove clause.");
 				}
-				String curAccessor = strings.get(curtok.Data);
-				Advance(); // over ident
+				String curAccessor = strings.get(curtok.data);
+				advance(); // over ident
 				if (curAccessor.equals("add"))
 				{
-					ParseBlock(node.AddBlock);
-					if (curtok.ID == TokenID.Ident && strings.get(curtok.Data).equals("remove"))
+					parseBlock(node.addBlock);
+					if (curtok.id == TokenID.Ident && strings.get(curtok.data).equals("remove"))
 					{
-						Advance(); // over ident
-						ParseBlock(node.RemoveBlock);
+						advance(); // over ident
+						parseBlock(node.removeBlock);
 					}
 					else
 					{
@@ -1292,11 +1292,11 @@ public class Parser{
 				}
 				else if (curAccessor.equals("remove"))
 				{
-					ParseBlock(node.RemoveBlock);
-					if (curtok.ID == TokenID.Ident && strings.get(curtok.Data).equals("add"))
+					parseBlock(node.removeBlock);
+					if (curtok.id == TokenID.Ident && strings.get(curtok.data).equals("add"))
 					{
-						Advance(); // over ident
-						ParseBlock(node.AddBlock);
+						advance(); // over ident
+						parseBlock(node.addBlock);
 					}
 					else
 					{
@@ -1315,42 +1315,42 @@ public class Parser{
 
 
 		}
-		private void ParseConst()
+		private void parseConst()
 		{
 			long mask = ~(long)Modifier.ConstantMods;
 			if (((long)curmods & mask) != (long)Modifier.Empty)
-				ReportError("const declaration contains illegal Modifiers");
+				ReportError("const declaration contains illegal modifiers");
 
 			ConstantNode node = new ConstantNode();
 			typeStack.peek().Constants.add(node);
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
-			node.Modifiers = curmods;
+			node.modifiers = curmods;
 			curmods = Modifier.Empty;
 
-			Advance(); // advance over const keyword
+			advance(); // advance over const keyword
 
-			node.Type = ParseType();
+			node.type = parseType();
 
 			boolean hasEqual = false;
-			node.Names.add(ParseQualifiedIdentifier());
-			if (curtok.ID == TokenID.Equal)
+			node.names.add(parseQualifiedIdentifier());
+			if (curtok.id == TokenID.Equal)
 			{
-				Advance();
+				advance();
 				hasEqual = true;
 			}
-			while (curtok.ID == TokenID.Comma)
+			while (curtok.id == TokenID.Comma)
 			{
-				Advance();
-				node.Names.add(ParseQualifiedIdentifier());
-				if (curtok.ID == TokenID.Equal)
+				advance();
+				node.names.add(parseQualifiedIdentifier());
+				if (curtok.id == TokenID.Equal)
 				{
-					Advance();
+					advance();
 					hasEqual = true;
 				}
 				else
@@ -1361,56 +1361,56 @@ public class Parser{
 
 			if (hasEqual)
 			{
-				node.Value = ParseConstExpr();
+				node.Value = parseConstExpr();
 			}
 
 			AssertAndAdvance(TokenID.Semi);
 		}
-		private EnumNode ParseEnumMember()
+		private EnumNode parseEnumMember()
 		{
 			EnumNode result = new EnumNode();
 
-			ParsePossibleAttributes(false);
+			parsePossibleAttributes(false);
 
 			if (curAttributes.size() > 0)
 			{
-				result.Attributes = curAttributes;
+				result.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
-			if (curtok.ID != TokenID.Ident)
+			if (curtok.id != TokenID.Ident)
 			{
 				ReportError("Enum members must be legal identifiers.");
 			}
-			String name = strings.get(curtok.Data);
+			String name = strings.get(curtok.data);
 			result.Name = new IdentifierExpression(new String[] { name });
-			Advance();
+			advance();
 
-			if (curtok.ID == TokenID.Equal)
+			if (curtok.id == TokenID.Equal)
 			{
-				Advance();
+				advance();
 				result.Value = ParseExpression();
 			}
-			if (curtok.ID == TokenID.Comma)
+			if (curtok.id == TokenID.Comma)
 			{
-				Advance();
+				advance();
 			}
 			return result;
 
 		}
 
 		// member helpers
-		private NodeCollection<ParamDeclNode> ParseParamList()
+		private NodeCollection<ParamDeclNode> parseParamList()
 		{
 			// default is parens, however things like indexers use square brackets
-			return ParseParamList(TokenID.LParen, TokenID.RParen);
+			return parseParamList(TokenID.LParen, TokenID.RParen);
 		}
-		private NodeCollection<ParamDeclNode> ParseParamList(int openToken, int closeToken)
+		private NodeCollection<ParamDeclNode> parseParamList(int openToken, int closeToken)
 		{
 			AssertAndAdvance(openToken);
-			if (curtok.ID == closeToken)
+			if (curtok.id == closeToken)
 			{
-				Advance();
+				advance();
 				return null;
 			}
 			NodeCollection<ParamDeclNode> result = new NodeCollection<ParamDeclNode>();
@@ -1422,42 +1422,42 @@ public class Parser{
 				result.add(node);
 				isParams = false;
 
-				ParsePossibleAttributes(false);
+				parsePossibleAttributes(false);
 
-				if (curtok.ID == TokenID.Ref)
+				if (curtok.id == TokenID.Ref)
 				{
-					node.Modifiers |= Modifier.Ref;
-					Advance();
+					node.modifiers |= Modifier.Ref;
+					advance();
 				}
-				else if (curtok.ID == TokenID.Out)
+				else if (curtok.id == TokenID.Out)
 				{
-					node.Modifiers |= Modifier.Out;
-					Advance();
+					node.modifiers |= Modifier.Out;
+					advance();
 				}
-				else if (curtok.ID == TokenID.Params)
+				else if (curtok.id == TokenID.Params)
 				{
 					isParams = true;
-					node.Modifiers |= Modifier.Params;
-					Advance();
+					node.modifiers |= Modifier.Params;
+					advance();
 				}
 
-				node.Type = ParseType();
+				node.type = parseType();
 
 				if (isParams)
 				{
 					// ensure is array type
 				}
 
-				if (curtok.ID == TokenID.Ident)
+				if (curtok.id == TokenID.Ident)
 				{
-					node.Name = strings.get(curtok.Data);
-					Advance();
+					node.name = strings.get(curtok.data);
+					advance();
 				}
 
 				hasComma = false;
-				if (curtok.ID == TokenID.Comma)
+				if (curtok.id == TokenID.Comma)
 				{
-					Advance();
+					advance();
 					hasComma = true;
 				}
 			}
@@ -1467,38 +1467,38 @@ public class Parser{
 
 			return result;
 		}
-		private ParamDeclNode ParseParamDecl()
+		private ParamDeclNode parseParamDecl()
 		{
 
 			ParamDeclNode node = new ParamDeclNode();
 
-			ParsePossibleAttributes(false);
+			parsePossibleAttributes(false);
 
 			if (curAttributes.size() > 0)
 			{
-				node.Attributes = curAttributes;
+				node.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
-			node.Type = ParseType();
+			node.type = parseType();
 
-			if (curtok.ID == TokenID.Ident)
+			if (curtok.id == TokenID.Ident)
 			{
-				node.Name = strings.get(curtok.Data);
-				Advance();
+				node.name = strings.get(curtok.data);
+				advance();
 			}
 			else
 			{
-				RecoverFromError("Expected arg Name.", TokenID.Ident);
+				RecoverFromError("Expected arg name.", TokenID.Ident);
 			}
 			return node;
 		}
-		private NodeCollection<ArgumentNode> ParseArgs()
+		private NodeCollection<ArgumentNode> parseArgs()
 		{
 			AssertAndAdvance(TokenID.LParen);
-			if (curtok.ID == TokenID.RParen)
+			if (curtok.id == TokenID.RParen)
 			{
-				Advance();
+				advance();
 				return null;
 			}
 			boolean hasComma = false;
@@ -1508,22 +1508,22 @@ public class Parser{
 				ArgumentNode node = new ArgumentNode();
 				result.add(node);
 
-				if (curtok.ID == TokenID.Ref)
+				if (curtok.id == TokenID.Ref)
 				{
-					node.IsRef = true;
-					Advance();
+					node.isRef = true;
+					advance();
 				}
-				else if (curtok.ID == TokenID.Out)
+				else if (curtok.id == TokenID.Out)
 				{
-					node.IsOut = true;
-					Advance();
+					node.isOut = true;
+					advance();
 				}
-				node.Expression = ParseExpression();
+				node.expression = ParseExpression();
 
 				hasComma = false;
-				if (curtok.ID == TokenID.Comma)
+				if (curtok.id == TokenID.Comma)
 				{
-					Advance();
+					advance();
 					hasComma = true;
 				}
 			}
@@ -1533,53 +1533,53 @@ public class Parser{
 
 			return result;
 		}
-		private AccessorNode ParseAccessor()
+		private AccessorNode parseAccessor()
 		{
 			AccessorNode result = new AccessorNode();
 
-			ParsePossibleAttributes(false);
+			parsePossibleAttributes(false);
 
 			if (curAttributes.size() > 0)
 			{
-				result.Attributes = curAttributes;
+				result.attributes = curAttributes;
 				curAttributes = new NodeCollection<AttributeNode>();
 			}
 
 			String kind = "";
-			if (curtok.ID == TokenID.Ident)
+			if (curtok.id == TokenID.Ident)
 			{
-				kind = strings.get(curtok.Data);
+				kind = strings.get(curtok.data);
 			}
 			else
 			{
-				RecoverFromError("Must specify accessor kind in accessor.", curtok.ID);
+				RecoverFromError("Must specify accessor kind in accessor.", curtok.id);
 			}
 
-			result.Kind = kind;
-			Advance();
-			if (curtok.ID == TokenID.Semi)
+			result.kind = kind;
+			advance();
+			if (curtok.id == TokenID.Semi)
 			{
-				result.IsAbstractOrInterface = true;
-				Advance(); // over semi
+				result.isAbstractOrInterface = true;
+				advance(); // over semi
 			}
 			else
 			{
-				ParseBlock(result.StatementBlock);
+				parseBlock(result.statementBlock);
 			}
 			return result;
 		}
-		private ConstantExpression ParseConstExpr()
+		private ConstantExpression parseConstExpr()
 		{
 			ConstantExpression node = new ConstantExpression();
 			node.Value = ParseExpression();
 
 			return node;
 		}
-		private void ParseModifiers()
+		private void parseModifiers()
 		{
 			while(!curtok.equals(EOF))
 			{
-				switch (curtok.ID)
+				switch (curtok.id)
 				{
 					case TokenID.New:
 					case TokenID.Public:
@@ -1605,15 +1605,15 @@ public class Parser{
 					//case TokenID.Param:
 					//case TokenID.Property:
 					//case TokenID.Return:
-					//case TokenID.Type:
+					//case TokenID.type:
 
-						long mod = (long)modMap.get(curtok.ID);
+						long mod = (long)modMap.get(curtok.id);
 						if (((long)curmods & mod) > 0)
 						{
 							ReportError("Duplicate modifier.");
 						}
 						curmods |= mod;
-						Advance();
+						advance();
 						break;
 
 
@@ -1622,17 +1622,17 @@ public class Parser{
 				}
 			}
 		}
-		private long ParseAttributeModifiers()
+		private long parseAttributeModifiers()
 		{
 			long result = Modifier.Empty;
 			String curIdent = "";
 			boolean isMod = true;
 			while (isMod)
 			{
-				switch (curtok.ID)
+				switch (curtok.id)
 				{
 					case TokenID.Ident:
-						curIdent = strings.get(curtok.Data);
+						curIdent = strings.get(curtok.data);
 
                         if(curIdent.equals("field")){
                             result |= Modifier.Field;
@@ -1651,38 +1651,38 @@ public class Parser{
                         }else{
                             isMod = false;
                         }
-                        Advance();
+                        advance();
 
 
 //                        switch (curIdent)
 //						{
 //							case "field":
 //								result |= Modifier.Field;
-//								Advance();
+//								advance();
 //								break;
 //							case "method":
 //								result |= Modifier.Method;
-//								Advance();
+//								advance();
 //								break;
 //							case "param":
 //								result |= Modifier.Param;
-//								Advance();
+//								advance();
 //								break;
 //							case "property":
 //								result |= Modifier.Property;
-//								Advance();
+//								advance();
 //								break;
 //							case "type":
-//								result |= Modifier.Type;
-//								Advance();
+//								result |= Modifier.type;
+//								advance();
 //								break;
 //							case "module":
 //								result |= Modifier.Module;
-//								Advance();
+//								advance();
 //								break;
 //							case "assembly":
 //								result |= Modifier.Assembly;
-//								Advance();
+//								advance();
 //								break;
 //							default:
 //								isMod = false;
@@ -1692,12 +1692,12 @@ public class Parser{
 
 					case TokenID.Return:
 						result |= Modifier.Return;
-						Advance();
+						advance();
 						break;
 
 					case TokenID.Event:
 						result |= Modifier.Event;
-						Advance();
+						advance();
 						break;
 
 					default:
@@ -1708,27 +1708,27 @@ public class Parser{
 			}
 			return result;
 		}
-		private TypeNode ParseType()
+		private TypeNode parseType()
 		{
-			IdentifierExpression idPart = ParseQualifiedIdentifier();
+			IdentifierExpression idPart = parseQualifiedIdentifier();
 			TypeNode result = new TypeNode(idPart);
 
 			// now any 'rank only' specifiers (without size decls)
-			while (curtok.ID == TokenID.LBracket)
+			while (curtok.id == TokenID.LBracket)
 			{
 				if (index < tokens.size() &&
-					tokens.get(index).ID != TokenID.RBracket &&
-					tokens.get(index).ID != TokenID.Comma)
+					tokens.get(index).id != TokenID.RBracket &&
+					tokens.get(index).id != TokenID.Comma)
 				{
 					// anything with size or accessor decls has own node type
 					break;
 				}
-				Advance(); // over lbracket
+				advance(); // over lbracket
 				int commaCount = 0;
-				while (curtok.ID == TokenID.Comma)
+				while (curtok.id == TokenID.Comma)
 				{
 					commaCount++;
-					Advance();
+					advance();
 				}
 				result.RankSpecifiers.add(commaCount);
 				AssertAndAdvance(TokenID.RBracket);
@@ -1736,15 +1736,15 @@ public class Parser{
 
 			return result;
 		}
-		private IdentifierExpression ParseQualifiedIdentifier()
+		private IdentifierExpression parseQualifiedIdentifier()
 		{
 			IdentifierExpression result = new IdentifierExpression();
 			List<String> qualName = new ArrayList<String>();
-			switch (curtok.ID)
+			switch (curtok.id)
 			{
 				case TokenID.Ident:
-					qualName.add(strings.get(curtok.Data));
-					Advance();
+					qualName.add(strings.get(curtok.data));
+					advance();
 					break;
 
 				case TokenID.Bool:
@@ -1766,10 +1766,10 @@ public class Parser{
 				case TokenID.This:
 				case TokenID.Base:
 
-                    //String predef = Enum.getName(TokenID.Invalid.GetType(), curtok.ID).ToLower();
-					qualName.add(TokenID.getFieldName(curtok.ID));
-					result.StartingPredefinedType = curtok.ID;
-					Advance();
+                    //String predef = Enum.getName(TokenID.Invalid.GetType(), curtok.id).ToLower();
+					qualName.add(TokenID.getFieldName(curtok.id));
+					result.StartingPredefinedType = curtok.id;
+					advance();
 					break;
 
 				default:
@@ -1777,15 +1777,15 @@ public class Parser{
 					break;
 			}
 
-			while (curtok.ID == TokenID.Dot)
+			while (curtok.id == TokenID.Dot)
 			{
-				Advance();
-				if (curtok.ID == TokenID.Ident)
+				advance();
+				if (curtok.id == TokenID.Ident)
 				{
-					qualName.add(strings.get(curtok.Data));
-					Advance();
+					qualName.add(strings.get(curtok.data));
+					advance();
 				}
-				else if (curtok.ID == TokenID.This)
+				else if (curtok.id == TokenID.This)
 				{
 					// this is an indexer with a prepended interface, do nothing (but consume dot)
 				}
@@ -1800,14 +1800,14 @@ public class Parser{
             qualName.toArray(result.Identifier);
 			return result;
 		}
-		private IdentifierExpression ParseIdentifierOrKeyword()
+		private IdentifierExpression parseIdentifierOrKeyword()
 		{
 			IdentifierExpression result = new IdentifierExpression();
-			switch (curtok.ID)
+			switch (curtok.id)
 			{
 				case TokenID.Ident:
-					result.Identifier = new String[] { strings.get(curtok.Data) };
-					Advance();
+					result.Identifier = new String[] { strings.get(curtok.data) };
+					advance();
 					break;
 
 				case TokenID.If:
@@ -1830,10 +1830,10 @@ public class Parser{
 				case TokenID.Void:
 				case TokenID.This:
 				case TokenID.Base:
-					String predef = TokenID.getFieldName(curtok.ID);//Enum.GetName(TokenID.Invalid.GetType(), curtok.ID).ToLower();
+					String predef = TokenID.getFieldName(curtok.id);//Enum.GetName(TokenID.Invalid.GetType(), curtok.id).ToLower();
 					result.Identifier = new String[] { predef };
-					result.StartingPredefinedType = curtok.ID;
-					Advance();
+					result.StartingPredefinedType = curtok.id;
+					advance();
 					break;
 
 				default:
@@ -1843,74 +1843,74 @@ public class Parser{
 			return result;
 		}
 
-    private void ParseInterfaceAccessors(Boolean[] bx)
+    private void parseInterfaceAccessors(Boolean[] bx)
 		{
 			AssertAndAdvance(TokenID.LCurly); // LCurly
 
-			// the get and set can also have Attributes
-			ParsePossibleAttributes(false);
+			// the get and set can also have attributes
+			parsePossibleAttributes(false);
 
-			if (curtok.ID == TokenID.Ident && strings.get(curtok.Data).equals( "get"))
+			if (curtok.id == TokenID.Ident && strings.get(curtok.data).equals( "get"))
 			{
 				if (curAttributes.size() > 0)
 				{
-					// todo: store get/set Attributes on InterfacePropertyNode
+					// todo: store get/set attributes on InterfacePropertyNode
 					// pnode.getAttributes = curAttributes;
 					curAttributes = new NodeCollection<AttributeNode>();
 				}
 
 				bx[0] = true;
-				Advance();
+				advance();
 				AssertAndAdvance(TokenID.Semi);
-				if (curtok.ID == TokenID.Ident)
+				if (curtok.id == TokenID.Ident)
 				{
-					if (strings.get(curtok.Data).equals( "set"))
+					if (strings.get(curtok.data).equals( "set"))
 					{
 						bx[1] = true;
-						Advance();
+						advance();
 						AssertAndAdvance(TokenID.Semi);
 					}
 					else
 					{
-						RecoverFromError("Expected set in interface property def.", curtok.ID);
+						RecoverFromError("Expected set in interface property def.", curtok.id);
 					}
 				}
 			}
-			else if (curtok.ID == TokenID.Ident && strings.get(curtok.Data).equals( "set"))
+			else if (curtok.id == TokenID.Ident && strings.get(curtok.data).equals( "set"))
 			{
 				if (curAttributes.size() > 0)
 				{
-					// todo: store get/set Attributes on InterfacePropertyNode
+					// todo: store get/set attributes on InterfacePropertyNode
 					// pnode.setAttributes = curAttributes;
 					curAttributes = new NodeCollection<AttributeNode>();
 				}
 				bx[1] = true;
-				Advance();
+				advance();
 				AssertAndAdvance(TokenID.Semi);
-				if (curtok.ID == TokenID.Ident)
+				if (curtok.id == TokenID.Ident)
 				{
-					if (strings.get(curtok.Data).equals("get"))
+					if (strings.get(curtok.data).equals("get"))
 					{
 						bx[0] = true;
-						Advance();
+						advance();
 						AssertAndAdvance(TokenID.Semi);
 					}
 					else
 					{
-						RecoverFromError("Expected get in interface property def.", curtok.ID);
+						RecoverFromError("Expected get in interface property def.", curtok.id);
 					}
 				}
 			}
 			else
 			{
-				RecoverFromError("Expected get or set in interface property def.", curtok.ID);
+				RecoverFromError("Expected get or set in interface property def.", curtok.id);
 			}
 
 			AssertAndAdvance(TokenID.RCurly);
 		}
 
 		// statements
-		private void ParseStatement(NodeCollection<StatementNode> node)
+		private void parseStatement(NodeCollection<StatementNode> node)
 		{
 			// label		ident	: colon
 			// localDecl	type	: ident
@@ -1944,61 +1944,61 @@ public class Parser{
 			// unchecked	unchecked : block
 			// lock			lock	: LParen
 			// using		using	: LParen
-			switch (curtok.ID)
+			switch (curtok.id)
 			{
 				case TokenID.LCurly:	// block
 					BlockStatement newBlock = new BlockStatement();
 					node.add(newBlock);
-					ParseBlock(newBlock);
+					parseBlock(newBlock);
 					break;
 				case TokenID.Semi:		// empty statement
-					Advance();
+					advance();
 					node.add(new StatementNode());
 					break;
 				case TokenID.If:		// If statement
-					node.add(ParseIf());
+					node.add(parseIf());
 					break;
 				case TokenID.Switch:	// Switch statement
-					node.add(ParseSwitch());
+					node.add(parseSwitch());
 					break;
 				case TokenID.While:		// While statement
-					node.add(ParseWhile());
+					node.add(parseWhile());
 					break;
 				case TokenID.Do:		// Do statement
-					node.add(ParseDo());
+					node.add(parseDo());
 					break;
 				case TokenID.For:		// For statement
-					node.add(ParseFor());
+					node.add(parseFor());
 					break;
 				case TokenID.Foreach:	// Foreach statement
-					node.add(ParseForEach());
+					node.add(parseForEach());
 					break;
 				case TokenID.Break:		// Break statement
-					node.add(ParseBreak());
+					node.add(parseBreak());
 					break;
 				case TokenID.Continue:	// Continue statement
-					node.add(ParseContinue());
+					node.add(parseContinue());
 					break;
 				case TokenID.Goto:		// Goto statement
-					node.add(ParseGoto());
+					node.add(parseGoto());
 					break;
 				case TokenID.Return:	// Return statement
-					node.add(ParseReturn());
+					node.add(parseReturn());
 					break;
 				case TokenID.Throw:		// Throw statement
-					node.add(ParseThrow());
+					node.add(parseThrow());
 					break;
 				case TokenID.Try:		// Try statement
-					node.add(ParseTry());
+					node.add(parseTry());
 					break;
 				case TokenID.Checked:	// Checked statement
-					node.add(ParseChecked());
+					node.add(parseChecked());
 					break;
 				case TokenID.Unchecked:	// Unchecked statement
-					node.add(ParseUnchecked());
+					node.add(parseUnchecked());
 					break;
 				case TokenID.Lock:		// Lock statement
-					node.add(ParseLock());
+					node.add(parseLock());
 					break;
 				case TokenID.Using:		// Using statement
 					node.add(ParseUsing());
@@ -2006,7 +2006,7 @@ public class Parser{
 
 				case TokenID.Const:
 					isLocalConst = true;
-					Advance();
+					advance();
 					break;
 
 				case TokenID.Bool:
@@ -2045,19 +2045,19 @@ public class Parser{
 				case TokenID.New:		// creation statement
 					ExpressionStatement enode = new ExpressionStatement(ParseExpression());
 					node.add(enode);
-					if (curtok.ID == TokenID.Semi)
+					if (curtok.id == TokenID.Semi)
 					{
-						Advance();
+						advance();
 					}
 					break;
 
 				case TokenID.Ident:
-					if (tokens.size() > index + 1 && tokens.get(index).ID == TokenID.Colon)
+					if (tokens.size() > index + 1 && tokens.get(index).id == TokenID.Colon)
 					{
 						LabeledStatement lsnode = new LabeledStatement();
-						lsnode.Name = ParseQualifiedIdentifier();
+						lsnode.Name = parseQualifiedIdentifier();
 						AssertAndAdvance(TokenID.Colon);
-						ParseStatement(lsnode.Statements);
+						parseStatement(lsnode.Statements);
 						node.add(lsnode);
 					}
 					else
@@ -2065,9 +2065,9 @@ public class Parser{
 						ExpressionStatement inode = new ExpressionStatement(ParseExpression());
 						node.add(inode);
 					}
-					if (curtok.ID == TokenID.Semi)
+					if (curtok.id == TokenID.Semi)
 					{
-						Advance();
+						advance();
 					}
 					break;
 
@@ -2077,29 +2077,29 @@ public class Parser{
 					break;
 
 				default:
-                    System.out.println("Unhandled case in statement parsing: \"" + curtok.ID + "\" in line: " + lineCount);
+                    System.out.println("Unhandled case in statement parsing: \"" + curtok.id + "\" in line: " + lineCount);
 					// this is almost always an expression
 					ExpressionStatement dnode = new ExpressionStatement(ParseExpression());
 					node.add(dnode);
-					if (curtok.ID == TokenID.Semi)
+					if (curtok.id == TokenID.Semi)
 					{
-						Advance();
+						advance();
 					}
 					break;
 			}
 		}
-		private void ParseBlock(BlockStatement node)
+		private void parseBlock(BlockStatement node)
 		{
-			ParseBlock(node, false);
+			parseBlock(node, false);
 		}
-		private void ParseBlock(BlockStatement node, boolean isCase)
+		private void parseBlock(BlockStatement node, boolean isCase)
 		{
-			if (curtok.ID == TokenID.LCurly)
+			if (curtok.id == TokenID.LCurly)
 			{
-				Advance(); // over lcurly
-				while (curtok.ID != TokenID.Eof && curtok.ID != TokenID.RCurly)
+				advance(); // over lcurly
+				while (curtok.id != TokenID.Eof && curtok.id != TokenID.RCurly)
 				{
-					ParseStatement(node.Statements);
+					parseStatement(node.Statements);
 				}
 				AssertAndAdvance(TokenID.RCurly);
 			}
@@ -2109,14 +2109,14 @@ public class Parser{
 				// break can be omitted if it is unreachable code, double ugh
 				// this becomes impossible to trace without code analysis of course, so look for 'case' or '}'
 
-				while (curtok.ID != TokenID.Eof && curtok.ID != TokenID.Case && curtok.ID != TokenID.Default && curtok.ID != TokenID.RCurly)
+				while (curtok.id != TokenID.Eof && curtok.id != TokenID.Case && curtok.id != TokenID.Default && curtok.id != TokenID.RCurly)
 				{
-					ParseStatement(node.Statements);
+					parseStatement(node.Statements);
 				}
 				//boolean endsOnReturn = false;
-				//while (curtok.ID != TokenID.Eof && !endsOnReturn)
+				//while (curtok.id != TokenID.Eof && !endsOnReturn)
 				//{
-				//    TokenID startTok = curtok.ID;
+				//    TokenID startTok = curtok.id;
 				//    if (startTok == TokenID.Return	||
 				//        startTok == TokenID.Goto	||
 				//        startTok == TokenID.Throw	||
@@ -2125,70 +2125,70 @@ public class Parser{
 				//        endsOnReturn = true;
 				//    }
 
-				//    ParseStatement(node.Statements);
+				//    parseStatement(node.statements);
 
 				//    // doesn't have to end on return or goto
 				//    if (endsOnReturn && (startTok == TokenID.Return	|| startTok == TokenID.Goto	|| startTok == TokenID.Throw))
 				//    {
-				//        if (curtok.ID == TokenID.Break)
+				//        if (curtok.id == TokenID.Break)
 				//        {
-				//            ParseStatement(node.Statements);
+				//            parseStatement(node.statements);
 				//        }
 				//    }
 				//}
 			}
 			else
 			{
-				ParseStatement(node.Statements);
+				parseStatement(node.Statements);
 			}
 
 		}
-		private IfStatement ParseIf()
+		private IfStatement parseIf()
 		{
 			IfStatement node = new IfStatement();
-			Advance(); // advance over IF
+			advance(); // advance over IF
 
 			AssertAndAdvance(TokenID.LParen);
 			node.Test = ParseExpression();
 			AssertAndAdvance(TokenID.RParen);
 
-			ParseBlock(node.Statements);
+			parseBlock(node.Statements);
 
-			if (curtok.ID == TokenID.Else)
+			if (curtok.id == TokenID.Else)
 			{
-				Advance(); // advance of else
-				ParseBlock(node.ElseStatements);
+				advance(); // advance of else
+				parseBlock(node.ElseStatements);
 			}
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
-		private SwitchStatement ParseSwitch()
+		private SwitchStatement parseSwitch()
 		{
 			SwitchStatement node = new SwitchStatement();
-			Advance(); // advance over SWITCH
+			advance(); // advance over SWITCH
 
 			AssertAndAdvance(TokenID.LParen);
 			node.Test = ParseExpression();
 			AssertAndAdvance(TokenID.RParen);
 
 			AssertAndAdvance(TokenID.LCurly);
-			while (curtok.ID == TokenID.Case || curtok.ID == TokenID.Default)
+			while (curtok.id == TokenID.Case || curtok.id == TokenID.Default)
 			{
-				node.Cases.add(ParseCase());
+				node.Cases.add(parseCase());
 			}
 
 			AssertAndAdvance(TokenID.RCurly);
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
-		private CaseNode ParseCase()
+		private CaseNode parseCase()
 		{
 			CaseNode node = new CaseNode();
-			boolean isDefault = (curtok.ID == TokenID.Default);
-			Advance(); // advance over CASE or DEFAULT
+			boolean isDefault = (curtok.id == TokenID.Default);
+			advance(); // advance over CASE or DEFAULT
 
 			if (!isDefault)
 			{
@@ -2201,10 +2201,10 @@ public class Parser{
 			AssertAndAdvance(TokenID.Colon);
 
 			// may be multiple cases, but must be at least one
-			while (curtok.ID == TokenID.Case || curtok.ID == TokenID.Default)
+			while (curtok.id == TokenID.Case || curtok.id == TokenID.Default)
 			{
-				isDefault = (curtok.ID == TokenID.Default);
-				Advance(); // advance over CASE or DEFAULT
+				isDefault = (curtok.id == TokenID.Default);
+				advance(); // advance over CASE or DEFAULT
 				if (!isDefault)
 				{
 					node.Ranges.add(ParseExpression());
@@ -2215,34 +2215,34 @@ public class Parser{
 				}
 				AssertAndAdvance(TokenID.Colon);
 			}
-			if (curtok.ID != TokenID.LCurly)
+			if (curtok.id != TokenID.LCurly)
 			{
 				node.StatementBlock.setHasBraces(false);
 			}
-			ParseBlock(node.StatementBlock, true);
+			parseBlock(node.StatementBlock, true);
 			return node;
 		}
-		private WhileStatement ParseWhile()
+		private WhileStatement parseWhile()
 		{
 			WhileStatement node = new WhileStatement();
-			Advance(); // advance over While
+			advance(); // advance over While
 
 			AssertAndAdvance(TokenID.LParen);
 			node.Test = ParseExpression();
 			AssertAndAdvance(TokenID.RParen);
 
-			ParseBlock(node.Statements);
+			parseBlock(node.Statements);
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
-		private DoStatement ParseDo()
+		private DoStatement parseDo()
 		{
 			DoStatement node = new DoStatement();
-			Advance(); // advance over DO
+			advance(); // advance over DO
 
-			ParseBlock(node.Statements);
+			parseBlock(node.Statements);
 
 			AssertAndAdvance(TokenID.While); // advance over While
 
@@ -2254,17 +2254,17 @@ public class Parser{
 
 			return node;
 		}
-		private ForStatement ParseFor()
+		private ForStatement parseFor()
 		{
 			ForStatement node = new ForStatement();
-			Advance(); // advance over FOR
+			advance(); // advance over FOR
 
 			AssertAndAdvance(TokenID.LParen);
 
-			if (curtok.ID != TokenID.Semi)
+			if (curtok.id != TokenID.Semi)
 			{
 				node.Init.add(ParseExpression());
-				while (curtok.ID == TokenID.Comma)
+				while (curtok.id == TokenID.Comma)
 				{
 					AssertAndAdvance(TokenID.Comma);
 					node.Init.add(ParseExpression());
@@ -2272,10 +2272,10 @@ public class Parser{
 			}
 			AssertAndAdvance(TokenID.Semi);
 
-			if (curtok.ID != TokenID.Semi)
+			if (curtok.id != TokenID.Semi)
 			{
 				node.Test.add(ParseExpression());
-				while (curtok.ID == TokenID.Comma)
+				while (curtok.id == TokenID.Comma)
 				{
 					AssertAndAdvance(TokenID.Comma);
 					node.Test.add(ParseExpression());
@@ -2283,71 +2283,71 @@ public class Parser{
 			}
 			AssertAndAdvance(TokenID.Semi);
 
-			if (curtok.ID != TokenID.RParen)
+			if (curtok.id != TokenID.RParen)
 			{
 				node.Inc.add(ParseExpression());
-				while (curtok.ID == TokenID.Comma)
+				while (curtok.id == TokenID.Comma)
 				{
 					AssertAndAdvance(TokenID.Comma);
 					node.Inc.add(ParseExpression());
 				}
 			}
 			AssertAndAdvance(TokenID.RParen);
-			ParseBlock(node.Statements);
+			parseBlock(node.Statements);
 
-			if (curtok.ID == TokenID.Semi)
+			if (curtok.id == TokenID.Semi)
 			{
-				Advance();
+				advance();
 			}
 			return node;
 		}
-		private ForEachStatement ParseForEach()
+		private ForEachStatement parseForEach()
 		{
 			ForEachStatement node = new ForEachStatement();
-			Advance(); // advance over FOREACH
+			advance(); // advance over FOREACH
 
 			AssertAndAdvance(TokenID.LParen);
-			node.Iterator = ParseParamDecl();
+			node.Iterator = parseParamDecl();
 			AssertAndAdvance(TokenID.In);
 			node.Collection = ParseExpression();
 			AssertAndAdvance(TokenID.RParen);
 
-			//node.Statements = ParseBlock().Statements;
+			//node.statements = parseBlock().statements;
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
-		private BreakStatement ParseBreak()
+		private BreakStatement parseBreak()
 		{
 			BreakStatement node = new BreakStatement();
-			Advance(); // advance over BREAK
+			advance(); // advance over BREAK
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
-		private ContinueStatement ParseContinue()
+		private ContinueStatement parseContinue()
 		{
 			ContinueStatement node = new ContinueStatement();
-			Advance(); // advance over Continue
+			advance(); // advance over Continue
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
-		private GotoStatement ParseGoto()
+		private GotoStatement parseGoto()
 		{
-			Advance();
+			advance();
 			GotoStatement gn = new GotoStatement();
-			if (curtok.ID == TokenID.Case)
+			if (curtok.id == TokenID.Case)
 			{
-				Advance();
+				advance();
 				gn.IsCase = true;
 			}
-			else if (curtok.ID == TokenID.Default)
+			else if (curtok.id == TokenID.Default)
 			{
-				Advance();
+				advance();
 				gn.IsDefaultCase = true;
 			}
 			if (!gn.IsDefaultCase)
@@ -2357,14 +2357,14 @@ public class Parser{
 			AssertAndAdvance(TokenID.Semi);
 			return gn;
 		}
-		private ReturnStatement ParseReturn()
+		private ReturnStatement parseReturn()
 		{
 			ReturnStatement node = new ReturnStatement();
-			Advance(); // advance over Return
+			advance(); // advance over Return
 
-			if (curtok.ID == TokenID.Semi)
+			if (curtok.id == TokenID.Semi)
 			{
-				Advance();
+				advance();
 			}
 			else
 			{
@@ -2373,158 +2373,158 @@ public class Parser{
 			}
 			return node;
 		}
-		private ThrowNode ParseThrow()
+		private ThrowNode parseThrow()
 		{
 			ThrowNode node = new ThrowNode();
-			Advance(); // advance over Throw
+			advance(); // advance over Throw
 
-			if (curtok.ID != TokenID.Semi)
+			if (curtok.id != TokenID.Semi)
 			{
 				node.ThrowExpression = ParseExpression();
 			}
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
-		private TryStatement ParseTry()
+		private TryStatement parseTry()
 		{
 			TryStatement node = new TryStatement();
-			Advance(); // advance over Try
-			ParseBlock(node.TryBlock);
-			while (curtok.ID == TokenID.Catch)
+			advance(); // advance over Try
+			parseBlock(node.TryBlock);
+			while (curtok.id == TokenID.Catch)
 			{
 				CatchNode cn = new CatchNode();
 				node.CatchBlocks.add(cn);
 
-				Advance(); // over catch
-				if (curtok.ID == TokenID.LParen)
+				advance(); // over catch
+				if (curtok.id == TokenID.LParen)
 				{
-					Advance(); // over lparen
-					cn.ClassType = ParseType();
+					advance(); // over lparen
+					cn.ClassType = parseType();
 
-					if (curtok.ID == TokenID.Ident)
+					if (curtok.id == TokenID.Ident)
 					{
-						cn.Identifier = new IdentifierExpression(new String[]{strings.get(curtok.Data)});
-						Advance();
+						cn.Identifier = new IdentifierExpression(new String[]{strings.get(curtok.data)});
+						advance();
 					}
 					AssertAndAdvance(TokenID.RParen);
-					ParseBlock(cn.CatchBlock);
+					parseBlock(cn.CatchBlock);
 				}
 				else
 				{
-					ParseBlock(cn.CatchBlock);
+					parseBlock(cn.CatchBlock);
 					break; // must be last catch block if not a specific catch clause
 				}
 			}
-			if (curtok.ID == TokenID.Finally)
+			if (curtok.id == TokenID.Finally)
 			{
-				Advance(); // over finally
+				advance(); // over finally
 				FinallyNode fn = new FinallyNode();
 				node.FinallyBlock = fn;
-				ParseBlock(fn.FinallyBlock);
+				parseBlock(fn.FinallyBlock);
 			}
 
-			if (curtok.ID == TokenID.Semi)
+			if (curtok.id == TokenID.Semi)
 			{
-				Advance();
+				advance();
 			}
 			return node;
 		}
-		private CheckedStatement ParseChecked()
+		private CheckedStatement parseChecked()
 		{
 			CheckedStatement node = new CheckedStatement();
-			Advance(); // advance over Checked
+			advance(); // advance over Checked
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
-		private UncheckedStatement ParseUnchecked()
+		private UncheckedStatement parseUnchecked()
 		{
 			UncheckedStatement node = new UncheckedStatement();
-			Advance(); // advance over Uncecked
+			advance(); // advance over Uncecked
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
-		private LockStatement ParseLock()
+		private LockStatement parseLock()
 		{
 			LockStatement node = new LockStatement();
-			Advance(); // advance over Lock
+			advance(); // advance over Lock
 
 			AssertAndAdvance(TokenID.LParen);
 			node.Target = ParseExpression();
 			AssertAndAdvance(TokenID.RParen);
-			ParseBlock(node.Statements);
+			parseBlock(node.Statements);
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
 		private UsingStatement ParseUsing()
 		{
 			UsingStatement node = new UsingStatement();
-			Advance(); // advance over Using
+			advance(); // advance over Using
 
 			AssertAndAdvance(TokenID.LParen);
 			node.Resource = ParseExpression();
 			AssertAndAdvance(TokenID.RParen);
-			ParseBlock(node.Statements);
+			parseBlock(node.Statements);
 
-			if (curtok.ID == TokenID.Semi)
-				Advance();
+			if (curtok.id == TokenID.Semi)
+				advance();
 			return node;
 		}
 		private void ParseUnsafeCode()
 		{
 			// todo: fully parse unsafe code
 
-			Advance(); // over 'unsafe'
+			advance(); // over 'unsafe'
 			AssertAndAdvance(TokenID.LCurly);
 
 			int lcount = 1;
-			while (curtok.ID != TokenID.Eof && lcount != 0)
+			while (curtok.id != TokenID.Eof && lcount != 0)
 			{
-				Advance();
-				if (curtok.ID == TokenID.RCurly)
+				advance();
+				if (curtok.id == TokenID.RCurly)
 				{
 					lcount--;
 				}
-				else if (curtok.ID == TokenID.LCurly)
+				else if (curtok.id == TokenID.LCurly)
 				{
 					lcount++;
 				}
 			}
-			if (curtok.ID != TokenID.Eof)
+			if (curtok.id != TokenID.Eof)
 			{
-				Advance(); // over RCurly
+				advance(); // over RCurly
 			}
 		}
 
 		// expressions
 		private ExpressionNode ParseExpression(int endToken)
 		{
-			int id = curtok.ID;
+			int id = curtok.id;
 			while (	id != endToken		&& id != TokenID.Eof	&&
 					id != TokenID.Semi	&& id != TokenID.RParen &&
 					id != TokenID.Comma && id != TokenID.Colon)
 			{
 				ParseExpressionSegment();
-				id = curtok.ID;
+				id = curtok.id;
 			}
 			return exprStack.pop();
 		}
 		private ExpressionNode ParseExpression()
 		{
-			int id = curtok.ID;
+			int id = curtok.id;
 			while ( id != TokenID.Eof && id != TokenID.RCurly &&
 					id != TokenID.Semi	&& id != TokenID.RParen &&
 					id != TokenID.Comma && id != TokenID.Colon)
 			{
 				ParseExpressionSegment();
-				id = curtok.ID;
+				id = curtok.id;
 			}
 			return exprStack.pop();
 		}
@@ -2549,63 +2549,63 @@ public class Parser{
 			// checked		checked		: LParen
 			// unchecked	unchecked	: LParen
 			ExpressionNode tempNode = null;
-			int startToken = curtok.ID;
-			switch (curtok.ID)
+			int startToken = curtok.id;
+			switch (curtok.id)
 			{
 				case TokenID.NullLiteral:
 					exprStack.push(new NullPrimitive());
-					Advance();
+					advance();
 					break;
 
 				case TokenID.TrueLiteral:
 					exprStack.push(new BooleanPrimitive(true));
-					Advance();
+					advance();
 					ParseContinuingPrimary();
 					break;
 
 				case TokenID.FalseLiteral:
 					exprStack.push(new BooleanPrimitive(false));
-					Advance();
+					advance();
 					ParseContinuingPrimary();
 					break;
 
 				case TokenID.IntLiteral:
-					exprStack.push(new IntegralPrimitive(strings.get(curtok.Data), IntegralType.Int));
-					Advance();
+					exprStack.push(new IntegralPrimitive(strings.get(curtok.data), IntegralType.Int));
+					advance();
 					ParseContinuingPrimary();
 					break;
 				case TokenID.UIntLiteral:
-					exprStack.push(new IntegralPrimitive(strings.get(curtok.Data), IntegralType.UInt));
-					Advance();
+					exprStack.push(new IntegralPrimitive(strings.get(curtok.data), IntegralType.UInt));
+					advance();
 					ParseContinuingPrimary();
 					break;
 				case TokenID.LongLiteral:
-					exprStack.push(new IntegralPrimitive(strings.get(curtok.Data), IntegralType.Long));
-					Advance();
+					exprStack.push(new IntegralPrimitive(strings.get(curtok.data), IntegralType.Long));
+					advance();
 					ParseContinuingPrimary();
 					break;
 				case TokenID.ULongLiteral:
-					exprStack.push(new IntegralPrimitive(strings.get(curtok.Data), IntegralType.ULong));
-					Advance();
+					exprStack.push(new IntegralPrimitive(strings.get(curtok.data), IntegralType.ULong));
+					advance();
 					ParseContinuingPrimary();
 					break;
 
 				case TokenID.RealLiteral:
-					exprStack.push(new RealPrimitive(strings.get(curtok.Data)));
-					Advance();
+					exprStack.push(new RealPrimitive(strings.get(curtok.data)));
+					advance();
 					ParseContinuingPrimary();
 					break;
 
 				case TokenID.CharLiteral:
-					exprStack.push(new CharPrimitive(strings.get(curtok.Data)));
-					Advance();
+					exprStack.push(new CharPrimitive(strings.get(curtok.data)));
+					advance();
 					ParseContinuingPrimary();
 					break;
 
 				case TokenID.StringLiteral:
-					String sval = strings.get(curtok.Data);
+					String sval = strings.get(curtok.data);
 					exprStack.push(new StringPrimitive(sval));
-					Advance();
+					advance();
 					ParseContinuingPrimary();
 					break;
 
@@ -2624,7 +2624,7 @@ public class Parser{
 				case TokenID.UInt:
 				case TokenID.ULong:
 				case TokenID.UShort:
-					IdentifierExpression qe = ParseQualifiedIdentifier();
+					IdentifierExpression qe = parseQualifiedIdentifier();
 					exprStack.push(qe);
 					ParseContinuingPrimary();
 					break;
@@ -2675,7 +2675,7 @@ public class Parser{
 
 				case TokenID.Question:
 					ExpressionNode condTest = exprStack.pop();
-					Advance();
+					advance();
 					ExpressionNode cond1 = ParseExpression(TokenID.Colon);
 					AssertAndAdvance(TokenID.Colon);
 					ExpressionNode cond2 = ParseExpression();
@@ -2684,43 +2684,43 @@ public class Parser{
 					break;
 				// keywords
 				case TokenID.Ref:
-					Advance();
+					advance();
 					ParseExpressionSegment();
 					exprStack.push(new RefNode(exprStack.pop()));
 					break;
 
 				case TokenID.Out:
-					Advance();
+					advance();
 					ParseExpressionSegment();
 					exprStack.push(new OutNode(exprStack.pop()));
 					break;
 
 				case TokenID.This:
-					exprStack.push(ParseQualifiedIdentifier());
+					exprStack.push(parseQualifiedIdentifier());
 					ParseContinuingPrimary();
 					break;
 
 				case TokenID.Void:
 					// this can happen in typeof(void), nothing can follow
-					Advance();
+					advance();
 					exprStack.push(new VoidPrimitive());
 					break;
 
 				case TokenID.Base:
-					Advance();
-					int newToken = curtok.ID;
+					advance();
+					int newToken = curtok.id;
 					if (newToken == TokenID.Dot)
 					{
-						Advance();
-						String baseIdent = strings.get(curtok.Data);
+						advance();
+						String baseIdent = strings.get(curtok.data);
 						IdentifierExpression ide = new IdentifierExpression(new String[] { baseIdent });
-						Advance();
+						advance();
 						exprStack.push(new BaseAccessExpression(ide));
 
 					}
 					else if (newToken == TokenID.LBracket)
 					{
-						Advance();
+						advance();
 						ExpressionList el = ParseExpressionList(TokenID.RBracket);
 						exprStack.push(new BaseAccessExpression(el));
 					}
@@ -2728,7 +2728,7 @@ public class Parser{
 					break;
 
 				case TokenID.Typeof:
-					Advance();
+					advance();
 					AssertAndAdvance(TokenID.LParen);
 					exprStack.push(new TypeOfExpression( ParseExpression(TokenID.RParen) ));
 					AssertAndAdvance(TokenID.RParen);
@@ -2736,7 +2736,7 @@ public class Parser{
 					break;
 
 				case TokenID.Checked:
-					Advance();
+					advance();
 					AssertAndAdvance(TokenID.LParen);
 					ParseExpressionSegment();
 					exprStack.push(new CheckedExpression(exprStack.pop()));
@@ -2745,7 +2745,7 @@ public class Parser{
 					break;
 
 				case TokenID.Unchecked:
-					Advance();
+					advance();
 					AssertAndAdvance(TokenID.LParen);
 					ParseExpressionSegment();
 					exprStack.push(new UncheckedExpression(exprStack.pop()));
@@ -2764,8 +2764,8 @@ public class Parser{
 				case TokenID.BXorEqual:
 				case TokenID.ShiftLeftEqual:
 				case TokenID.ShiftRightEqual:
-					int op = curtok.ID;
-					Advance();
+					int op = curtok.id;
+					advance();
 
 
                     if (exprStack.size() > 0 && !(exprStack.peek() instanceof PrimaryExpression) && !(exprStack.peek() instanceof UnaryCastExpression))
@@ -2779,23 +2779,23 @@ public class Parser{
 
 
 				case TokenID.LCurly:
-					Advance();
+					advance();
 					ArrayInitializerExpression aie = new ArrayInitializerExpression();
 					exprStack.push(aie);
 					aie.Expressions = ParseExpressionList(TokenID.RCurly);
 					break;
 
 				case TokenID.New:
-					Advance();
+					advance();
 
-					TypeNode newType = ParseType();
-					if (curtok.ID == TokenID.LParen)
+					TypeNode newType = parseType();
+					if (curtok.id == TokenID.LParen)
 					{
-						Advance();
+						advance();
 						ExpressionList newList = ParseExpressionList(TokenID.RParen);
 						exprStack.push(new ObjectCreationExpression(newType, newList));
 					}
-					else if (curtok.ID == TokenID.LBracket)
+					else if (curtok.id == TokenID.LBracket)
 					{
 						ParseArrayCreation(newType);
 					}
@@ -2812,27 +2812,27 @@ public class Parser{
 					}
 					else
 					{
-						exprStack.push(ParseQualifiedIdentifier());
+						exprStack.push(parseQualifiedIdentifier());
 						ParseContinuingPrimary();
 					}
 					break;
 
 				case TokenID.LParen:
-					Advance();
+					advance();
 					ParseCastOrGroup();
 					break;
 
 				default:
-					RecoverFromError("Unhandled case in ParseExpressionSegment", curtok.ID); // todo: fill out error report
+					RecoverFromError("Unhandled case in ParseExpressionSegment", curtok.id); // todo: fill out error report
 					break;
 			}
 		}
 
 		private void ConsumeUnary(int startOp)
 		{
-			Advance();
+			advance();
 			ParseExpressionSegment();
-			while (precedence[(int)curtok.ID] > precedence[(int)startOp])
+			while (precedence[(int)curtok.id] > precedence[(int)startOp])
 			{
 				ParseExpressionSegment();
 			}
@@ -2843,12 +2843,12 @@ public class Parser{
 		private ExpressionNode ConsumeBinary(int startOp)
 		{
 			ExpressionNode result = null;
-			if ((exprStack.size() == 0 || precedence[(int)tokens.get(index - 2).ID] > 0))
+			if ((exprStack.size() == 0 || precedence[(int)tokens.get(index - 2).id] > 0))
 			{
 				// assert +,-,!,~,++,--,cast
-				Advance();
+				advance();
 				ParseExpressionSegment();
-				while (precedence[(int)curtok.ID] > precedence[(int)startOp])
+				while (precedence[(int)curtok.id] > precedence[(int)startOp])
 				{
 					ParseExpressionSegment();
 				}
@@ -2856,13 +2856,13 @@ public class Parser{
 			}
 			else
 			{
-				Advance();
+				advance();
 				BinaryExpression bNode = new BinaryExpression(startOp);
 				bNode.Left = exprStack.pop();
 				exprStack.push(bNode); // push node
 				ParseExpressionSegment(); // right side
 				// consume now or let next op consume?
-				while (precedence[(int)curtok.ID] > precedence[(int)startOp])
+				while (precedence[(int)curtok.id] > precedence[(int)startOp])
 				{
 					ParseExpressionSegment();
 				}
@@ -2891,31 +2891,31 @@ public class Parser{
 		private ExpressionList ParseExpressionList(int termChar)
 		{
 			ExpressionList list = new ExpressionList();
-			int id = curtok.ID;
+			int id = curtok.id;
 			while (id != TokenID.Eof && id != termChar)
 			{
 				while (id != TokenID.Eof && id != termChar && id != TokenID.Comma)
 				{
 					ParseExpressionSegment();
-					id = curtok.ID;
+					id = curtok.id;
 				}
 
-				if (curtok.ID == TokenID.Comma)
+				if (curtok.id == TokenID.Comma)
 				{
-					Advance(); // over comma
+					advance(); // over comma
 				}
-				list.Expressions.add(exprStack.pop());
-				id = curtok.ID;
+				list.getExpressions().add(exprStack.pop());
+				id = curtok.id;
 			}
-			if (curtok.ID == termChar)
+			if (curtok.id == termChar)
 			{
-				Advance();
+				advance();
 			}
 			return list;
 		}
 		private void ParseLocalDeclaration()
 		{
-			IdentifierExpression declIdentifier = ParseQualifiedIdentifier();
+			IdentifierExpression declIdentifier = parseQualifiedIdentifier();
 			IType type = (IType)exprStack.pop();
 			LocalDeclarationStatement lnode = new LocalDeclarationStatement();
 			lnode.Identifiers.add(declIdentifier);
@@ -2928,20 +2928,20 @@ public class Parser{
 			lnode.Type = type;
 
 			// a using statement can hold a local decl without a semi, thus the rparen
-			while (curtok.ID != TokenID.Eof && curtok.ID != TokenID.Semi && curtok.ID != TokenID.RParen)
+			while (curtok.id != TokenID.Eof && curtok.id != TokenID.Semi && curtok.id != TokenID.RParen)
 			{
-				while (curtok.ID == TokenID.Comma)
+				while (curtok.id == TokenID.Comma)
 				{
-					Advance(); // over comma
-					declIdentifier = ParseQualifiedIdentifier();
+					advance(); // over comma
+					declIdentifier = parseQualifiedIdentifier();
 					lnode.Identifiers.add(declIdentifier);
 				}
-				if (curtok.ID == TokenID.Equal)
+				if (curtok.id == TokenID.Equal)
 				{
-					Advance(); // over equal
+					advance(); // over equal
 					lnode.RightSide = ParseExpression(TokenID.Comma);
 
-					if (curtok.ID == TokenID.Comma)
+					if (curtok.id == TokenID.Comma)
 					{
 						exprStack.push(lnode);
 						lnode = new LocalDeclarationStatement();
@@ -2955,7 +2955,7 @@ public class Parser{
 		{
 			ExpressionNode interior = ParseExpression();
 			AssertAndAdvance(TokenID.RParen);
-			int rightTok = curtok.ID;
+			int rightTok = curtok.id;
 
 			// check if this is terminating - need better algorithm here :(
 			// todo: this can probably be simplified (and correctified!) with new expression parsing style
@@ -3007,30 +3007,30 @@ public class Parser{
 			int nextToken = TokenID.Invalid;
 			if (tokens.size() > index)
 			{
-				nextToken = tokens.get(index).ID;
+				nextToken = tokens.get(index).id;
 			}
 			// this tests for literal size declarations on first rank specifiers
 			if (nextToken != TokenID.Invalid && nextToken != TokenID.Comma && nextToken != TokenID.RBracket)
 			{
-				Advance(); // over lbracket
+				advance(); // over lbracket
 				arNode.RankSpecifier = ParseExpressionList(TokenID.RBracket);
 			}
 			// now any 'rank only' specifiers (without size decls)
-			while (curtok.ID == TokenID.LBracket)
+			while (curtok.id == TokenID.LBracket)
 			{
-				Advance(); // over lbracket
+				advance(); // over lbracket
 				int commaCount = 0;
-				while (curtok.ID == TokenID.Comma)
+				while (curtok.id == TokenID.Comma)
 				{
 					commaCount++;
-					Advance();
+					advance();
 				}
 				arNode.AdditionalRankSpecifiers.add(commaCount);
 				AssertAndAdvance(TokenID.RBracket);
 			}
-			if (curtok.ID == TokenID.LCurly)
+			if (curtok.id == TokenID.LCurly)
 			{
-				Advance();
+				advance();
 				arNode.Initializer = new ArrayInitializerExpression();
 				arNode.Initializer.Expressions = ParseExpressionList(TokenID.RCurly);
 			}
@@ -3038,10 +3038,10 @@ public class Parser{
 
 		private void ParseContinuingPrimary()
 		{
-			boolean isContinuing = curtok.ID == TokenID.LBracket || curtok.ID == TokenID.Dot || curtok.ID == TokenID.LParen;
+			boolean isContinuing = curtok.id == TokenID.LBracket || curtok.id == TokenID.Dot || curtok.id == TokenID.LParen;
 			while (isContinuing)
 			{
-				switch (curtok.ID)
+				switch (curtok.id)
 				{
 					case TokenID.Dot:
 						ParseMemberAccess();
@@ -3058,29 +3058,29 @@ public class Parser{
 				}
 				if (isContinuing)
 				{
-					isContinuing = curtok.ID == TokenID.LBracket || curtok.ID == TokenID.Dot || curtok.ID == TokenID.LParen;
+					isContinuing = curtok.id == TokenID.LBracket || curtok.id == TokenID.Dot || curtok.id == TokenID.LParen;
 				}
 			}
 			// can only be one at end
-			if (curtok.ID == TokenID.PlusPlus)
+			if (curtok.id == TokenID.PlusPlus)
 			{
-				Advance();
+				advance();
 				exprStack.push(new PostIncrementExpression(exprStack.pop()));
 			}
-			else if(curtok.ID == TokenID.MinusMinus)
+			else if(curtok.id == TokenID.MinusMinus)
 			{
-				Advance();
+				advance();
 				exprStack.push(new PostDecrementExpression(exprStack.pop()));
 			}
 		}
 		private void ParseMemberAccess()
 		{
-			Advance(); // over dot
-			if (curtok.ID != TokenID.Ident)
+			advance(); // over dot
+			if (curtok.id != TokenID.Ident)
 			{
 				ReportError("Right side of member access must be identifier");
 			}
-			IdentifierExpression identifier = ParseQualifiedIdentifier();
+			IdentifierExpression identifier = parseQualifiedIdentifier();
 			if (exprStack.size() > 0 && exprStack.peek() instanceof IMemberAccessible)
 			{
 				IMemberAccessible ima = (IMemberAccessible)exprStack.pop();
@@ -3093,7 +3093,7 @@ public class Parser{
 		}
 		private void ParseInvocation()
 		{
-			Advance(); // over lparen
+			advance(); // over lparen
 
 			PrimaryExpression leftSide = (PrimaryExpression)exprStack.pop();
 			ExpressionList list = ParseExpressionList(TokenID.RParen);
@@ -3102,12 +3102,12 @@ public class Parser{
 		private boolean ParseElementAccess()
 		{
 			boolean isElementAccess = true;
-			Advance(); // over lbracket
+			advance(); // over lbracket
 			ExpressionNode type = exprStack.pop(); // the caller pushed, so must have at least one element
 
 			// case one is actaully a type decl (like T[,,]), not element access (like T[2,4])
 			// in this case we need to push the type, and abort parsing the continuing
-			if (curtok.ID == TokenID.Comma || curtok.ID == TokenID.RBracket)
+			if (curtok.id == TokenID.Comma || curtok.id == TokenID.RBracket)
 			{
 				isElementAccess = false;
 				if (type instanceof IdentifierExpression)
@@ -3140,18 +3140,18 @@ public class Parser{
 		{
 			// now any 'rank only' specifiers (without size decls)
 			boolean firstTime = true;
-			while (curtok.ID == TokenID.LBracket || firstTime)
+			while (curtok.id == TokenID.LBracket || firstTime)
 			{
 				if (!firstTime)
 				{
-					Advance();
+					advance();
 				}
 				firstTime = false;
 				int commaCount = 0;
-				while (curtok.ID == TokenID.Comma)
+				while (curtok.id == TokenID.Comma)
 				{
 					commaCount++;
-					Advance();
+					advance();
 				}
 				type.RankSpecifiers.add(commaCount);
 				AssertAndAdvance(TokenID.RBracket);
@@ -3165,26 +3165,26 @@ public class Parser{
 		}
 		private void RecoverFromError(String message, int id)
 		{
-			String msg = "Error: Expected " + id + " found: " + curtok.ID;
+			String msg = "Error: Expected " + id + " found: " + curtok.id;
 			if (message != null)
 				msg = message + msg;
 
 			ReportError(msg);
-			Advance();
+			advance();
 		}
 		private void ReportError(String message)
 		{
-            System.out.println(message + " in token " + index + " [" + curtok.ID + "]");
+            System.out.println(message + " in token " + index + " [" + curtok.id + "]");
 		}
 		private void AssertAndAdvance(int id)
 		{
-			if (curtok.ID != id)
+			if (curtok.id != id)
 			{
                 RecoverFromError(id);
 			}
-			Advance();
+			advance();
 		}
-		private void Advance()
+		private void advance()
 		{
 			boolean skipping = true;
 			do
@@ -3200,12 +3200,12 @@ public class Parser{
 
 				index++;
 
-				switch (curtok.ID)
+				switch (curtok.id)
 				{
 					case TokenID.SingleComment:
 						break;
 					case TokenID.MultiComment:
-						String[] s = strings.get(curtok.Data).split("\n");
+						String[] s = strings.get(curtok.data).split("\n");
 						lineCount += s.length - 1;
 						break;
 
@@ -3217,15 +3217,15 @@ public class Parser{
 						// preprocessor directives
 						if (!inPPDirective)
 						{
-							ParsePreprocessorDirective();
-							if (curtok.ID != TokenID.Newline &&
-								curtok.ID != TokenID.SingleComment &&
-								curtok.ID != TokenID.MultiComment &&
-								curtok.ID != TokenID.Hash )
+							parsePreprocessorDirective();
+							if (curtok.id != TokenID.Newline &&
+								curtok.id != TokenID.SingleComment &&
+								curtok.id != TokenID.MultiComment &&
+								curtok.id != TokenID.Hash )
 							{
 								skipping = false;
 							}
-							else if(curtok.ID == TokenID.Hash)
+							else if(curtok.id == TokenID.Hash)
 							{
 								index--;
 							}
@@ -3264,7 +3264,7 @@ public class Parser{
 				}
 				index++;
 
-				if(curtok.ID == TokenID.Newline)
+				if(curtok.id == TokenID.Newline)
 				{
 					lineCount++;
 					skipping = false;
@@ -3287,11 +3287,11 @@ public class Parser{
 				}
 				index++;
 
-				if (curtok.ID == TokenID.Hash)
+				if (curtok.id == TokenID.Hash)
 				{
 					skipping = false;
 				}
-				else if (curtok.ID == TokenID.Newline)
+				else if (curtok.id == TokenID.Newline)
 				{
 					lineCount++;
 				}
@@ -3301,7 +3301,7 @@ public class Parser{
 		{
 			// advance to elif, else, or endif
 			int endCount = 1;
-			boolean firstPassHash = curtok.ID == TokenID.Hash;
+			boolean firstPassHash = curtok.id == TokenID.Hash;
 			while (endCount > 0)
 			{
 				if (!firstPassHash)
@@ -3314,9 +3314,9 @@ public class Parser{
 				{
 					break;
 				}
-				if (tokens.get(index).ID == TokenID.Ident)
+				if (tokens.get(index).id == TokenID.Ident)
 				{
-					String sKind = strings.get(tokens.get(index).Data);
+					String sKind = strings.get(tokens.get(index).data);
 					if (sKind .equals( "endif"))
 					{
 						endCount--;
@@ -3329,11 +3329,11 @@ public class Parser{
 						}
 					}
 				}
-				else if (tokens.get(index).ID == TokenID.If)
+				else if (tokens.get(index).id == TokenID.If)
 				{
 					endCount++;
 				}
-				else if (tokens.get(index).ID == TokenID.Else)
+				else if (tokens.get(index).id == TokenID.Else)
 				{
 					if (endCount == 1)
 					{
@@ -3373,7 +3373,7 @@ public class Parser{
 //			modMap.add(TokenID.Param, Modifier.Param);
 //			modMap.add(TokenID.Property, Modifier.Property);
 //			modMap.add(TokenID.Return, Modifier.Return);
-//			modMap.add(TokenID.Type, Modifier.Type);
+//			modMap.add(TokenID.type, Modifier.type);
 //
 //			// all default to zero
 //			precedence = new byte[0xFF];

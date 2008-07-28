@@ -10,31 +10,31 @@ import org.argouml.language.csharp.importer.csparser.collections.NodeCollection;
  */
 public class InterfaceMethodNode extends MemberNode
 	{
-		public NodeCollection<ParamDeclNode> Params =new NodeCollection<ParamDeclNode>();
+		public NodeCollection<ParamDeclNode> params =new NodeCollection<ParamDeclNode>();
 
 		public void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			this.TraceModifiers(this.Modifiers, sb);
+			this.TraceModifiers(this.modifiers, sb);
 
-			this.Type.ToSource(sb);
+			this.type.ToSource(sb);
 			sb.append(" ");
 
-			this.Names.get(0).ToSource(sb);
+			this.names.get(0).ToSource(sb);
 			sb.append("(");
 
-			if (Params != null)
+			if (params != null)
 			{
 				String comma = "";
-				for (int i = 0; i < Params.size(); i++)
+				for (int i = 0; i < params.size(); i++)
 				{
 					sb.append(comma);
 					comma = ", ";
-					Params.get(i).ToSource(sb);
+					params.get(i).ToSource(sb);
 				}
 			}
 

@@ -1,6 +1,5 @@
 package org.argouml.language.csharp.importer.csparser.members;
 
-import org.argouml.language.csharp.importer.csparser.enums.TokenID;
 import org.argouml.language.csharp.importer.csparser.statements.BlockStatement;
 
 /**
@@ -15,63 +14,63 @@ public class OperatorNode extends MemberNode
 		{
 		}
 
-		public int Operator;
+		public int operator;
 
 
-		public boolean IsExplicit;
+		public boolean isExplicit;
 
-		public boolean IsImplicit;
-
-
-		public ParamDeclNode Param1;
-
-		public ParamDeclNode Param2;
+		public boolean isImplicit;
 
 
-		public BlockStatement Statements = new BlockStatement();
+		public ParamDeclNode param1;
+
+		public ParamDeclNode param2;
+
+
+		public BlockStatement statements = new BlockStatement();
 
 
         public void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			this.TraceModifiers(this.Modifiers, sb);
+			this.TraceModifiers(this.modifiers, sb);
 
-			if (IsExplicit)
+			if (isExplicit)
 			{
 				sb.append("explicit operator ");
-				Type.ToSource(sb);
+				type.ToSource(sb);
 			}
-			else if (IsImplicit)
+			else if (isImplicit)
 			{
 				sb.append("implicit operator ");
-				Type.ToSource(sb);
+				type.ToSource(sb);
 			}
 			else
 			{
-				Type.ToSource(sb);
-				sb.append("operator " + Operator + " ");
+				type.ToSource(sb);
+				sb.append("operator " + operator + " ");
 			}
 
 			sb.append("(");
-			if (Param1 != null)
+			if (param1 != null)
 			{
-				Param1.ToSource(sb);
+				param1.ToSource(sb);
 			}
-			if (Param2 != null)
+			if (param2 != null)
 			{
 				sb.append(", ");
-				Param2.ToSource(sb);
+				param2.ToSource(sb);
 			}
 			sb.append(")");
 			this.NewLine(sb);
 
-			if (Statements != null)
+			if (statements != null)
 			{
-				Statements.ToSource(sb);
+				statements.ToSource(sb);
 			}
 			else
 			{

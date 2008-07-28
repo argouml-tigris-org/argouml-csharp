@@ -18,7 +18,7 @@ public class TokenCollection extends ArrayList<Token>
 
 			for (int i = 0; i < this.size(); i++)
 			{
-				sb.append(i + ": " + this.get(i).ID + "\n");
+				sb.append(i + ": " + this.get(i).id + "\n");
 			}
 			return sb.toString();
 		}

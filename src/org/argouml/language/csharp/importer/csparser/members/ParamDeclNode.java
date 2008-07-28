@@ -11,28 +11,28 @@ import org.argouml.language.csharp.importer.csparser.nodes.expressions.TypeNode;
  */
 public class ParamDeclNode extends BaseNode
 	{
-		public long Modifiers;
+		public long modifiers;
 
 
-		public String Name;
+		public String name;
 
 
-		public TypeNode Type;
+		public TypeNode type;
 
 
         public void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			TraceModifiers(Modifiers, sb);
+			TraceModifiers(modifiers, sb);
 
-			Type.ToSource(sb);
+			type.ToSource(sb);
 			sb.append(" ");
 
-			sb.append(Name);
+			sb.append(name);
 
         }
 	}

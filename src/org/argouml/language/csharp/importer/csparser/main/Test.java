@@ -27,12 +27,12 @@ public class Test {
 //        BufferedInputStream bs=new BufferedInputStream(new FileInputStream("test/Bill.cs"));
         BufferedInputStream bs=new BufferedInputStream(new FileInputStream("test/eventquery.cs"));
         Lexer l = new Lexer(bs,"");
-        TokenCollection toks = l.Lex();
+        TokenCollection toks = l.lex();
 //        for(int i=0;i<l.StringLiterals.size();i++){
 //            System.out.println(l.StringLiterals.get(i));
 //        }
         Parser p = new Parser();
-        CompilationUnitNode cu = p.Parse(toks, l.StringLiterals);
+        CompilationUnitNode cu = p.parse(toks, l.StringLiterals);
         StringBuilder sb=new StringBuilder();
         cu.ToSource(sb);
         //System.out.println(sb.toString());

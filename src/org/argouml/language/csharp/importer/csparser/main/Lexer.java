@@ -129,7 +129,7 @@ public class Lexer {
         //keywords.put( "method", TokenID.Method );
         //keywords.put( "field", TokenID.Field );
         //keywords.put( "param", TokenID.Param);
-        //keywords.put( "type", TokenID.Type);
+        //keywords.put( "type", TokenID.type);
 
         keywords.put("true", TokenID.TrueLiteral);
         keywords.put("false", TokenID.FalseLiteral);
@@ -143,6 +143,7 @@ public class Lexer {
         int lastSt = 0;
         while (st > -1 && ed > -1) {
             st = str.indexOf("<", lastSt);
+            lastSt=st+1;
             if (st != -1) {
                 ed = str.indexOf(">", st);
                 if (ed != -1 && st < ed - 1) {
@@ -193,7 +194,7 @@ public class Lexer {
     }
 
 
-    public TokenCollection Lex() throws IOException, ImportInterface.ImportException {
+    public TokenCollection lex() throws IOException, ImportInterface.ImportException {
         tokens = new TokenCollection();
         StringLiterals = new ArrayList<String>();
         StringBuilder sb = new StringBuilder();
@@ -204,7 +205,6 @@ public class Lexer {
         while (c != -1) {
             switch (c) {
                 case -1: {
-                    //XXXXXX
                     break;
                 }
 
@@ -1058,13 +1058,13 @@ public class Lexer {
         for (Token t : tokens) {
             k++;
             if (!tx) {
-                if (t.ID == TokenID.Less) {
+                if (t.id == TokenID.Less) {
                     tx = true;
                     i = 0;
                 }
             }
             else{
-                if(t.ID == TokenID.Greater){
+                if(t.id == TokenID.Greater){
                     if(i==1){
                         throw new ImportInterface.ImportException("Generics found :"+ k +" "+file);
 

@@ -10,18 +10,18 @@ public class InterfaceEventNode extends MemberNode
 	{
 		public void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			this.TraceModifiers(this.Modifiers, sb);
+			this.TraceModifiers(this.modifiers, sb);
 
 			sb.append("event ");
-			this.Type.ToSource(sb);
+			this.type.ToSource(sb);
 
 			sb.append(" ");
-			this.Names.get(0).ToSource(sb);
+			this.names.get(0).ToSource(sb);
 
 			sb.append(";");
 		}

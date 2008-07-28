@@ -39,7 +39,7 @@ public class ModifierMap {
 //
 //        public static long Ref			= 0x0008000;
 //        public static long Out			= 0x0010000;
-//        public static long Params		= 0x0020000;
+//        public static long params		= 0x0020000;
 //
 //        public static long Assembly	= 0x0040000;
 //        public static long Field		= 0x0080000;
@@ -48,7 +48,7 @@ public class ModifierMap {
 //        public static long Param		= 0x0400000;
 //        public static long Property	= 0x0800000;
 //        public static long Return		= 0x1000000;
-//        public static long Type		= 0x2000000;
+//        public static long type		= 0x2000000;
 //        public static long Module		= 0x4000000;
 
     public static short getUmlModifierForVisibility(long mod){

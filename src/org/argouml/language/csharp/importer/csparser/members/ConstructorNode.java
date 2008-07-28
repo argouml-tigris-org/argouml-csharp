@@ -12,70 +12,70 @@ import org.argouml.language.csharp.importer.csparser.statements.BlockStatement;
  */
 public class ConstructorNode extends MemberNode
 	{
-		public boolean HasThis;
+		public boolean hasThis;
 
 
-		public boolean HasBase;
+		public boolean hasBase;
 
 
-		public NodeCollection<ArgumentNode> ThisBaseArgs;
+		public NodeCollection<ArgumentNode> thisBaseArgs;
 
-		public NodeCollection<ParamDeclNode> Params;
+		public NodeCollection<ParamDeclNode> params;
 
-		public BlockStatement StatementBlock = new BlockStatement();
+		public BlockStatement statementBlock = new BlockStatement();
 
 
-		public boolean IsStaticConstructor = false;
+		public boolean isStaticConstructor = false;
 
 
         public  void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			this.TraceModifiers(this.Modifiers, sb);
+			this.TraceModifiers(this.modifiers, sb);
 
-			if (IsStaticConstructor)
+			if (isStaticConstructor)
 			{
 				sb.append("static ");
 			}
 
-			this.Names.get(0).ToSource(sb);
+			this.names.get(0).ToSource(sb);
 			sb.append("(");
 
 			String comma = "";
-			if (Params != null)
+			if (params != null)
 			{
-				for (int i = 0; i < Params.size(); i++)
+				for (int i = 0; i < params.size(); i++)
 				{
 					sb.append(comma);
 					comma = ", ";
-					Params.get(i).ToSource(sb);
+					params.get(i).ToSource(sb);
 				}
 			}
 			sb.append(")");
 
 			// possible :this or :base
-			if (HasBase)
+			if (hasBase)
 			{
 				sb.append(" : base(");
 			}
-			else if (HasThis)
+			else if (hasThis)
 			{
 				sb.append(" : this(");
 			}
-			if (HasBase || HasThis)
+			if (hasBase || hasThis)
 			{
-				if (ThisBaseArgs != null)
+				if (thisBaseArgs != null)
 				{
 					comma = "";
-					for (int i = 0; i < ThisBaseArgs.size(); i++)
+					for (int i = 0; i < thisBaseArgs.size(); i++)
 					{
 						sb.append(comma);
 						comma = ", ";
-						ThisBaseArgs.get(i).ToSource(sb);
+						thisBaseArgs.get(i).ToSource(sb);
 					}
 				}
 				sb.append(")");
@@ -84,7 +84,7 @@ public class ConstructorNode extends MemberNode
 			// start block
 			this.NewLine(sb);
 
-			StatementBlock.ToSource(sb);
+			statementBlock.ToSource(sb);
 
         }
 

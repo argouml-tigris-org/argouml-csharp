@@ -1,7 +1,6 @@
 package org.argouml.language.csharp.importer;
 
 import org.argouml.kernel.Project;
-import org.argouml.kernel.ProjectManager;
 import org.argouml.uml.reveng.ImportSettings;
 import org.argouml.language.csharp.importer.csparser.structural.CompilationUnitNode;
 import org.argouml.language.csharp.importer.csparser.structural.NamespaceNode;
@@ -212,7 +211,7 @@ public class CSModeller {
 
     public void addOperation(String parent, MethodNode mn, String cPackage) {
 
-        String name = mn.Names.get(0).Identifier[0];
+        String name = mn.names.get(0).Identifier[0];
         String className = cPackage + "." + parent;
         String id = TAG_OP + className + "." + name + getParameterTypeString(mn);
 
@@ -220,14 +219,14 @@ public class CSModeller {
             return;
         }
 
-        short cmod = ModifierMap.getUmlModifierForVisibility(mn.Modifiers);
+        short cmod = ModifierMap.getUmlModifierForVisibility(mn.modifiers);
         Object cls = ele.get(TAG_CLASS + className);
 
         //return
 
         Object classifier = null;
         //check in classes
-        String temp = buildToParent(mn.Type.Identifier.Identifier, mn.Type.Identifier.Identifier.length);
+        String temp = buildToParent(mn.type.Identifier.Identifier, mn.type.Identifier.Identifier.length);
         classifier = getStoredDataType(temp, cPackage);
 
         Object mOperation = Model.getCoreFactory().buildOperation2(cls, classifier, name);
@@ -241,26 +240,26 @@ public class CSModeller {
 
 
         Object parameter = null;
-        if (mn.Params != null) {
-            for (ParamDeclNode p : mn.Params) {
+        if (mn.params != null) {
+            for (ParamDeclNode p : mn.params) {
 
                 classifier = null;
                 //check in classes
-//                classifier = getClasesByName(buildToParent(p.Type.Identifier.Identifier,
-//                        p.Type.Identifier.Identifier.length), cPackage);
+//                classifier = getClasesByName(buildToParent(p.type.Identifier.Identifier,
+//                        p.type.Identifier.Identifier.length), cPackage);
 //                if (classifier == null) {
-//                    classifier = getInterfaceByName(buildToParent(p.Type.Identifier.Identifier,
-//                            p.Type.Identifier.Identifier.length), cPackage);
+//                    classifier = getInterfaceByName(buildToParent(p.type.Identifier.Identifier,
+//                            p.type.Identifier.Identifier.length), cPackage);
 //                }
 //                if (classifier == null) {
-//                    classifier = Model.getCoreFactory().buildClass(buildToParent(p.Type.Identifier.Identifier,
-//                            p.Type.Identifier.Identifier.length), ele.get(TAG_NS + cPackage));
+//                    classifier = Model.getCoreFactory().buildClass(buildToParent(p.type.Identifier.Identifier,
+//                            p.type.Identifier.Identifier.length), ele.get(TAG_NS + cPackage));
 //                }
-                classifier=getStoredDataType(buildToParent(p.Type.Identifier.Identifier,
-                        p.Type.Identifier.Identifier.length),cPackage);
+                classifier=getStoredDataType(buildToParent(p.type.Identifier.Identifier,
+                        p.type.Identifier.Identifier.length),cPackage);
                 parameter =
                         Model.getCoreFactory().buildParameter(mOperation, classifier);
-                Model.getCoreHelper().setName(parameter, p.Name);
+                Model.getCoreHelper().setName(parameter, p.name);
 
             }
         }
@@ -273,7 +272,7 @@ public class CSModeller {
 
     public void addOperation(String parent, InterfaceMethodNode mn, String cPackage) {
 
-            String name = mn.Names.get(0).Identifier[0];
+            String name = mn.names.get(0).Identifier[0];
             String className = cPackage + "." + parent;
             String id = TAG_OP + className + "." + name + getParameterTypeString(mn);
 
@@ -281,7 +280,7 @@ public class CSModeller {
                 return;
             }
 
-            short cmod = ModifierMap.getUmlModifierForVisibility(mn.Modifiers);
+            short cmod = ModifierMap.getUmlModifierForVisibility(mn.modifiers);
             Object cls = ele.get(TAG_CLASS + className);
             if(cls==null){
                 cls = ele.get(TAG_INTERFACE + className);
@@ -293,7 +292,7 @@ public class CSModeller {
 
             Object classifier = null;
             //check in classes
-            String temp = buildToParent(mn.Type.Identifier.Identifier, mn.Type.Identifier.Identifier.length);
+            String temp = buildToParent(mn.type.Identifier.Identifier, mn.type.Identifier.Identifier.length);
             classifier = getStoredDataType(temp, cPackage);
 
             Object mOperation = Model.getCoreFactory().buildOperation2(cls, classifier, name);
@@ -307,26 +306,26 @@ public class CSModeller {
 
 
             Object parameter = null;
-            if (mn.Params != null) {
-                for (ParamDeclNode p : mn.Params) {
+            if (mn.params != null) {
+                for (ParamDeclNode p : mn.params) {
 
                     classifier = null;
                     //check in classes
-//                classifier = getClasesByName(buildToParent(p.Type.Identifier.Identifier,
-//                        p.Type.Identifier.Identifier.length), cPackage);
+//                classifier = getClasesByName(buildToParent(p.type.Identifier.Identifier,
+//                        p.type.Identifier.Identifier.length), cPackage);
 //                if (classifier == null) {
-//                    classifier = getInterfaceByName(buildToParent(p.Type.Identifier.Identifier,
-//                            p.Type.Identifier.Identifier.length), cPackage);
+//                    classifier = getInterfaceByName(buildToParent(p.type.Identifier.Identifier,
+//                            p.type.Identifier.Identifier.length), cPackage);
 //                }
 //                if (classifier == null) {
-//                    classifier = Model.getCoreFactory().buildClass(buildToParent(p.Type.Identifier.Identifier,
-//                            p.Type.Identifier.Identifier.length), ele.get(TAG_NS + cPackage));
+//                    classifier = Model.getCoreFactory().buildClass(buildToParent(p.type.Identifier.Identifier,
+//                            p.type.Identifier.Identifier.length), ele.get(TAG_NS + cPackage));
 //                }
-                    classifier=getStoredDataType(buildToParent(p.Type.Identifier.Identifier,
-                            p.Type.Identifier.Identifier.length),cPackage);
+                    classifier=getStoredDataType(buildToParent(p.type.Identifier.Identifier,
+                            p.type.Identifier.Identifier.length),cPackage);
                     parameter =
                             Model.getCoreFactory().buildParameter(mOperation, classifier);
-                    Model.getCoreHelper().setName(parameter, p.Name);
+                    Model.getCoreHelper().setName(parameter, p.name);
 
                 }
             }
@@ -348,9 +347,9 @@ public class CSModeller {
 
     void addAttribute(ClassNode cn, FieldNode fn, String cPackage) {
 
-        short modifiers = ModifierMap.getUmlModifierForVisibility(fn.Modifiers);
-        String typeSpec = buildToParent(fn.Type.Identifier.Identifier, fn.Type.Identifier.Identifier.length);
-        String name = buildToParent(fn.Names.get(0).Identifier, fn.Names.get(0).Identifier.length);
+        short modifiers = ModifierMap.getUmlModifierForVisibility(fn.modifiers);
+        String typeSpec = buildToParent(fn.type.Identifier.Identifier, fn.type.Identifier.Identifier.length);
+        String name = buildToParent(fn.names.get(0).Identifier, fn.names.get(0).Identifier.length);
         String initializer = null;
         String docs = "";
         boolean forceIt = false;
@@ -551,24 +550,24 @@ public class CSModeller {
 
     private String getParameterTypeString(MethodNode mn) {
         String k = "";
-        if (mn.Params == null) {
+        if (mn.params == null) {
             return k;
         }
-        for (ParamDeclNode p : mn.Params) {
-            k += "|" + buildToParent(p.Type.Identifier.Identifier,
-                    p.Type.Identifier.Identifier.length);
+        for (ParamDeclNode p : mn.params) {
+            k += "|" + buildToParent(p.type.Identifier.Identifier,
+                    p.type.Identifier.Identifier.length);
         }
         return k.toLowerCase();
     }
 
     private String getParameterTypeString(InterfaceMethodNode mn) {
         String k = "";
-        if (mn.Params == null) {
+        if (mn.params == null) {
             return k;
         }
-        for (ParamDeclNode p : mn.Params) {
-            k += "|" + buildToParent(p.Type.Identifier.Identifier,
-                    p.Type.Identifier.Identifier.length);
+        for (ParamDeclNode p : mn.params) {
+            k += "|" + buildToParent(p.type.Identifier.Identifier,
+                    p.type.Identifier.Identifier.length);
         }
         return k.toLowerCase();
     }

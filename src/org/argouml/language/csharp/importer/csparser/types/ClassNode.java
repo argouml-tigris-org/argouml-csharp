@@ -61,9 +61,9 @@ public class ClassNode extends BaseNode
 		}
         protected void WriteLocalSource(StringBuilder sb, String kind)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
 			TraceModifiers(Modifiers, sb);

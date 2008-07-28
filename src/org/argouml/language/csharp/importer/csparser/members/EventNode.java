@@ -10,18 +10,18 @@ import org.argouml.language.csharp.importer.csparser.statements.BlockStatement;
  */
 public class EventNode extends MemberNode
 	{
-		public BlockStatement AddBlock = new BlockStatement();
+		public BlockStatement addBlock = new BlockStatement();
 
-		public BlockStatement RemoveBlock = new BlockStatement();
+		public BlockStatement removeBlock = new BlockStatement();
 
 
         public void ToSource(StringBuilder sb)
         {
             // todo: eventnode to source
 
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
         }

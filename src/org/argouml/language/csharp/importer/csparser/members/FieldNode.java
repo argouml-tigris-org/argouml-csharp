@@ -10,22 +10,22 @@ public class FieldNode extends MemberNode
 	{
         public void ToSource(StringBuilder sb)
 		{
-			if (Attributes != null)
+			if (attributes != null)
 			{
-				Attributes.ToSource(sb);
+				attributes.ToSource(sb);
 				this.NewLine(sb);
 			}
-			this.TraceModifiers(this.Modifiers, sb);
+			this.TraceModifiers(this.modifiers, sb);
 
-			this.Type.ToSource(sb);
+			this.type.ToSource(sb);
 			sb.append(" ");
 
 			String comma = "";
-			for (int i = 0; i < this.Names.size(); i++)
+			for (int i = 0; i < this.names.size(); i++)
 			{
 				sb.append(comma);
 				comma = ", ";
-				this.Names.get(i).ToSource(sb);
+				this.names.get(i).ToSource(sb);
 			}
 
 			if (this.Value != null)

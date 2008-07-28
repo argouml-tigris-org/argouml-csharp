@@ -13,15 +13,15 @@ public class ExpressionList extends ExpressionNode {
     public ExpressionList() {
     }
 
-    public NodeCollection<ExpressionNode> Expressions = new NodeCollection<ExpressionNode>();
+    private NodeCollection<ExpressionNode> expressions = new NodeCollection<ExpressionNode>();
 
     public NodeCollection<ExpressionNode> getExpressions() {
-        return Expressions;
+        return expressions;
     }
 
     public void ToSource(StringBuilder sb) {
         String comma = "";
-        for(ExpressionNode node: Expressions)
+        for(ExpressionNode node: expressions)
         {
             sb.append(comma);
             comma = ", ";

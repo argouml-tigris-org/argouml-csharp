@@ -13,8 +13,6 @@ import org.argouml.kernel.Project;
 import org.argouml.taskmgmt.ProgressMonitor;
 import org.argouml.i18n.Translator;
 import org.argouml.util.SuffixFilter;
-import org.argouml.util.FileFilters;
-import org.argouml.model.Model;
 
 import org.apache.log4j.Logger;
 
@@ -219,9 +217,9 @@ public class CSharpImport implements ImportInterface {
         try {
             BufferedInputStream bs = new BufferedInputStream(new FileInputStream(f));
             Lexer l = new Lexer(bs, f.getAbsolutePath());
-            TokenCollection toks = l.Lex();
+            TokenCollection toks = l.lex();
             Parser px = new Parser();
-            CompilationUnitNode cu = px.Parse(toks, l.StringLiterals);
+            CompilationUnitNode cu = px.parse(toks, l.StringLiterals);
             parsedElements.add(cu);
         } catch (Exception e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
@@ -274,9 +272,9 @@ public class CSharpImport implements ImportInterface {
     public String getInfo(int type) {
         switch (type) {
             case DESCRIPTION:
-                return "This is a module for import from Java files.";
+                return "This is a module for import from CSharp files.";
             case AUTHOR:
-                return "Marcus Andersson, Thomas Neustupny, Andreas Rückert";
+                return "Thilina Hasantha";
             case VERSION:
                 return "1.0";
             default:

@@ -2823,7 +2823,9 @@ public class Parser{
 					break;
 
 				default:
-					RecoverFromError("Unhandled case in ParseExpressionSegment", curtok.id); // todo: fill out error report
+                    //Thilina
+                    AssertAndAdvance(TokenID.CharLiteral);
+                    //RecoverFromError("Unhandled case in ParseExpressionSegment", curtok.id); // todo: fill out error report
 					break;
 			}
 		}
@@ -3346,79 +3348,6 @@ public class Parser{
 				}
 			}
 		}
-
-
-//		static Parser()
-//		{
-//			modMap = new SortedList<TokenID, Modifier>();
-//			modMap.add(TokenID.New, Modifier.New);
-//			modMap.add(TokenID.Public, Modifier.Public);
-//			modMap.add(TokenID.Protected, Modifier.Protected);
-//			modMap.add(TokenID.Internal, Modifier.Internal);
-//			modMap.add(TokenID.Private, Modifier.Private);
-//			modMap.add(TokenID.Abstract, Modifier.Abstract);
-//			modMap.add(TokenID.Sealed, Modifier.Sealed);
-//			modMap.add(TokenID.Static, Modifier.Static);
-//			modMap.add(TokenID.Virtual, Modifier.Virtual);
-//			modMap.add(TokenID.Override, Modifier.Override);
-//			modMap.add(TokenID.Extern, Modifier.Extern);
-//			modMap.add(TokenID.Readonly, Modifier.Readonly);
-//			modMap.add(TokenID.Volatile, Modifier.Volatile);
-//			modMap.add(TokenID.Ref, Modifier.Ref);
-//			modMap.add(TokenID.Out, Modifier.Out);
-//			modMap.add(TokenID.Assembly, Modifier.Assembly);
-//			modMap.add(TokenID.Field, Modifier.Field);
-//			modMap.add(TokenID.Event, Modifier.Event);
-//			modMap.add(TokenID.Method, Modifier.Method);
-//			modMap.add(TokenID.Param, Modifier.Param);
-//			modMap.add(TokenID.Property, Modifier.Property);
-//			modMap.add(TokenID.Return, Modifier.Return);
-//			modMap.add(TokenID.type, Modifier.type);
-//
-//			// all default to zero
-//			precedence = new byte[0xFF];
-//
-//			// these start at 80 for no paticular reason
-//			precedence[ (int)TokenID.LBracket]		= 0x90;
-//
-//			precedence[ (int)TokenID.LParen]		= 0x80;
-//			precedence[ (int)TokenID.Star ]		 	= 0x7F;
-//			precedence[ (int)TokenID.Slash ]	 	= 0x7F;
-//			precedence[ (int)TokenID.Percent ]	 	= 0x7F;
-//			precedence[ (int)TokenID.Plus ]		 	= 0x7E;
-//			precedence[ (int)TokenID.Minus ]	 	= 0x7E;
-//			precedence[ (int)TokenID.ShiftLeft ] 	= 0x7D;
-//			precedence[ (int)TokenID.ShiftRight] 	= 0x7D;
-//			precedence[ (int)TokenID.Less ]		 	= 0x7C;
-//			precedence[ (int)TokenID.Greater ]	 	= 0x7C;
-//			precedence[ (int)TokenID.LessEqual ] 	= 0x7C;
-//			precedence[ (int)TokenID.GreaterEqual ]	= 0x7C;
-//			precedence[ (int)TokenID.EqualEqual ]	= 0x7B;
-//			precedence[ (int)TokenID.NotEqual ]	 	= 0x7B;
-//			precedence[ (int)TokenID.BAnd ]		 	= 0x7A;
-//			precedence[ (int)TokenID.BXor ]		 	= 0x79;
-//			precedence[ (int)TokenID.BOr ]		 	= 0x78;
-//			precedence[ (int)TokenID.And]			= 0x77;
-//			precedence[ (int)TokenID.Or]			= 0x76;
-//
-//
-//			preprocessor = new SortedList<String, PreprocessorID>();
-//
-//			preprocessor.add("define", PreprocessorID.Define);
-//			preprocessor.add("undef", PreprocessorID.Undef);
-//			preprocessor.add("if", PreprocessorID.If);
-//			preprocessor.add("elif", PreprocessorID.Elif);
-//			preprocessor.add("else", PreprocessorID.Else);
-//			preprocessor.add("endif", PreprocessorID.Endif);
-//			preprocessor.add("line", PreprocessorID.Line);
-//			preprocessor.add("error", PreprocessorID.Error);
-//			preprocessor.add("warning", PreprocessorID.Warning);
-//			preprocessor.add("region", PreprocessorID.Region);
-//			preprocessor.add("endregion", PreprocessorID.Endregion);
-//			preprocessor.add("pragma", PreprocessorID.Pragma);
-//
-//		}
-
 
 
 

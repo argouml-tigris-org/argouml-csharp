@@ -8,10 +8,7 @@ import org.argouml.language.csharp.importer.csparser.structural.UsingDirectiveNo
 import org.argouml.language.csharp.importer.csparser.collections.NodeCollection;
 import org.argouml.language.csharp.importer.csparser.types.ClassNode;
 import org.argouml.language.csharp.importer.csparser.types.InterfaceNode;
-import org.argouml.language.csharp.importer.csparser.members.MethodNode;
-import org.argouml.language.csharp.importer.csparser.members.ParamDeclNode;
-import org.argouml.language.csharp.importer.csparser.members.FieldNode;
-import org.argouml.language.csharp.importer.csparser.members.InterfaceMethodNode;
+import org.argouml.language.csharp.importer.csparser.members.*;
 import org.argouml.language.csharp.importer.csparser.nodes.expressions.TypeNode;
 import org.argouml.language.csharp.importer.bridge.ModifierMap;
 import org.argouml.model.Model;
@@ -40,6 +37,7 @@ public class CSModeller {
     private static String TAG_GEN = "gen#";
     private static String TAG_EXTEND = "ext#";
     private static String TAG_OP = "opr#";
+    private static String TAG_STEREOTYPE = "str#";
     private Object model;
     Hashtable ele = new Hashtable();
 
@@ -59,7 +57,7 @@ public class CSModeller {
 
     public void model(List cNodes, ProgressMonitor monitor, int startCount) {
 
-        int count=startCount;
+        int count = startCount;
         phase = 0;
         for (Object obj : cNodes) {
             if (monitor.isCanceled()) {
@@ -106,6 +104,7 @@ public class CSModeller {
                 addClass(cn.Modifiers, cn.Name.Identifier[cn.Name.Identifier.length - 1], parent);
             } else if (phase == 1) {
                 addAttributes(cn, parent);
+                addProperties(cn, parent);
                 addMethods(cn, parent);
                 buildGeneralization(cn, ns);
             }
@@ -160,6 +159,7 @@ public class CSModeller {
                 addSubNamesapce(ns.Name.Identifier[i], buildToParent(ns.Name.Identifier, i));
             }
         }
+        addFixedStereotypes();
     }
 
     private String buildToParent(String[] sa, int k) {
@@ -255,8 +255,8 @@ public class CSModeller {
 //                    classifier = Model.getCoreFactory().buildClass(buildToParent(p.type.Identifier.Identifier,
 //                            p.type.Identifier.Identifier.length), ele.get(TAG_NS + cPackage));
 //                }
-                classifier=getStoredDataType(buildToParent(p.type.Identifier.Identifier,
-                        p.type.Identifier.Identifier.length),cPackage);
+                classifier = getStoredDataType(buildToParent(p.type.Identifier.Identifier,
+                        p.type.Identifier.Identifier.length), cPackage);
                 parameter =
                         Model.getCoreFactory().buildParameter(mOperation, classifier);
                 Model.getCoreHelper().setName(parameter, p.name);
@@ -272,45 +272,45 @@ public class CSModeller {
 
     public void addOperation(String parent, InterfaceMethodNode mn, String cPackage) {
 
-            String name = mn.names.get(0).Identifier[0];
-            String className = cPackage + "." + parent;
-            String id = TAG_OP + className + "." + name + getParameterTypeString(mn);
+        String name = mn.names.get(0).Identifier[0];
+        String className = cPackage + "." + parent;
+        String id = TAG_OP + className + "." + name + getParameterTypeString(mn);
 
-            if (ele.get(id) != null) {
-                return;
-            }
+        if (ele.get(id) != null) {
+            return;
+        }
 
-            short cmod = ModifierMap.getUmlModifierForVisibility(mn.modifiers);
-            Object cls = ele.get(TAG_CLASS + className);
-            if(cls==null){
-                cls = ele.get(TAG_INTERFACE + className);
-            }
-            if(cls==null){
-                return;
-            }
-            //return
+        short cmod = ModifierMap.getUmlModifierForVisibility(mn.modifiers);
+        Object cls = ele.get(TAG_CLASS + className);
+        if (cls == null) {
+            cls = ele.get(TAG_INTERFACE + className);
+        }
+        if (cls == null) {
+            return;
+        }
+        //return
 
-            Object classifier = null;
-            //check in classes
-            String temp = buildToParent(mn.type.Identifier.Identifier, mn.type.Identifier.Identifier.length);
-            classifier = getStoredDataType(temp, cPackage);
+        Object classifier = null;
+        //check in classes
+        String temp = buildToParent(mn.type.Identifier.Identifier, mn.type.Identifier.Identifier.length);
+        classifier = getStoredDataType(temp, cPackage);
 
-            Object mOperation = Model.getCoreFactory().buildOperation2(cls, classifier, name);
-            setVisibility(mOperation, cmod);
-            Model.getCoreHelper().setAbstract(mOperation,
-                    (cmod & CSharpConstants.ACC_ABSTRACT) > 0);
-            Model.getCoreHelper().setLeaf(mOperation,
-                    (cmod & CSharpConstants.ACC_FINAL) > 0);
-            Model.getCoreHelper().setRoot(mOperation, false);
-            Model.getCoreHelper().setStatic(mOperation, (cmod & CSharpConstants.ACC_STATIC) > 0);
+        Object mOperation = Model.getCoreFactory().buildOperation2(cls, classifier, name);
+        setVisibility(mOperation, cmod);
+        Model.getCoreHelper().setAbstract(mOperation,
+                (cmod & CSharpConstants.ACC_ABSTRACT) > 0);
+        Model.getCoreHelper().setLeaf(mOperation,
+                (cmod & CSharpConstants.ACC_FINAL) > 0);
+        Model.getCoreHelper().setRoot(mOperation, false);
+        Model.getCoreHelper().setStatic(mOperation, (cmod & CSharpConstants.ACC_STATIC) > 0);
 
 
-            Object parameter = null;
-            if (mn.params != null) {
-                for (ParamDeclNode p : mn.params) {
+        Object parameter = null;
+        if (mn.params != null) {
+            for (ParamDeclNode p : mn.params) {
 
-                    classifier = null;
-                    //check in classes
+                classifier = null;
+                //check in classes
 //                classifier = getClasesByName(buildToParent(p.type.Identifier.Identifier,
 //                        p.type.Identifier.Identifier.length), cPackage);
 //                if (classifier == null) {
@@ -321,26 +321,32 @@ public class CSModeller {
 //                    classifier = Model.getCoreFactory().buildClass(buildToParent(p.type.Identifier.Identifier,
 //                            p.type.Identifier.Identifier.length), ele.get(TAG_NS + cPackage));
 //                }
-                    classifier=getStoredDataType(buildToParent(p.type.Identifier.Identifier,
-                            p.type.Identifier.Identifier.length),cPackage);
-                    parameter =
-                            Model.getCoreFactory().buildParameter(mOperation, classifier);
-                    Model.getCoreHelper().setName(parameter, p.name);
+                classifier = getStoredDataType(buildToParent(p.type.Identifier.Identifier,
+                        p.type.Identifier.Identifier.length), cPackage);
+                parameter =
+                        Model.getCoreFactory().buildParameter(mOperation, classifier);
+                Model.getCoreHelper().setName(parameter, p.name);
 
-                }
             }
-
-            ele.put(id, mOperation);
-
-
         }
 
+        ele.put(id, mOperation);
+
+
+    }
 
 
     void addAttributes(ClassNode cn, String cPackage) {
         if (cn.Fields != null)
             for (FieldNode f : cn.Fields) {
                 addAttribute(cn, f, cPackage);
+            }
+    }
+
+    void addProperties(ClassNode cn, String cPackage) {
+        if (cn.Properties != null)
+            for (PropertyNode f : cn.Properties) {
+                addProperty(cn, f, cPackage);
             }
     }
 
@@ -369,7 +375,7 @@ public class CSModeller {
         }
 
         // if we want to create a UML attribute:
-        if (noAssociations) {
+        //if (noAssociations) {
             Object mAttribute = buildAttribute(cls, mClassifier, name);
             setOwnerScope(mAttribute, modifiers);
             setVisibility(mAttribute, modifiers);
@@ -409,7 +415,7 @@ public class CSModeller {
                 Model.getCoreHelper().setReadOnly(mAttribute, true);
             }
             //addDocumentationTag(mAttribute, javadoc);
-        }
+        //}
         // we want to create a UML association from the java attribute
 //        else {
 //
@@ -457,15 +463,15 @@ public class CSModeller {
                 String pkg = buildToParent(ns.Name.Identifier, ns.Name.Identifier.length);
                 Object c = getStoredDataType(child, pkg);
                 Object p = getStoredDataType(parent, pkg);
-                Object n=getNameSpace(pkg);
-                Object g=null;
-                if(Model.getFacade().isAInterface(p)){
-                    g=buildRealization(c,p,n);
-                }else{
-                    g=buildGeneralizations(c, p);
+                Object n = getNameSpace(pkg);
+                Object g = null;
+                if (Model.getFacade().isAInterface(p)) {
+                    g = buildRealization(c, p, n);
+                } else {
+                    g = buildGeneralizations(c, p);
                 }
-                if(g!=null)
-                    Model.getCoreHelper().setName(g,child +" -> "+parent); 
+                if (g != null)
+                    Model.getCoreHelper().setName(g, child + " -> " + parent);
 
             }
         }
@@ -473,12 +479,12 @@ public class CSModeller {
 
 
     private Object buildGeneralizations(Object child, Object parnt) {
-        Object gen= Model.getCoreFactory().buildGeneralization(child, parnt);
+        Object gen = Model.getCoreFactory().buildGeneralization(child, parnt);
         return gen;
     }
 
     private Object buildRealization(Object child, Object parnt, Object namespace) {
-        Object rel= Model.getCoreFactory().buildRealization(child,parnt,namespace);
+        Object rel = Model.getCoreFactory().buildRealization(child, parnt, namespace);
         return rel;
     }
 
@@ -593,13 +599,13 @@ public class CSModeller {
         }
         if (classifier == null) {
             classifier = addClass(0, name, cPackage);
-            ele.put(TAG_CLASS+cPackage+"."+name,classifier);
+            ele.put(TAG_CLASS + cPackage + "." + name, classifier);
         }
         return classifier;
     }
 
-    public Object getNameSpace(String pkg){
-        return ele.get(TAG_NS+pkg);
+    public Object getNameSpace(String pkg) {
+        return ele.get(TAG_NS + pkg);
     }
 
     private Object buildAttribute(Object classifier, Object type, String name) {
@@ -608,4 +614,118 @@ public class CSModeller {
         Model.getCoreHelper().setName(mAttribute, name);
         return mAttribute;
     }
+
+    void addProperty(ClassNode cn, PropertyNode fn, String cPackage) {
+
+        short modifiers = ModifierMap.getUmlModifierForVisibility(fn.modifiers);
+        String typeSpec = buildToParent(fn.type.Identifier.Identifier, fn.type.Identifier.Identifier.length);
+        String name = buildToParent(fn.names.get(0).Identifier, fn.names.get(0).Identifier.length);
+        String initializer = null;
+        String docs = "";
+        boolean forceIt = false;
+
+
+        String multiplicity = "1_1";
+        Object mClassifier = null;
+        String className = cPackage + "." + cn.Name.Identifier[0];
+        Object cls = ele.get(TAG_CLASS + className);
+
+        if (typeSpec != null) {
+            if (!arraysAsDatatype && typeSpec.indexOf('[') != -1) {
+                typeSpec = typeSpec.substring(0, typeSpec.indexOf('['));
+                multiplicity = "1_N";
+            }
+            mClassifier = getStoredDataType(typeSpec, cPackage);
+        }
+
+        // if we want to create a UML attribute:
+        //if (noAssociations) {
+            Object mAttribute = buildAttribute(cls, mClassifier, name);
+            setOwnerScope(mAttribute, modifiers);
+            setVisibility(mAttribute, modifiers);
+            Model.getCoreHelper().setMultiplicity(mAttribute, multiplicity);
+            //=======
+
+            if(fn.getter!=null && fn.setter!=null){
+                applyReadWriteStereotype(mAttribute);
+            }else if(fn.getter!=null){
+                //System.out.println("Only gatter "+name);
+                applyWriteOnlyStereotype(mAttribute);
+            }else if(fn.setter!=null){
+                //System.out.println("Only setter "+name);
+                applyReadOnlyStereotype(mAttribute);
+            }
+            // Set the initial value for the attribute.
+            if (initializer != null) {
+
+                // we must remove line endings and tabs from the intializer
+                // strings, otherwise the classes will display horribly.
+                initializer = initializer.replace('\n', ' ');
+                initializer = initializer.replace('\t', ' ');
+
+                Object newInitialValue =
+                        Model.getDataTypesFactory()
+                                .createExpression("CSharp",
+                                        initializer);
+                Model.getCoreHelper().setInitialValue(
+                        mAttribute,
+                        newInitialValue);
+            }
+
+            if ((modifiers & CSharpConstants.ACC_FINAL) > 0) {
+                Model.getCoreHelper().setReadOnly(mAttribute, true);
+            } else if (Model.getFacade().isReadOnly(mAttribute)) {
+                Model.getCoreHelper().setReadOnly(mAttribute, true);
+            }
+    }
+
+
+    private void applyReadWriteStereotype(Object property) {
+        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_rw");
+        if (mSt != null) {
+            Model.getCoreHelper().addStereotype(property, mSt);
+        }
+    }
+
+    private void applyWriteOnlyStereotype(Object property) {
+        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_ro");
+        if (mSt != null) {
+            Model.getCoreHelper().addStereotype(property, mSt);
+        }
+    }
+
+    private void applyReadOnlyStereotype(Object property) {
+        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_ro");
+        if (mSt != null) {
+            Model.getCoreHelper().addStereotype(property, mSt);
+        }
+    }
+
+
+    private void addFixedStereotypes() {
+        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_rw");
+        if (mSt == null) {
+            //adding stereotype CSharp Property to default namespace
+            Object strCP = Model.getExtensionMechanismsFactory()
+                    .buildStereotype("CSharp Property", model);
+            Object tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors","read-only");
+            Model.getExtensionMechanismsHelper().addTaggedValue(strCP,tv);
+            ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_ro", strCP);
+
+            //adding stereotype CSharp Property to default namespace
+            strCP = Model.getExtensionMechanismsFactory()
+                    .buildStereotype("CSharp Property", model);
+            tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors","write-only");
+            Model.getExtensionMechanismsHelper().addTaggedValue(strCP,tv);
+            ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_wo", strCP);
+
+            //adding stereotype CSharp Property to default namespace
+            strCP = Model.getExtensionMechanismsFactory()
+                    .buildStereotype("CSharp Property", model);
+            tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors","read-and-write");
+            Model.getExtensionMechanismsHelper().addTaggedValue(strCP,tv);
+            ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_rw", strCP);
+        }
+    }
+
 }

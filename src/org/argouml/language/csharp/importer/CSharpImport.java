@@ -6,6 +6,7 @@ import org.argouml.uml.reveng.FileImportUtils;
 import org.argouml.uml.reveng.ImporterManager;
 import org.argouml.language.csharp.importer.csparser.main.Lexer;
 import org.argouml.language.csharp.importer.csparser.main.Parser;
+import org.argouml.language.csharp.importer.csparser.main.FeatureNotSupportedException;
 import org.argouml.language.csharp.importer.csparser.collections.TokenCollection;
 import org.argouml.language.csharp.importer.csparser.structural.CompilationUnitNode;
 
@@ -98,6 +99,7 @@ public class CSharpImport implements ImportInterface {
             }
             Object file = it.next();
             if (file instanceof File) {
+                System.out.println(((File)file).getAbsolutePath());
                 parseFile(p, (File) file, settings, pass);
                 monitor.updateProgress(count++);
                 monitor.updateSubTask(Translator.localize(
@@ -221,9 +223,13 @@ public class CSharpImport implements ImportInterface {
             Parser px = new Parser();
             CompilationUnitNode cu = px.parse(toks, l.StringLiterals);
             parsedElements.add(cu);
+        } catch (FeatureNotSupportedException e) {
+            //throw new ImportException("Error parsing file: " + f.getAbsolutePath() + " due to: "+e.getMessage());
+            System.out.println("Error parsing file: " + f.getAbsolutePath() + " due to: "+e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            throw new ImportException("Error parsing file: " + f.getAbsolutePath());
+//            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//            throw new ImportException("Error parsing file: " + f.getAbsolutePath());
+            System.out.println("Error parsing file: " + f.getAbsolutePath());
         }
 
     }

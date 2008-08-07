@@ -18,14 +18,18 @@ public class Test {
             parseFile();
         } catch (IOException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (FeatureNotSupportedException e) {
+            e.printStackTrace();
         }
     }
 
-    public static void parseFile() throws IOException, ImportInterface.ImportException {
+    public static void parseFile() throws IOException, ImportInterface.ImportException, FeatureNotSupportedException {
         //eventquery.cs
 //        BufferedInputStream bs=new BufferedInputStream(new FileInputStream("test/Parser.cs"));
 //        BufferedInputStream bs=new BufferedInputStream(new FileInputStream("test/Bill.cs"));
-        BufferedInputStream bs=new BufferedInputStream(new FileInputStream("test/eventquery.cs"));
+//        BufferedInputStream bs=new BufferedInputStream(new FileInputStream("test/eventquery.cs"));
+//        BufferedInputStream bs=new BufferedInputStream(new FileInputStream("C:\\Documents and Settings\\CSharpSynthToolkit\\SimpleSynth\\Form1.cs"));
+        BufferedInputStream bs=new BufferedInputStream(new FileInputStream("C:\\Documents and Settings\\Pacanal\\Pacanal\\FormPacanal.cs"));
         Lexer l = new Lexer(bs,"");
         TokenCollection toks = l.lex();
 //        for(int i=0;i<l.StringLiterals.size();i++){

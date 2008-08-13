@@ -1,12 +1,10 @@
 package org.argouml.language.csharp.importer;
 
 /**
- * @author  THILINAH
- * @date: Jun 5, 2008
- * @time: 4:32:13 PM
+ * This store constants needed while parsing C# files
+ * @author Thilina Hasantha <thilina.hasantha@gmail.com>
  */
 public class CSharpConstants {
-    // Constants for access modifiers according to the JVM specs chapter 4
     public static final short ACC_PUBLIC    = 0x0001;
     public static final short ACC_PRIVATE   = 0x0002;
     public static final short ACC_PROTECTED = 0x0004;

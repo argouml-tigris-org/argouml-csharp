@@ -118,86 +118,11 @@ public class CSharpImport implements ImportInterface {
                                ImportSettings settings, ProgressMonitor monitor, int startCount,
                                int pass) throws ImportException {
 
-//        int count = startCount;
-//        for (Object cu:parsedElements) {
-//
-//        }
-
-        // Create a modeller for the parser
-//        Modeller modeller = new Modeller(p.getModel(), settings, "");
-//        modeller.   addPackage("com");
-
-//        modeller.addClass("com.pkg1.TestClass1", CSharpConstants.ACC_PUBLIC,null,new ArrayList<String>(),"");
-//        modeller.addClass("TestClass1", CSharpConstants.ACC_PUBLIC,null,new ArrayList<String>(),"");
-//        ArrayList<String> a=new ArrayList<String>();
-//        a.add("TestClass1");
-//        modeller.addClass("com.pkg1.TestClass2", CSharpConstants.ACC_PUBLIC,"com.pkg1.TestClass1",new ArrayList<String>(),"");
-//
-        //modeller.addOperation(CSharpConstants.ACC_PUBLIC,"int","foo1",new ArrayList<ParameterDeclaration>(), "");
-//        ParameterDeclaration pd=new ParameterDeclaration((short)0,"String","param1");
-//        List<ParameterDeclaration> pdl=new ArrayList<ParameterDeclaration>();
-//        pdl.add(pd);
-//        modeller.addOperation((short)(CSharpConstants.ACC_PUBLIC +  CSharpConstants.ACC_STATIC)
-//                ,"int","foo1",pdl,"");
-
-
-
-//        short modifiers= CSharpConstants.ACC_PUBLIC;
-//        Object pk=Model.getModelManagementFactory().buildPackage("com","com");
-//        Model.getCoreHelper().setRoot(pk,true);
-//        Model.getCoreHelper().setNamespace(pk,p.getModel());
-//        Model.getCoreHelper().addOwnedElement(p.getModel(), pk);
-//
-//        Object mClass =Model.getCoreFactory().createClass();
-//        Model.getCoreHelper().setName(mClass, "Test");
-//        Model.getCoreHelper().setNamespace(mClass,pk );
-//        Model.getCoreHelper().setAbstract(mClass,
-//                (modifiers & CSharpConstants.ACC_ABSTRACT) > 0);
-//        Model.getCoreHelper().setLeaf(mClass,
-//                (modifiers & CSharpConstants.ACC_FINAL) > 0);
-//        Model.getCoreHelper().setRoot(mClass, false);
-//
-//        Object mClass1 =Model.getCoreFactory().createClass();
-//        Model.getCoreHelper().setName(mClass1, "TestGHJ");
-//        Model.getCoreHelper().setNamespace(mClass1,pk );
-//        Model.getCoreHelper().setAbstract(mClass1,
-//                (modifiers & CSharpConstants.ACC_ABSTRACT) > 0);
-//        Model.getCoreHelper().setLeaf(mClass1,
-//                (modifiers & CSharpConstants.ACC_FINAL) > 0);
-//        Model.getCoreHelper().setRoot(mClass, false);
-//        Model.getCoreFactory().buildGeneralization(mClass1,mClass,"ddd");
-//
-//
-//        newElements.add(pk);
-//        newElements.add(mClass);
-//        newElements.add(mClass1);
 
         CSModeller cm=new CSModeller(p,settings);
         cm.model(parsedElements,monitor,startCount); 
         newElements.addAll(cm.getNewElements());
 
-
-        //newElements.addAll(modeller.getNewElements());
-
-        //Model.getCoreFactory().
-//        Object up=Model.getModelManagementFactory().buildPackage("pkg1","com.pkg1");
-//        Model.getCoreHelper().setRoot(up,true);
-//        Object uc= Model.getCoreFactory().buildClass("Test",up);
-//        Model.getCoreHelper().setRoot(uc,false);
-//
-//        newElements.add(up);
-//        newElements.add(uc);
-
-
-
-
-//        Object package1 =
-//                Model.getModelManagementFactory().buildPackage("test1", null);
-//        Object package2 =
-//                Model.getModelManagementFactory().buildPackage("test2", null);
-//
-//        UMLClassDiagram cDiag = new UMLClassDiagram(package2);
-//        newElements.add(cDiag);
 
 
     }
@@ -234,19 +159,6 @@ public class CSharpImport implements ImportInterface {
 
     }
 
-    private String buildErrorString(File f) {
-        String path = "";
-        try {
-            path = f.getCanonicalPath();
-        } catch (IOException e) {
-            // Just ignore - we'll use the simple file name
-        }
-        return "Exception in file: " + path + " " + f.getName();
-    }
-
-
-//    public static final SuffixFilter CS_FILE_FILTER = new
-//            SuffixFilter("cs", "CSharp");
 
     public static final SuffixFilter CS_FILE_FILTER = new
         SuffixFilter("cs", "CSharp");

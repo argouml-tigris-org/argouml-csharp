@@ -1,28 +1,30 @@
 package org.argouml.language.csharp.importer;
 
+import org.argouml.i18n.Translator;
 import org.argouml.kernel.Project;
-import org.argouml.uml.reveng.ImportSettings;
+import org.argouml.language.csharp.importer.bridge.ModifierMap;
+import org.argouml.language.csharp.importer.csparser.collections.NodeCollection;
+import org.argouml.language.csharp.importer.csparser.members.*;
+import org.argouml.language.csharp.importer.csparser.nodes.expressions.TypeNode;
 import org.argouml.language.csharp.importer.csparser.structural.CompilationUnitNode;
 import org.argouml.language.csharp.importer.csparser.structural.NamespaceNode;
 import org.argouml.language.csharp.importer.csparser.structural.UsingDirectiveNode;
-import org.argouml.language.csharp.importer.csparser.collections.NodeCollection;
 import org.argouml.language.csharp.importer.csparser.types.ClassNode;
 import org.argouml.language.csharp.importer.csparser.types.InterfaceNode;
-import org.argouml.language.csharp.importer.csparser.members.*;
-import org.argouml.language.csharp.importer.csparser.nodes.expressions.TypeNode;
-import org.argouml.language.csharp.importer.bridge.ModifierMap;
 import org.argouml.model.Model;
 import org.argouml.taskmgmt.ProgressMonitor;
-import org.argouml.i18n.Translator;
+import org.argouml.uml.reveng.ImportSettings;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.List;
 
 
 /**
- * Created by IntelliJ IDEA.
- * User: Administrator
- * Date: Jun 22, 2008
- * Time: 9:33:34 PM
+ * This is the modeller for C# reverse engineering.
+ *
+ * @author Thilina Hasantha <thilina.hasantha@gmail.com>
  */
 public class CSModeller {
     Project p;
@@ -45,7 +47,10 @@ public class CSModeller {
     private boolean noAssociations;
     private boolean arraysAsDatatype;
 
-
+    /**
+     * @param p        currently opened project
+     * @param settings import settings specified by the user
+     */
     public CSModeller(Project p, ImportSettings settings) {
         this.p = p;
         model = p.getModel();
@@ -244,17 +249,7 @@ public class CSModeller {
             for (ParamDeclNode p : mn.params) {
 
                 classifier = null;
-                //check in classes
-//                classifier = getClasesByName(buildToParent(p.type.Identifier.Identifier,
-//                        p.type.Identifier.Identifier.length), cPackage);
-//                if (classifier == null) {
-//                    classifier = getInterfaceByName(buildToParent(p.type.Identifier.Identifier,
-//                            p.type.Identifier.Identifier.length), cPackage);
-//                }
-//                if (classifier == null) {
-//                    classifier = Model.getCoreFactory().buildClass(buildToParent(p.type.Identifier.Identifier,
-//                            p.type.Identifier.Identifier.length), ele.get(TAG_NS + cPackage));
-//                }
+
                 classifier = getStoredDataType(buildToParent(p.type.Identifier.Identifier,
                         p.type.Identifier.Identifier.length), cPackage);
                 parameter =
@@ -310,17 +305,7 @@ public class CSModeller {
             for (ParamDeclNode p : mn.params) {
 
                 classifier = null;
-                //check in classes
-//                classifier = getClasesByName(buildToParent(p.type.Identifier.Identifier,
-//                        p.type.Identifier.Identifier.length), cPackage);
-//                if (classifier == null) {
-//                    classifier = getInterfaceByName(buildToParent(p.type.Identifier.Identifier,
-//                            p.type.Identifier.Identifier.length), cPackage);
-//                }
-//                if (classifier == null) {
-//                    classifier = Model.getCoreFactory().buildClass(buildToParent(p.type.Identifier.Identifier,
-//                            p.type.Identifier.Identifier.length), ele.get(TAG_NS + cPackage));
-//                }
+
                 classifier = getStoredDataType(buildToParent(p.type.Identifier.Identifier,
                         p.type.Identifier.Identifier.length), cPackage);
                 parameter =
@@ -374,70 +359,33 @@ public class CSModeller {
             mClassifier = getStoredDataType(typeSpec, cPackage);
         }
 
-        // if we want to create a UML attribute:
-        //if (noAssociations) {
-            Object mAttribute = buildAttribute(cls, mClassifier, name);
-            setOwnerScope(mAttribute, modifiers);
-            setVisibility(mAttribute, modifiers);
-            Model.getCoreHelper().setMultiplicity(mAttribute, multiplicity);
+        Object mAttribute = buildAttribute(cls, mClassifier, name);
+        setOwnerScope(mAttribute, modifiers);
+        setVisibility(mAttribute, modifiers);
+        Model.getCoreHelper().setMultiplicity(mAttribute, multiplicity);
 
-//            if (Model.getFacade().isAClassifier(mClassifier)) {
-//                // TODO: This should already have been done in buildAttribute
-//                Model.getCoreHelper().setType(mAttribute, mClassifier);
-//            } else {
-//                // the type resolution failed to find a valid classifier.
-//                logError("Modeller.java: a valid type for a parameter "
-//                        + "could not be resolved:\n "
-//                        + "In file: " + fileName + ", for attribute: ",
-//                        Model.getFacade().getName(mAttribute));
-//            }
+        if (initializer != null) {
 
-            // Set the initial value for the attribute.
-            if (initializer != null) {
+            // we must remove line endings and tabs from the intializer
+            // strings, otherwise the classes will display horribly.
+            initializer = initializer.replace('\n', ' ');
+            initializer = initializer.replace('\t', ' ');
 
-                // we must remove line endings and tabs from the intializer
-                // strings, otherwise the classes will display horribly.
-                initializer = initializer.replace('\n', ' ');
-                initializer = initializer.replace('\t', ' ');
+            Object newInitialValue =
+                    Model.getDataTypesFactory()
+                            .createExpression("CSharp",
+                                    initializer);
+            Model.getCoreHelper().setInitialValue(
+                    mAttribute,
+                    newInitialValue);
+        }
 
-                Object newInitialValue =
-                        Model.getDataTypesFactory()
-                                .createExpression("CSharp",
-                                        initializer);
-                Model.getCoreHelper().setInitialValue(
-                        mAttribute,
-                        newInitialValue);
-            }
+        if ((modifiers & CSharpConstants.ACC_FINAL) > 0) {
+            Model.getCoreHelper().setReadOnly(mAttribute, true);
+        } else if (Model.getFacade().isReadOnly(mAttribute)) {
+            Model.getCoreHelper().setReadOnly(mAttribute, true);
+        }
 
-            if ((modifiers & CSharpConstants.ACC_FINAL) > 0) {
-                Model.getCoreHelper().setReadOnly(mAttribute, true);
-            } else if (Model.getFacade().isReadOnly(mAttribute)) {
-                Model.getCoreHelper().setReadOnly(mAttribute, true);
-            }
-            //addDocumentationTag(mAttribute, javadoc);
-        //}
-        // we want to create a UML association from the java attribute
-//        else {
-//
-//            Object mAssociationEnd = getAssociationEnd(name, mClassifier);
-//            setTargetScope(mAssociationEnd, modifiers);
-//            setVisibility(mAssociationEnd, modifiers);
-//            Model.getCoreHelper().setMultiplicity(mAssociationEnd, multiplicity);
-//            Model.getCoreHelper().setType(mAssociationEnd, mClassifier);
-//            Model.getCoreHelper().setName(mAssociationEnd, name);
-//            if ((modifiers & CSharpConstants.ACC_FINAL) > 0) {
-//                Model.getCoreHelper().setReadOnly(mAssociationEnd, true);
-//            }
-//            if (!mClassifier.equals(parseState.getClassifier())) {
-//                // Because if they are equal,
-//                // then getAssociationEnd(name, mClassifier) could return
-//                // the wrong assoc end, on the other hand the navigability
-//                // is already set correctly (at least in this case), so the
-//                // next line is not necessary. (maybe never necessary?) - thn
-//                Model.getCoreHelper().setNavigable(mAssociationEnd, true);
-//            }
-////            addDocumentationTag(mAssociationEnd, javadoc);
-//        }
     }
 
 
@@ -640,43 +588,43 @@ public class CSModeller {
 
         // if we want to create a UML attribute:
         //if (noAssociations) {
-            Object mAttribute = buildAttribute(cls, mClassifier, name);
-            setOwnerScope(mAttribute, modifiers);
-            setVisibility(mAttribute, modifiers);
-            Model.getCoreHelper().setMultiplicity(mAttribute, multiplicity);
-            //=======
+        Object mAttribute = buildAttribute(cls, mClassifier, name);
+        setOwnerScope(mAttribute, modifiers);
+        setVisibility(mAttribute, modifiers);
+        Model.getCoreHelper().setMultiplicity(mAttribute, multiplicity);
+        //=======
 
-            if(fn.getter!=null && fn.setter!=null){
-                applyReadWriteStereotype(mAttribute);
-            }else if(fn.getter!=null){
-                //System.out.println("Only gatter "+name);
-                applyWriteOnlyStereotype(mAttribute);
-            }else if(fn.setter!=null){
-                //System.out.println("Only setter "+name);
-                applyReadOnlyStereotype(mAttribute);
-            }
-            // Set the initial value for the attribute.
-            if (initializer != null) {
+        if (fn.getter != null && fn.setter != null) {
+            applyReadWriteStereotype(mAttribute);
+        } else if (fn.getter != null) {
+            //System.out.println("Only gatter "+name);
+            applyWriteOnlyStereotype(mAttribute);
+        } else if (fn.setter != null) {
+            //System.out.println("Only setter "+name);
+            applyReadOnlyStereotype(mAttribute);
+        }
+        // Set the initial value for the attribute.
+        if (initializer != null) {
 
-                // we must remove line endings and tabs from the intializer
-                // strings, otherwise the classes will display horribly.
-                initializer = initializer.replace('\n', ' ');
-                initializer = initializer.replace('\t', ' ');
+            // we must remove line endings and tabs from the intializer
+            // strings, otherwise the classes will display horribly.
+            initializer = initializer.replace('\n', ' ');
+            initializer = initializer.replace('\t', ' ');
 
-                Object newInitialValue =
-                        Model.getDataTypesFactory()
-                                .createExpression("CSharp",
-                                        initializer);
-                Model.getCoreHelper().setInitialValue(
-                        mAttribute,
-                        newInitialValue);
-            }
+            Object newInitialValue =
+                    Model.getDataTypesFactory()
+                            .createExpression("CSharp",
+                                    initializer);
+            Model.getCoreHelper().setInitialValue(
+                    mAttribute,
+                    newInitialValue);
+        }
 
-            if ((modifiers & CSharpConstants.ACC_FINAL) > 0) {
-                Model.getCoreHelper().setReadOnly(mAttribute, true);
-            } else if (Model.getFacade().isReadOnly(mAttribute)) {
-                Model.getCoreHelper().setReadOnly(mAttribute, true);
-            }
+        if ((modifiers & CSharpConstants.ACC_FINAL) > 0) {
+            Model.getCoreHelper().setReadOnly(mAttribute, true);
+        } else if (Model.getFacade().isReadOnly(mAttribute)) {
+            Model.getCoreHelper().setReadOnly(mAttribute, true);
+        }
     }
 
 
@@ -708,22 +656,22 @@ public class CSModeller {
             //adding stereotype CSharp Property to default namespace
             Object strCP = Model.getExtensionMechanismsFactory()
                     .buildStereotype("CSharp Property", model);
-            Object tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors","read-only");
-            Model.getExtensionMechanismsHelper().addTaggedValue(strCP,tv);
+            Object tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors", "read-only");
+            Model.getExtensionMechanismsHelper().addTaggedValue(strCP, tv);
             ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_ro", strCP);
 
             //adding stereotype CSharp Property to default namespace
             strCP = Model.getExtensionMechanismsFactory()
                     .buildStereotype("CSharp Property", model);
-            tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors","write-only");
-            Model.getExtensionMechanismsHelper().addTaggedValue(strCP,tv);
+            tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors", "write-only");
+            Model.getExtensionMechanismsHelper().addTaggedValue(strCP, tv);
             ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_wo", strCP);
 
             //adding stereotype CSharp Property to default namespace
             strCP = Model.getExtensionMechanismsFactory()
                     .buildStereotype("CSharp Property", model);
-            tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors","read-and-write");
-            Model.getExtensionMechanismsHelper().addTaggedValue(strCP,tv);
+            tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors", "read-and-write");
+            Model.getExtensionMechanismsHelper().addTaggedValue(strCP, tv);
             ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_rw", strCP);
         }
     }

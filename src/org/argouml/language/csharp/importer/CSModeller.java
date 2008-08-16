@@ -33,13 +33,20 @@ public class CSModeller {
     CompilationUnitNode cu = null;
     int phase = 0;
 
-    private static String TAG_CLASS = "cls#";
-    private static String TAG_INTERFACE = "int#";
-    private static String TAG_NS = "ns#";
+    /**
+     * Following tags will be used to find the type of a uml element stored into
+     * ele Hashtable while modelling
+     */
+
+    private static String TAG_CLASS = "cls#";     //Tag for classes
+    private static String TAG_INTERFACE = "int#"; //Tag for interfaces
+    private static String TAG_NS = "ns#";         //Tag for name spaces
     private static String TAG_GEN = "gen#";
     private static String TAG_EXTEND = "ext#";
     private static String TAG_OP = "opr#";
     private static String TAG_STEREOTYPE = "str#";
+
+
     private Object model;
     Hashtable ele = new Hashtable();
 
@@ -59,7 +66,12 @@ public class CSModeller {
         arraysAsDatatype = settings.isDatatypeSelected();
     }
 
-
+    /**
+     *
+     * @param cNodes list of CompilationUnitNodes (ASTs) grnrated by parser
+     * @param monitor Progress monitor dialog displayed while parsing files
+     * @param startCount starting file number
+     */
     public void model(List cNodes, ProgressMonitor monitor, int startCount) {
 
         int count = startCount;
@@ -89,6 +101,10 @@ public class CSModeller {
         }
     }
 
+    /**
+     * Add name space nodes to model
+     * @param nss list of name space nodes
+     */
     public void addNamespaceNodes(NodeCollection<NamespaceNode> nss) {
         for (NamespaceNode ns : nss) {
             if (phase == 0) {
@@ -102,6 +118,10 @@ public class CSModeller {
         }
     }
 
+    /**
+     * Add all classes in a name space node
+     * @param ns namespace node
+     */
     private void addNamespaceClasses(NamespaceNode ns) {
         String parent = buildToParent(ns.Name.Identifier, ns.Name.Identifier.length);
         for (ClassNode cn : ns.Classes) {
@@ -123,18 +143,27 @@ public class CSModeller {
         }
     }
 
-    private void addMethods(ClassNode cn, String cPackage) {
+    /**
+     * Add all mothds in a class to model
+     * @param cn
+     * @param namespace
+     */
+    private void addMethods(ClassNode cn, String namespace) {
         for (MethodNode mn : cn.Methods) {
-            addOperation(cn.Name.Identifier[0], mn, cPackage);
+            addOperation(cn.Name.Identifier[0], mn, namespace);
         }
     }
 
-    private void addMethods(InterfaceNode cn, String cPackage) {
+    private void addMethods(InterfaceNode cn, String namespace) {
         for (InterfaceMethodNode mn : cn.Methods) {
-            addOperation(cn.Name.Identifier[0], mn, cPackage);
+            addOperation(cn.Name.Identifier[0], mn, namespace);
         }
     }
 
+    /**
+     * Add top level name spaces to model
+     * @param name
+     */
     private void addRootNamesapce(String name) {
         if (ele.get(TAG_NS + name) != null) {
             return;
@@ -166,6 +195,7 @@ public class CSModeller {
         }
         addFixedStereotypes();
     }
+
 
     private String buildToParent(String[] sa, int k) {
         String p = "";
@@ -649,7 +679,9 @@ public class CSModeller {
         }
     }
 
-
+    /**
+     * Add read-write, read-only and write-only stereotypes to model
+     */
     private void addFixedStereotypes() {
         Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_rw");
         if (mSt == null) {

@@ -67,9 +67,8 @@ public class CSModeller {
     }
 
     /**
-     *
-     * @param cNodes list of CompilationUnitNodes (ASTs) grnrated by parser
-     * @param monitor Progress monitor dialog displayed while parsing files
+     * @param cNodes     list of CompilationUnitNodes (ASTs) grnrated by parser
+     * @param monitor    Progress monitor dialog displayed while parsing files
      * @param startCount starting file number
      */
     public void model(List cNodes, ProgressMonitor monitor, int startCount) {
@@ -103,6 +102,7 @@ public class CSModeller {
 
     /**
      * Add name space nodes to model
+     *
      * @param nss list of name space nodes
      */
     public void addNamespaceNodes(NodeCollection<NamespaceNode> nss) {
@@ -120,6 +120,7 @@ public class CSModeller {
 
     /**
      * Add all classes in a name space node
+     *
      * @param ns namespace node
      */
     private void addNamespaceClasses(NamespaceNode ns) {
@@ -145,6 +146,7 @@ public class CSModeller {
 
     /**
      * Add all mothds in a class to model
+     *
      * @param cn
      * @param namespace
      */
@@ -162,6 +164,7 @@ public class CSModeller {
 
     /**
      * Add top level name spaces to model
+     *
      * @param name
      */
     private void addRootNamesapce(String name) {
@@ -367,10 +370,12 @@ public class CSModeller {
 
 
     void addAttribute(ClassNode cn, FieldNode fn, String cPackage) {
-
+//        System.out.println("Add attribute");
         short modifiers = ModifierMap.getUmlModifierForVisibility(fn.modifiers);
         String typeSpec = buildToParent(fn.type.Identifier.Identifier, fn.type.Identifier.Identifier.length);
+//        System.out.println("Complete class "+typeSpec);
         String name = buildToParent(fn.names.get(0).Identifier, fn.names.get(0).Identifier.length);
+//        System.out.println("Attrib name "+name);
         String initializer = null;
         String docs = "";
         boolean forceIt = false;
@@ -379,7 +384,12 @@ public class CSModeller {
         String multiplicity = "1_1";
         Object mClassifier = null;
         String className = cPackage + "." + cn.Name.Identifier[0];
+//        System.out.println("Class name "+className);
         Object cls = ele.get(TAG_CLASS + className);
+//        Object cls = getClasesByName(cn.Name.Identifier[0], "");
+//        if (cls == null) {
+//            cls = ele.get(TAG_CLASS + className);
+//        }
 
         if (typeSpec != null) {
             if (!arraysAsDatatype && typeSpec.indexOf('[') != -1) {
@@ -468,13 +478,17 @@ public class CSModeller {
 
 
     Object getClasesByName(String paramType, String cPackage) {
+//        System.out.println("<getClasesByName> "+paramType);
         Object kx = null;
         if (paramType.contains(".")) {
             return ele.get(TAG_CLASS + paramType);
         } else {
             for (UsingDirectiveNode u : cu.UsingDirectives) {
-                kx = ele.get(TAG_CLASS + buildToParent(u.Target.Identifier, u.Target.Identifier.length)
+                String temp=buildToParent(u.Target.Identifier, u.Target.Identifier.length);
+//                System.out.println(temp);
+                kx = ele.get(TAG_CLASS + temp + "."
                         + paramType);
+                System.out.println(kx);
                 if (kx != null) {
                     return kx;
                 }

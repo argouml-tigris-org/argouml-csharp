@@ -228,6 +228,7 @@ public class CSModeller {
                 (cmod & CSharpConstants.ACC_FINAL) > 0);
         Model.getCoreHelper().setRoot(mClass, false);
         ele.put(TAG_CLASS + parent + "." + name, mClass);
+        System.out.println("Add class " + TAG_CLASS + parent + "." + name);
         return mClass;
     }
 
@@ -449,6 +450,12 @@ public class CSModeller {
                 String parent = buildToParent(tn.Identifier.Identifier, tn.Identifier.Identifier.length);
                 String child = buildToParent(cn.Name.Identifier, cn.Name.Identifier.length);
                 String pkg = buildToParent(ns.Name.Identifier, ns.Name.Identifier.length);
+
+                //System.out.println("AD GEN");
+                //System.out.println("Child : "+child);
+                //System.out.println("Parent : "+parent);
+                //System.out.println("pkg : "+pkg);
+
                 Object c = getStoredDataType(child, pkg);
                 Object p = getStoredDataType(parent, pkg);
                 Object n = getNameSpace(pkg);
@@ -483,8 +490,14 @@ public class CSModeller {
         if (paramType.contains(".")) {
             return ele.get(TAG_CLASS + paramType);
         } else {
+            kx = ele.get(TAG_CLASS + cPackage + "."
+                    + paramType);
+            System.out.println(kx);
+            if (kx != null) {
+                return kx;
+            }
             for (UsingDirectiveNode u : cu.UsingDirectives) {
-                String temp=buildToParent(u.Target.Identifier, u.Target.Identifier.length);
+                String temp = buildToParent(u.Target.Identifier, u.Target.Identifier.length);
 //                System.out.println(temp);
                 kx = ele.get(TAG_CLASS + temp + "."
                         + paramType);
@@ -502,8 +515,13 @@ public class CSModeller {
         if (paramType.contains(".")) {
             return ele.get(TAG_INTERFACE + paramType);
         } else {
+            kx = ele.get(TAG_INTERFACE + cPackage + "."
+                    + paramType);
+            if (kx != null) {
+                return kx;
+            }
             for (UsingDirectiveNode u : cu.UsingDirectives) {
-                kx = ele.get(TAG_INTERFACE + buildToParent(u.Target.Identifier, u.Target.Identifier.length)
+                kx = ele.get(TAG_INTERFACE + buildToParent(u.Target.Identifier, u.Target.Identifier.length) + "."
                         + paramType);
                 if (kx != null) {
                     return kx;
@@ -590,8 +608,8 @@ public class CSModeller {
             classifier = getInterfaceByName(name, cPackage);
         }
         if (classifier == null) {
-            classifier = addClass(0, name, cPackage);
-            ele.put(TAG_CLASS + cPackage + "." + name, classifier);
+            classifier = addClass(0, name, /*cPackage*/"DefaultNamespace");
+            ele.put(TAG_CLASS + "DefaultNamespace" + "." + name, classifier);
         }
         return classifier;
     }

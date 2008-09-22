@@ -422,9 +422,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 
 	s += generateScope(attr);
 	s += generateChangability(attr);
-        Object multi = Model.getFacade().getMultiplicity(attr);
-	if (Model.getFacade().getLower(multi) != 1
-                || Model.getFacade().getUpper(multi) != 1) {
+	if (isCollection(attr)) {
 	    String temp =
 	        generateMultiplicity(Model.getFacade().getMultiplicity(attr));
 	    if (temp.length() > 0) {
@@ -501,6 +499,24 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	}
 
 	return s;
+    }
+
+    /**
+     * @param element ModelElement which has the Multiplicity
+     * @return true if multiplicity is non-null and upper bound is greater
+     * than 1
+     */
+    private boolean isCollection(Object element) {
+    	Object multiplicity = Model.getFacade().getMultiplicity(element);
+    	// TODO: How should we handle a null multiplicity for code generation?
+        if (multiplicity != null) {
+            int upper = Model.getFacade().getUpper(multiplicity);
+            // -1 is UML's special 'unlimited integer'
+            if (upper > 1 || upper == -1) {
+                return true;
+            }
+        }
+        return false;
     }
 
 /**
@@ -873,8 +889,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 						       Object ae) {
 	String sDocComment = generateConstraintEnrichedDocComment(me);
 
-	Object m = Model.getFacade().getMultiplicity(ae);
-	if (Model.getFacade().getUpper(m) > 1) {
+	if (isCollection(ae)) {
 	    // Multiplicity greater 1, that means we will generate some sort of
 	    // collection, so we need to specify the element type tag
 
@@ -1168,8 +1183,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 
 	String name = Model.getFacade().getName(associationEnd);
 	Object association = Model.getFacade().getAssociation(associationEnd);
-        Object multi = Model.getFacade().getMultiplicity(associationEnd);
-        if (Model.getFacade().getUpper(multi) == 1 ) {
+        if (isCollection(associationEnd)) {
             s += generateClassifierRef(Model.getFacade()
                     .getType(associationEnd))
                 + " ";
@@ -1638,9 +1652,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
                                 Model.getFacade().getAssociation(
                                         associationEnd2))) {
                     // association end found
-                    Object multiplicity =
-                        Model.getFacade().getMultiplicity(associationEnd2);
-                    if (Model.getFacade().getUpper(multiplicity) > 1 ) {
+                    if (isCollection(associationEnd2)) {
                         importSet.add("System.Collections");
                     } else {
                         addImportType(importSet, associationEnd2, packagePath);

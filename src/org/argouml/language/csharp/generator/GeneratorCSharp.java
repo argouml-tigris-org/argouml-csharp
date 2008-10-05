@@ -634,7 +634,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	    sb.append(INDENT).append("}\n");
 	}
 
-	Collection strs = Model.getFacade().getAttributes(cls);
+	List strs = Model.getFacade().getAttributes(cls);
 	if (strs.size() > 0) {
 	    sb.append('\n');
 
@@ -673,7 +673,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 
 	// TODO: constructors
 
-	Collection behs = Model.getFacade().getOperations(cls);
+	List behs = Model.getFacade().getOperations(cls);
 
 	// Generate operations for all interfaces the class realizes
 	for (Object bf :  Model.getCoreHelper().getRealizedInterfaces(cls)) {
@@ -1620,7 +1620,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
                     if (!Model.getFacade().isAException(signal)) {
                         continue;
                     }
-                    addImportType(importSet, signal, packagePath);
+                    addImport(importSet, signal, packagePath);
                 }
             }
         }
@@ -1631,12 +1631,12 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
             if (parent == cls) {
                 continue;
             }
-            addImportType(importSet, parent, packagePath);
+            addImport(importSet, parent, packagePath);
         }
 
         // now check packages of the interfaces
         for (Object iface : Model.getFacade().getSpecifications(cls)) {
-            addImportType(importSet, iface, packagePath);
+            addImport(importSet, iface, packagePath);
         }
 
         // check association end types
@@ -1675,19 +1675,20 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     }
 
     /**
-     * Generate the import type.
+     * Generate a single import.
      * 
-     * @param type
+     * @param element
      *                the model element to generate the import for
      * @param exclude
      *                a package name to exclude. If the computed package name
      *                equals this string, null will be returned instead.
      * @return The generated type
      */
-    private String generateImportType(Object type, String exclude) {
+    private String generateImport(Object element, String exclude) {
         String ret = null;
-        if (type != null && Model.getFacade().getNamespace(type) != null) {
-            String p = getPackageName(Model.getFacade().getNamespace(type));
+        if (element != null 
+                && Model.getFacade().getNamespace(element) != null) {
+            String p = getPackageName(Model.getFacade().getNamespace(element));
             if (!p.equals(exclude)) {
                 ret = p;
 		if (p.length() > 0) {
@@ -1700,13 +1701,25 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
         return ret;
     }
     
-    private void addImportType(Set<String> imports, Object type, 
+    /**
+     * Add an import (if needed) for a single element (typically a classifier).
+     */
+    private void addImport(Set<String> imports, Object element, 
             String exclude) {
-        String importType =
-                generateImportType(Model.getFacade().getType(type), exclude);
-        if (importType != null) {
-            imports.add(importType);
+        String importString = generateImport(element, exclude);
+        if (importString != null) {
+            imports.add(importString);
         }
+    }
+    
+    /**
+     * Add an import for a typed element such as a StructuralFeature or 
+     * Parameter.
+     */
+    private void addImportType(Set<String> imports, Object feature, 
+            String exclude) {
+        Object type = Model.getFacade().getType(feature);
+        addImport(imports, type, exclude);
     }
     
     /**
@@ -1804,11 +1817,13 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
      * @return The generated expression
      */
     private static String generateExpression(Object expr) {
-        if (Model.getFacade().isAExpression(expr))
+        if (Model.getFacade().isAExpression(expr)) {
             return generateUninterpreted(
                     (String) Model.getFacade().getBody(expr));
-        else if (Model.getFacade().isAConstraint(expr))
+        }
+        else if (Model.getFacade().isAConstraint(expr)) {
             return generateExpression(Model.getFacade().getBody(expr));
+        }
         return "";
     }
     
@@ -1818,8 +1833,9 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
      * @return un or an empty String
      */
     private static String generateUninterpreted(String un) {
-        if (un == null)
+        if (un == null) {
             return "";
+        }
         return un;
     }
 
@@ -1829,8 +1845,9 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
      * @return Empty string or name of cls
      */
     private static String generateClassifierRef(Object cls) {
-        if (cls == null)
+        if (cls == null) {
             return "";
+        }
         return Model.getFacade().getName(cls);
     }
 

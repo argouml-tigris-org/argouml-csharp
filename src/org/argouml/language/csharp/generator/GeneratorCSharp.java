@@ -1152,8 +1152,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	
         // must be public or generate public navigation method!
 
-	if (Model.getScopeKind().getClassifier().equals(
-	        Model.getFacade().getTargetScope(associationEnd))) {
+	if (Model.getFacade().isStatic(associationEnd)) {
 	    if (VERBOSE) {
 	        tempS += "static ";
 	    }

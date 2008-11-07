@@ -337,9 +337,31 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
             nameStr = "~" + nameStr;
             isDestructor = true;            
         }
-        
+
+        // pick out return type
+        List rps = Model.getCoreHelper().getReturnParameters(op);
+        if (rps.size() > 1) {
+            // TODO: Add better support or error reporting for multiple return
+            // parameters
+            throw new RuntimeException(
+                    "Multiple return parameters not supported");
+        }
+        Object rp = null;
+        if (rps.size() == 1) {
+            rp = rps.get(0);
+        }
+	// name and params
+	List params = new ArrayList(Model.getFacade().getParameters(op));
+	
+	String returnDoc = generateConstraintEnrichedDocComment(rp,"/// <returns>","/// ","/// </returns>") + "\n" + INDENT;
+	params.remove (rp);
+	
 	if (documented) {
-	    s += generateConstraintEnrichedDocComment(op) + "\n" + INDENT;
+	    s += generateConstraintEnrichedDocComment(op,"/// <summary>","/// ","/// </summary>") + "\n" + INDENT;
+		for (Object p : params) {
+		    s +=  generateConstraintEnrichedDocComment(p,"/// <param name=\"" + Model.getFacade().getName(p) + "\">" ,"/// ","/// </param>") + "\n" + INDENT;
+		}
+		s += returnDoc;
 	}
 
 	//    s += "function ";
@@ -352,18 +374,6 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	}
 	
 	s += tagStr;
-	// pick out return type
-        List rps = Model.getCoreHelper().getReturnParameters(op);
-        if (rps.size() > 1) {
-            // TODO: Add better support or error reporting for multiple return
-            // parameters
-            throw new RuntimeException(
-                    "Multiple return parameters not supported");
-        }
-        Object rp = null;
-        if (rps.size() == 1) {
-            rp = rps.get(0);
-        }
 	if (rp != null) {
 	    Object returnType = Model.getFacade().getType(rp);
 	    if (returnType == null && !nameStr.equals(clsName)) {
@@ -373,9 +383,6 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	    }
 	}
 
-	// name and params
-	List params = new ArrayList(Model.getFacade().getParameters(op));
-	params.remove (rp);
 
 	s += nameStr + "(";
 
@@ -572,6 +579,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     private String generateClassifier(Object cls) {
 	String generatedName = Model.getFacade().getName(cls);
 	String classifierKeyword;
+	LOG.debug("generateClassifier: " + generatedName);
 	if (Model.getFacade().isAClass(cls)) {
 	    classifierKeyword = "class";
 	} else if (Model.getFacade().isAInterface(cls)) {
@@ -583,9 +591,9 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	StringBuffer sb = new StringBuffer();
 
 	// Add the comments for this classifier first.
-	sb.append(DocumentationManager.getComments(cls));
-	sb.append(generateConstraintEnrichedDocComment (cls)).append ("\n");
-
+	sb.append(DocumentationManager.getComments(cls,"/// <summary>","/// "," /// </summary>"));
+	sb.append(generateConstraintEnrichedDocComment (cls,"/// <summary>","/// "," /// </summary>")).append ("\n");
+	
 	sb.append(generateVisibility(Model.getFacade().getVisibility(cls)));
 	if (Model.getFacade().isAbstract(cls)
                 && !(Model.getFacade().isAInterface(cls))) {
@@ -694,7 +702,7 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 		if (Model.getFacade().isAInterface(parent)) {
                     sbtemp.append("public ");
                 }
-		sbtemp.append(generateOperation(bf, false));
+		sbtemp.append(generateOperation(bf, true));
 
 		tv = generateTaggedValues(bf);
 
@@ -817,26 +825,29 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	while (iter.hasNext()) {
 	    s = generateTaggedValue(iter.next());
 	    if (s != null && s.length() > 0) {
-		if (first) {
-		    /*
-		     * Corrected 2001-09-26 STEFFEN ZSCHALER
-		     *
-		     * Was:
-		     buf.append("// {");
-		     *
-		     * which caused problems with new lines characters
-		     * in tagged values (e.g. comments...).  The new
-		     * version still has some problems with tagged values
-		     * containing "*"+"/" as this closes the comment
-		     * prematurely, but comments should be taken out of
-		     * the tagged values list anyway...
-		     */
-		    buf.append("/* {");
-		    first = false;
-		} else {
-		    buf.append(", ");
-		}
+	        if(!s.contains("documentation"))
+	        {
+        		if (first) {
+        		    /*
+        		     * Corrected 2001-09-26 STEFFEN ZSCHALER
+        		     *
+        		     * Was:
+        		     buf.append("// {");
+        		     *
+        		     * which caused problems with new lines characters
+        		     * in tagged values (e.g. comments...).  The new
+        		     * version still has some problems with tagged values
+        		     * containing "*"+"/" as this closes the comment
+        		     * prematurely, but comments should be taken out of
+        		     * the tagged values list anyway...
+        		     */
+        		    buf.append("/* {");
+        		    first = false;
+        		} else {
+        		    buf.append(", ");
+        		}
 		buf.append(s);
+	        }
 	    }
 	}
 
@@ -923,7 +934,6 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	    }
 	}
     }
-
     /**
      * Enhance/Create the doccomment for the given model element, including
      * tags for any OCL constraints connected to the model element. The tags
@@ -942,10 +952,14 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
      * enhanced or completely generated
      */
     private String generateConstraintEnrichedDocComment(Object me) {
+	return generateConstraintEnrichedDocComment(me,"/// <summary> ", "/// ", "/// </summary>");
+    }
+    private String generateConstraintEnrichedDocComment(Object me,String header, String prefix, String footer) {
 	// Retrieve any existing doccomment
 	String sDocComment =
-	    DocumentationManager.getDocs(me, GeneratorCSharp.INDENT);
+	    DocumentationManager.getDocs(me, "",header, prefix, footer);
 
+	LOG.debug("sDocComment: " + sDocComment);
 	if (sDocComment != null) {
 	    // Fix Bug in documentation manager.defaultFor -->
 	    // look for current INDENT and use it
@@ -973,11 +987,11 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	if (sDocComment != null) {
 	    // Just remove closing */
 	    sDocComment =
-	        sDocComment.substring(0, sDocComment.indexOf("*/") + 1);
+	        sDocComment.substring(0, sDocComment.indexOf(footer) + 1);
 	} else {
 	    if (VERBOSE) {
 		sDocComment =
-		    INDENT + "/**\n" + INDENT + " * \n" + INDENT + " *";
+		    INDENT + footer + "\n" + INDENT + " /// \n" + INDENT + " ///";
 	    } else {
 		sDocComment = "";
 	    }
@@ -1063,14 +1077,14 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 		otParsed.apply (te);
 
 		for (Iterator j = te.getTags(); j.hasNext();) {
-		    sDocComment += " " + j.next() + "\n" + INDENT + " *";
+		    sDocComment += " " + j.next() + "\n" + INDENT + " ///";
 		}
 	    } catch (IOException ioe) {
 		// Nothing to be done, should not happen anyway ;-)
 	    }
 	}
 
-	sDocComment += "/";
+	sDocComment += "\n" + footer;
 
 	return sDocComment;
     }

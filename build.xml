@@ -31,10 +31,11 @@ etc.
     <!-- we really need an absolute path for argo.root.dir -->
     <!-- if it is set in a property file before now, it must be absolute -->
     <property name="argo.root.dir" value="${basedir}/../argouml"/>
+    <property name="argo.src.dir" value="${argo.root.dir}" />
     <property file="${override.build.properties}"/>
-    <property file="${argo.src.dir}/default.properties"/>
+    <property file="${argo.src.dir}/argouml-app/default.properties"/>
     
-    <property name="argo.build.dir" value="${argo.root.dir}/build"/>
+    <property name="argo.build.dir" value="${argo.root.dir}/argouml-build/build"/>
 
     <property name="result.jar" value="argouml-csharp.jar"/>
   
@@ -42,7 +43,6 @@ etc.
       <pathelement location="${argo.build.dir}/argouml-model.jar"/>
       <pathelement location="${argo.build.dir}/argouml.jar"/>
     </path>
-
     <path id="run.classpath">
       <fileset dir="${argo.build.dir}" includes="*.jar"/>
     </path>
@@ -58,7 +58,7 @@ etc.
           taskname="argouml"
      	  jvmargs="-Xmx500M">
         <sysproperty key="log4j.configuration"
-                   value="org/argouml/resource/error_console.lcf"/>
+                   value="org/argouml/resource/full.lcf"/>
         <classpath>
 	  <pathelement location="${build.dir}/${result.jar}"/>
 	  <path refid="run.classpath"/>
@@ -86,7 +86,7 @@ etc.
            target="1.5"
            includeAntRuntime="no">
        <classpath>
-	  <path refid="compile.classpath"/>
+	      <path refid="compile.classpath"/>
        </classpath>
     </javac>
     <copy file="src/manifest.mf" todir="${build.classes}"/>

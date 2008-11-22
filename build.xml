@@ -40,12 +40,13 @@ etc.
     <property name="result.jar" value="argouml-csharp.jar"/>
   
     <path id="compile.classpath">
-      <pathelement location="${argo.build.dir}/argouml-model.jar"/>
-      <pathelement location="${argo.build.dir}/argouml.jar"/>
+      <fileset dir="../argouml/build" includes="*.jar"/>
     </path>
+
     <path id="run.classpath">
-      <fileset dir="${argo.build.dir}" includes="*.jar"/>
+      <path refid="compile.classpath"/>
     </path>
+
   </target>
 
   <!-- =================================================================== -->
@@ -108,7 +109,7 @@ etc.
   <!-- =================================================================== -->
   <target name="install" depends="jar"
           description="Copy the ${result.jar} file to the ArgoUML directory.">
-    <copy todir="${argo.build.dir}/ext">
+    <copy todir="../argouml/build/ext">
       <fileset dir="${build.dir}" includes="${result.jar}"/>
     </copy>
   </target>

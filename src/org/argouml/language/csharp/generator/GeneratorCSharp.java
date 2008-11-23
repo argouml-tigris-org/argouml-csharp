@@ -182,6 +182,8 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
 	}
 	BufferedWriter fos = null;
 	try {
+            // TODO: This is using the default platform character encoding
+            // specifying an encoding will produce more predictable results
 	    fos = new BufferedWriter(new FileWriter(f));
 	    fos.write(header);
 	    fos.write(src);

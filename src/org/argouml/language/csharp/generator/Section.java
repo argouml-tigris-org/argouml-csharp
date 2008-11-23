@@ -88,8 +88,12 @@ public class Section {
     public void write(String filename, String indent) {
         try {
             LOG.debug("Start reading");
+            // TODO: This is using the default platform character encoding
+            // specifying an encoding will produce more predictable results
             FileReader f = new FileReader(filename);
             BufferedReader fr = new BufferedReader(f);
+            // TODO: This is using the default platform character encoding
+            // specifying an encoding will produce more predictable results
             FileWriter fw = new FileWriter(filename + ".out");
             LOG.debug("Total size of Map: " + mAry.size());
             String line = "";
@@ -137,6 +141,8 @@ public class Section {
     public void read(String filename) {
         try {
             LOG.debug("Start reading");
+            // TODO: This is using the default platform character encoding
+            // specifying an encoding will produce more predictable results
             FileReader f = new FileReader(filename);
             BufferedReader fr = new BufferedReader(f);
 

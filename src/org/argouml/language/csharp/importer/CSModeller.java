@@ -1,10 +1,19 @@
 package org.argouml.language.csharp.importer;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.List;
+
 import org.argouml.i18n.Translator;
 import org.argouml.kernel.Project;
 import org.argouml.language.csharp.importer.bridge.ModifierMap;
 import org.argouml.language.csharp.importer.csparser.collections.NodeCollection;
-import org.argouml.language.csharp.importer.csparser.members.*;
+import org.argouml.language.csharp.importer.csparser.members.FieldNode;
+import org.argouml.language.csharp.importer.csparser.members.InterfaceMethodNode;
+import org.argouml.language.csharp.importer.csparser.members.MethodNode;
+import org.argouml.language.csharp.importer.csparser.members.ParamDeclNode;
+import org.argouml.language.csharp.importer.csparser.members.PropertyNode;
 import org.argouml.language.csharp.importer.csparser.nodes.expressions.TypeNode;
 import org.argouml.language.csharp.importer.csparser.structural.CompilationUnitNode;
 import org.argouml.language.csharp.importer.csparser.structural.NamespaceNode;
@@ -14,11 +23,6 @@ import org.argouml.language.csharp.importer.csparser.types.InterfaceNode;
 import org.argouml.model.Model;
 import org.argouml.taskmgmt.ProgressMonitor;
 import org.argouml.uml.reveng.ImportSettings;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.List;
 
 
 /**
@@ -171,7 +175,7 @@ public class CSModeller {
         if (ele.get(TAG_NS + name) != null) {
             return;
         }
-        Object pk = Model.getModelManagementFactory().buildPackage(name, name);
+        Object pk = Model.getModelManagementFactory().buildPackage(name);
         Model.getCoreHelper().setRoot(pk, true);
         Model.getCoreHelper().setNamespace(pk, model);
         Model.getCoreHelper().addOwnedElement(model, pk);
@@ -182,7 +186,7 @@ public class CSModeller {
         if (ele.get(TAG_NS + parent + "." + name) != null) {
             return;
         }
-        Object pk = Model.getModelManagementFactory().buildPackage(name, parent + "." + name);
+        Object pk = Model.getModelManagementFactory().buildPackage(name);
         Model.getCoreHelper().setRoot(pk, true);
         Model.getCoreHelper().setNamespace(pk, ele.get(TAG_NS + parent));
         ele.put(TAG_NS + parent + "." + name, pk);

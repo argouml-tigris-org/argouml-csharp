@@ -1,6 +1,6 @@
+// TODO: What copyright header and license belongs here?
 package org.argouml.language.csharp.importer;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,15 +31,14 @@ import org.argouml.uml.reveng.ImportSettings;
  * @author Thilina Hasantha <thilina.hasantha@gmail.com>
  */
 public class CSModeller {
-    Project p;
-    ImportSettings settings;
-    List elements = new ArrayList();
-    CompilationUnitNode cu = null;
-    int phase = 0;
+    private Project project;
+    private ImportSettings settings;
+    private CompilationUnitNode cu = null;
+    private int phase = 0;
 
     /**
      * Following tags will be used to find the type of a uml element stored into
-     * ele Hashtable while modelling
+     * ele Hashtable while modeling
      */
 
     private static String TAG_CLASS = "cls#";     //Tag for classes
@@ -52,10 +51,12 @@ public class CSModeller {
 
 
     private Object model;
-    Hashtable ele = new Hashtable();
+    
+    /**
+     * Hashtable of elements, keyed by tag (see above) and names.
+     */
+    private Hashtable<String, Object> ele = new Hashtable<String, Object>();
 
-
-    private boolean noAssociations;
     private boolean arraysAsDatatype;
 
     /**
@@ -63,11 +64,15 @@ public class CSModeller {
      * @param settings import settings specified by the user
      */
     public CSModeller(Project p, ImportSettings settings) {
-        this.p = p;
+        this.project = p;
+        // TODO: There may be multiple top level packages in a project
         model = p.getModel();
         this.settings = settings;
-        noAssociations = settings.isAttributeSelected();
-        arraysAsDatatype = settings.isDatatypeSelected();
+        // TODO: This was a private Java importer setting which was mistakenly
+        // included in the API (and then deprecated immediately).  If it's 
+        // needed the C# importer needs to define its own setting to control it.
+//        arraysAsDatatype = settings.isDatatypeSelected();
+        arraysAsDatatype = false;
     }
 
     /**
@@ -128,10 +133,13 @@ public class CSModeller {
      * @param ns namespace node
      */
     private void addNamespaceClasses(NamespaceNode ns) {
-        String parent = buildToParent(ns.Name.Identifier, ns.Name.Identifier.length);
+        String parent = buildToParent(ns.Name.Identifier, 
+                ns.Name.Identifier.length);
         for (ClassNode cn : ns.Classes) {
             if (phase == 0) {
-                addClass(cn.Modifiers, cn.Name.Identifier[cn.Name.Identifier.length - 1], parent);
+                addClass(cn.Modifiers, 
+                        cn.Name.Identifier[cn.Name.Identifier.length - 1], 
+                        parent);
             } else if (phase == 1) {
                 addAttributes(cn, parent);
                 addProperties(cn, parent);
@@ -141,7 +149,9 @@ public class CSModeller {
         }
         for (InterfaceNode cn : ns.Interfaces) {
             if (phase == 0) {
-                addInterface(cn.Modifiers, cn.Name.Identifier[cn.Name.Identifier.length - 1], parent);
+                addInterface(cn.Modifiers, 
+                        cn.Name.Identifier[cn.Name.Identifier.length - 1], 
+                        parent);
             } else if (phase == 1) {
                 addMethods(cn, parent);
             }
@@ -197,7 +207,8 @@ public class CSModeller {
             if (i == 0) {
                 addRootNamesapce(ns.Name.Identifier[i]);
             } else {
-                addSubNamesapce(ns.Name.Identifier[i], buildToParent(ns.Name.Identifier, i));
+                addSubNamesapce(ns.Name.Identifier[i], 
+                        buildToParent(ns.Name.Identifier, i));
             }
         }
         addFixedStereotypes();
@@ -269,7 +280,8 @@ public class CSModeller {
 
         Object classifier = null;
         //check in classes
-        String temp = buildToParent(mn.type.Identifier.Identifier, mn.type.Identifier.Identifier.length);
+        String temp = buildToParent(mn.type.Identifier.Identifier, 
+                mn.type.Identifier.Identifier.length);
         classifier = getStoredDataType(temp, cPackage);
 
         Object mOperation = Model.getCoreFactory().buildOperation2(cls, classifier, name);
@@ -279,7 +291,8 @@ public class CSModeller {
         Model.getCoreHelper().setLeaf(mOperation,
                 (cmod & CSharpConstants.ACC_FINAL) > 0);
         Model.getCoreHelper().setRoot(mOperation, false);
-        Model.getCoreHelper().setStatic(mOperation, (cmod & CSharpConstants.ACC_STATIC) > 0);
+        Model.getCoreHelper().setStatic(mOperation, 
+                (cmod & CSharpConstants.ACC_STATIC) > 0);
 
 
         Object parameter = null;
@@ -288,7 +301,8 @@ public class CSModeller {
 
                 classifier = null;
 
-                classifier = getStoredDataType(buildToParent(p.type.Identifier.Identifier,
+                classifier = getStoredDataType(buildToParent(
+                        p.type.Identifier.Identifier,
                         p.type.Identifier.Identifier.length), cPackage);
                 parameter =
                         Model.getCoreFactory().buildParameter(mOperation, classifier);
@@ -303,7 +317,8 @@ public class CSModeller {
     }
 
 
-    public void addOperation(String parent, InterfaceMethodNode mn, String cPackage) {
+    public void addOperation(String parent, InterfaceMethodNode mn,
+            String cPackage) {
 
         String name = mn.names.get(0).Identifier[0];
         String className = cPackage + "." + parent;
@@ -325,7 +340,8 @@ public class CSModeller {
 
         Object classifier = null;
         //check in classes
-        String temp = buildToParent(mn.type.Identifier.Identifier, mn.type.Identifier.Identifier.length);
+        String temp = buildToParent(mn.type.Identifier.Identifier, 
+                mn.type.Identifier.Identifier.length);
         classifier = getStoredDataType(temp, cPackage);
 
         Object mOperation = Model.getCoreFactory().buildOperation2(cls, classifier, name);
@@ -335,7 +351,8 @@ public class CSModeller {
         Model.getCoreHelper().setLeaf(mOperation,
                 (cmod & CSharpConstants.ACC_FINAL) > 0);
         Model.getCoreHelper().setRoot(mOperation, false);
-        Model.getCoreHelper().setStatic(mOperation, (cmod & CSharpConstants.ACC_STATIC) > 0);
+        Model.getCoreHelper().setStatic(mOperation, 
+                (cmod & CSharpConstants.ACC_STATIC) > 0);
 
 
         Object parameter = null;
@@ -344,7 +361,8 @@ public class CSModeller {
 
                 classifier = null;
 
-                classifier = getStoredDataType(buildToParent(p.type.Identifier.Identifier,
+                classifier = getStoredDataType(buildToParent(
+                        p.type.Identifier.Identifier,
                         p.type.Identifier.Identifier.length), cPackage);
                 parameter =
                         Model.getCoreFactory().buildParameter(mOperation, classifier);
@@ -360,26 +378,30 @@ public class CSModeller {
 
 
     void addAttributes(ClassNode cn, String cPackage) {
-        if (cn.Fields != null)
+        if (cn.Fields != null) {
             for (FieldNode f : cn.Fields) {
                 addAttribute(cn, f, cPackage);
             }
+        }
     }
 
     void addProperties(ClassNode cn, String cPackage) {
-        if (cn.Properties != null)
+        if (cn.Properties != null) {
             for (PropertyNode f : cn.Properties) {
                 addProperty(cn, f, cPackage);
             }
+        }
     }
 
 
     void addAttribute(ClassNode cn, FieldNode fn, String cPackage) {
 //        System.out.println("Add attribute");
         short modifiers = ModifierMap.getUmlModifierForVisibility(fn.modifiers);
-        String typeSpec = buildToParent(fn.type.Identifier.Identifier, fn.type.Identifier.Identifier.length);
+        String typeSpec = buildToParent(fn.type.Identifier.Identifier, 
+                fn.type.Identifier.Identifier.length);
 //        System.out.println("Complete class "+typeSpec);
-        String name = buildToParent(fn.names.get(0).Identifier, fn.names.get(0).Identifier.length);
+        String name = buildToParent(fn.names.get(0).Identifier, 
+                fn.names.get(0).Identifier.length);
 //        System.out.println("Attrib name "+name);
         String initializer = null;
         String docs = "";
@@ -436,7 +458,8 @@ public class CSModeller {
 
     private Object buildReturnParameter(Object operation, Object classifier) {
         Object parameter = buildParameter(operation, classifier, "return");
-        Model.getCoreHelper().setKind(parameter, Model.getDirectionKind().getReturnParameter());
+        Model.getCoreHelper().setKind(parameter, 
+                Model.getDirectionKind().getReturnParameter());
         return parameter;
     }
 
@@ -451,9 +474,12 @@ public class CSModeller {
     private void buildGeneralization(ClassNode cn, NamespaceNode ns) {
         if (cn.BaseClasses != null) {
             for (TypeNode tn : cn.BaseClasses) {
-                String parent = buildToParent(tn.Identifier.Identifier, tn.Identifier.Identifier.length);
-                String child = buildToParent(cn.Name.Identifier, cn.Name.Identifier.length);
-                String pkg = buildToParent(ns.Name.Identifier, ns.Name.Identifier.length);
+                String parent = buildToParent(tn.Identifier.Identifier, 
+                        tn.Identifier.Identifier.length);
+                String child = buildToParent(cn.Name.Identifier, 
+                        cn.Name.Identifier.length);
+                String pkg = buildToParent(ns.Name.Identifier, 
+                        ns.Name.Identifier.length);
 
                 //System.out.println("AD GEN");
                 //System.out.println("Child : "+child);
@@ -501,7 +527,8 @@ public class CSModeller {
                 return kx;
             }
             for (UsingDirectiveNode u : cu.UsingDirectives) {
-                String temp = buildToParent(u.Target.Identifier, u.Target.Identifier.length);
+                String temp = buildToParent(u.Target.Identifier, 
+                        u.Target.Identifier.length);
 //                System.out.println(temp);
                 kx = ele.get(TAG_CLASS + temp + "."
                         + paramType);
@@ -525,8 +552,9 @@ public class CSModeller {
                 return kx;
             }
             for (UsingDirectiveNode u : cu.UsingDirectives) {
-                kx = ele.get(TAG_INTERFACE + buildToParent(u.Target.Identifier, u.Target.Identifier.length) + "."
-                        + paramType);
+                kx = ele.get(TAG_INTERFACE
+                        + buildToParent(u.Target.Identifier,
+                                u.Target.Identifier.length) + "." + paramType);
                 if (kx != null) {
                     return kx;
                 }
@@ -695,21 +723,24 @@ public class CSModeller {
 
 
     private void applyReadWriteStereotype(Object property) {
-        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_rw");
+        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "."
+                + "CSharp_Property_rw");
         if (mSt != null) {
             Model.getCoreHelper().addStereotype(property, mSt);
         }
     }
 
     private void applyWriteOnlyStereotype(Object property) {
-        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_ro");
+        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "."
+                + "CSharp_Property_ro");
         if (mSt != null) {
             Model.getCoreHelper().addStereotype(property, mSt);
         }
     }
 
     private void applyReadOnlyStereotype(Object property) {
-        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_ro");
+        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "."
+                + "CSharp_Property_ro");
         if (mSt != null) {
             Model.getCoreHelper().addStereotype(property, mSt);
         }
@@ -719,28 +750,35 @@ public class CSModeller {
      * Add read-write, read-only and write-only stereotypes to model
      */
     private void addFixedStereotypes() {
-        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_rw");
+        Object mSt = ele.get(TAG_STEREOTYPE + "DefaultNamespace" 
+                + "." + "CSharp_Property_rw");
         if (mSt == null) {
             //adding stereotype CSharp Property to default namespace
             Object strCP = Model.getExtensionMechanismsFactory()
                     .buildStereotype("CSharp Property", model);
-            Object tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors", "read-only");
+            Object tv = Model.getExtensionMechanismsFactory().buildTaggedValue(
+                    "accessors", "read-only");
             Model.getExtensionMechanismsHelper().addTaggedValue(strCP, tv);
-            ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_ro", strCP);
+            ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." 
+                    + "CSharp_Property_ro", strCP);
 
             //adding stereotype CSharp Property to default namespace
             strCP = Model.getExtensionMechanismsFactory()
                     .buildStereotype("CSharp Property", model);
-            tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors", "write-only");
+            tv = Model.getExtensionMechanismsFactory().buildTaggedValue(
+                    "accessors", "write-only");
             Model.getExtensionMechanismsHelper().addTaggedValue(strCP, tv);
-            ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_wo", strCP);
+            ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." 
+                    + "CSharp_Property_wo", strCP);
 
             //adding stereotype CSharp Property to default namespace
             strCP = Model.getExtensionMechanismsFactory()
                     .buildStereotype("CSharp Property", model);
-            tv = Model.getExtensionMechanismsFactory().buildTaggedValue("accessors", "read-and-write");
+            tv = Model.getExtensionMechanismsFactory().buildTaggedValue(
+                    "accessors", "read-and-write");
             Model.getExtensionMechanismsHelper().addTaggedValue(strCP, tv);
-            ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." + "CSharp_Property_rw", strCP);
+            ele.put(TAG_STEREOTYPE + "DefaultNamespace" + "." 
+                    + "CSharp_Property_rw", strCP);
         }
     }
 

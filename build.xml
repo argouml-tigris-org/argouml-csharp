@@ -35,6 +35,8 @@ etc.
     <property file="${override.build.properties}"/>
     <property file="${argo.src.dir}/argouml-app/default.properties"/>
     
+    <property name="argo.build.dir" value="../argouml/build"/>
+
     <property name="argo.build.dir" value="${argo.root.dir}/argouml-build/build"/>
 
     <property name="result.jar" value="argouml-csharp.jar"/>

@@ -1,5 +1,5 @@
 // $Id$
-// Copyright (c) 1996-2008 The Regents of the University of California. All
+// Copyright (c) 1996-2009 The Regents of the University of California. All
 // Rights Reserved. Permission to use, copy, modify, and distribute this
 // software and its documentation without fee, and without a written
 // agreement is hereby granted, provided that the above copyright notice
@@ -1309,8 +1309,6 @@ public class GeneratorCSharp implements CodeGenerator, ModuleInterface {
     /**
      * Generates visibility: public, private, protected
      * 
-     * @see org.argouml.application.api.NotationProvider2#generateVisibility(java.lang.Object)
-     *
      * This can be called with either a feature or a visibility.
      * 
      * @param handle The object to generate visibility for

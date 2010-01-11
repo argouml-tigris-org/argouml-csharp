@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 
 import java.util.*;
 import java.io.*;
-// $Id: JavaImport.java 13667 2007-10-11 04:58:45Z tfmorris $
+// $Id$
 // Copyright (c) 1996-2007 The Regents of the University of California. All
 // Rights Reserved. Permission to use, copy, modify, and distribute this
 // software and its documentation without fee, and without a written

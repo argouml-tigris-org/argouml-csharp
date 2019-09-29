@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="4.3" timestamp="2019-09-29T09:12:18.802">
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/generator/GeneratorCSharp.java">
+<violation beginline="164" endline="167" begincolumn="17" endcolumn="17" rule="CollapsibleIfStatements" ruleset="Basic Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateFile" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#CollapsibleIfStatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="204" endline="206" begincolumn="11" endcolumn="9" rule="EmptyCatchBlock" ruleset="Basic Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateFile" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyCatchBlock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="306" endline="306" begincolumn="20" endcolumn="47" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateSubmachine" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'generateSubmachine(Object)'.
+</violation>
+<violation beginline="320" endline="320" begincolumn="20" endcolumn="52" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateObjectFlowState" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'generateObjectFlowState(Object)'.
+</violation>
+<violation beginline="844" endline="866" begincolumn="17" endcolumn="17" rule="CollapsibleIfStatements" ruleset="Basic Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateTaggedValues" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#CollapsibleIfStatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="1098" endline="1100" begincolumn="15" endcolumn="13" rule="EmptyCatchBlock" ruleset="Basic Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateConstraintEnrichedDocComment" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyCatchBlock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="1147" endline="1160" begincolumn="13" endcolumn="5" rule="UnusedFormalParameter" ruleset="Unused Code Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedFormalParameter" priority="3">
+Avoid unused method parameters such as 'a'.
+</violation>
+<violation beginline="1147" endline="1147" begincolumn="20" endcolumn="48" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateAssociation" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'generateAssociation(Object)'.
+</violation>
+<violation beginline="1186" endline="1188" begincolumn="13" endcolumn="13" rule="CollapsibleIfStatements" ruleset="Basic Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateAssociationEnd" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#CollapsibleIfStatements" priority="3">
+These nested if statements could be combined
+</violation>
+<violation beginline="1427" endline="1427" begincolumn="20" endcolumn="42" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateState" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'generateState(Object)'.
+</violation>
+<violation beginline="1432" endline="1432" begincolumn="20" endcolumn="50" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateStateBody" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'generateStateBody(Object)'.
+</violation>
+<violation beginline="1526" endline="1526" begincolumn="20" endcolumn="50" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateMessage" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'generateMessage(Object)'.
+</violation>
+<violation beginline="1605" endline="1605" begincolumn="20" endcolumn="58" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateActionState" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'generateActionState(Object)'.
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/CSModeller.java">
+<violation beginline="48" endline="48" begincolumn="21" endcolumn="27" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" variable="project" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'project'.
+</violation>
+<violation beginline="49" endline="49" begincolumn="28" endcolumn="35" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" variable="settings" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'settings'.
+</violation>
+<violation beginline="61" endline="61" begincolumn="27" endcolumn="33" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" variable="TAG_GEN" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'TAG_GEN'.
+</violation>
+<violation beginline="62" endline="62" begincolumn="27" endcolumn="36" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" variable="TAG_EXTEND" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'TAG_EXTEND'.
+</violation>
+<violation beginline="421" endline="421" begincolumn="16" endcolumn="19" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" method="addAttribute" variable="docs" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'docs'.
+</violation>
+<violation beginline="422" endline="422" begincolumn="17" endcolumn="23" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" method="addAttribute" variable="forceIt" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'forceIt'.
+</violation>
+<violation beginline="473" endline="473" begincolumn="20" endcolumn="76" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" method="buildReturnParameter" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'buildReturnParameter(Object,Object)'.
+</violation>
+<violation beginline="638" endline="638" begincolumn="19" endcolumn="52" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" method="concatModifires" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'concatModifires(short)'.
+</violation>
+<violation beginline="680" endline="680" begincolumn="16" endcolumn="19" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" method="addProperty" variable="docs" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'docs'.
+</violation>
+<violation beginline="681" endline="681" begincolumn="17" endcolumn="23" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" method="addProperty" variable="forceIt" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'forceIt'.
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/CSharpImport.java">
+<violation beginline="46" endline="46" begincolumn="8" endcolumn="19" rule="DuplicateImports" ruleset="Import Statement Rules" package="org.argouml.language.csharp.importer" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#DuplicateImports" priority="4">
+Avoid duplicate imports such as 'java.io.File'
+</violation>
+<violation beginline="47" endline="47" begincolumn="8" endcolumn="30" rule="DuplicateImports" ruleset="Import Statement Rules" package="org.argouml.language.csharp.importer" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#DuplicateImports" priority="4">
+Avoid duplicate imports such as 'java.io.FileInputStream'
+</violation>
+<violation beginline="48" endline="48" begincolumn="8" endcolumn="26" rule="DuplicateImports" ruleset="Import Statement Rules" package="org.argouml.language.csharp.importer" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#DuplicateImports" priority="4">
+Avoid duplicate imports such as 'java.io.IOException'
+</violation>
+<violation beginline="48" endline="48" begincolumn="1" endcolumn="27" rule="UnusedImports" ruleset="Import Statement Rules" package="org.argouml.language.csharp.importer" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#UnusedImports" priority="4">
+Avoid unused imports such as 'java.io.IOException'
+</violation>
+<violation beginline="61" endline="61" begincolumn="33" endcolumn="35" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSharpImport" variable="LOG" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'LOG'.
+</violation>
+<violation beginline="117" endline="128" begincolumn="13" endcolumn="5" rule="UnusedFormalParameter" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSharpImport" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedFormalParameter" priority="3">
+Avoid unused method parameters such as 'pass'.
+</violation>
+<violation beginline="140" endline="160" begincolumn="13" endcolumn="5" rule="UnusedFormalParameter" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSharpImport" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedFormalParameter" priority="3">
+Avoid unused method parameters such as 'p'.
+</violation>
+<violation beginline="140" endline="160" begincolumn="13" endcolumn="5" rule="UnusedFormalParameter" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSharpImport" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedFormalParameter" priority="3">
+Avoid unused method parameters such as 'pass'.
+</violation>
+<violation beginline="140" endline="160" begincolumn="13" endcolumn="5" rule="UnusedFormalParameter" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSharpImport" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedFormalParameter" priority="3">
+Avoid unused method parameters such as 'settings'.
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/collections/ParseStateCollection.java">
+<violation beginline="5" endline="5" begincolumn="1" endcolumn="22" rule="UnusedImports" ruleset="Import Statement Rules" package="org.argouml.language.csharp.importer.csparser.collections" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#UnusedImports" priority="4">
+Avoid unused imports such as 'java.util.List'
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java">
+<violation beginline="155" endline="157" begincolumn="49" endcolumn="21" rule="EmptyIfStmt" ruleset="Basic Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Lexer" method="removeGenerics" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyIfStmt" priority="3">
+Avoid empty if statements
+</violation>
+<violation beginline="170" endline="170" begincolumn="21" endcolumn="43" rule="UnusedPrivateMethod" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Lexer" method="hasGenerics" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateMethod" priority="3">
+Avoid unused private methods such as 'hasGenerics(String)'.
+</violation>
+<violation beginline="172" endline="172" begincolumn="13" endcolumn="21" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Lexer" method="hasGenerics" variable="remLength" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'remLength'.
+</violation>
+<violation beginline="184" endline="186" begincolumn="49" endcolumn="21" rule="EmptyIfStmt" ruleset="Basic Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Lexer" method="hasGenerics" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyIfStmt" priority="3">
+Avoid empty if statements
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Parser.java">
+<violation beginline="280" endline="280" begincolumn="21" endcolumn="30" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Parser" method="parsePreprocessorDirective" variable="startCount" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'startCount'.
+</violation>
+<violation beginline="350" endline="352" begincolumn="70" endcolumn="13" rule="EmptyIfStmt" ruleset="Basic Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Parser" method="parsePossibleAttributes" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyIfStmt" priority="3">
+Avoid empty if statements
+</violation>
+<violation beginline="1305" endline="1307" begincolumn="27" endcolumn="13" rule="EmptyIfStmt" ruleset="Basic Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Parser" method="parseParamList" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyIfStmt" priority="3">
+Avoid empty if statements
+</violation>
+<violation beginline="1614" endline="1616" begincolumn="51" endcolumn="13" rule="EmptyIfStmt" ruleset="Basic Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Parser" method="parseQualifiedIdentifier" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyIfStmt" priority="3">
+Avoid empty if statements
+</violation>
+<violation beginline="2988" endline="2990" begincolumn="21" endcolumn="21" rule="CollapsibleIfStatements" ruleset="Basic Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Parser" method="SkipToElseOrEndIf" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#CollapsibleIfStatements" priority="3">
+These nested if statements could be combined
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/members/MemberNode.java">
+<violation beginline="7" endline="7" begincolumn="1" endcolumn="68" rule="UnusedImports" ruleset="Import Statement Rules" package="org.argouml.language.csharp.importer.csparser.members" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#UnusedImports" priority="4">
+Avoid unused imports such as 'org.argouml.language.csharp.importer.csparser.enums.Modifier'
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/MemberAccessExpression.java">
+<violation beginline="32" endline="32" begincolumn="31" endcolumn="44" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions" class="MemberAccessExpression" variable="RankSpecifiers" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'RankSpecifiers'.
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/PredefinedTypeNode.java">
+<violation beginline="25" endline="25" begincolumn="31" endcolumn="44" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions" class="PredefinedTypeNode" variable="RankSpecifiers" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'RankSpecifiers'.
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/primitive/CharPrimitive.java">
+<violation beginline="23" endline="25" begincolumn="25" endcolumn="25" rule="EmptyIfStmt" ruleset="Basic Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions.primitive" class="CharPrimitive" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyIfStmt" priority="3">
+Avoid empty if statements
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/primitive/IntegralPrimitive.java">
+<violation beginline="15" endline="15" begincolumn="24" endcolumn="37" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions.primitive" class="IntegralPrimitive" variable="originalString" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'originalString'.
+</violation>
+<violation beginline="52" endline="52" begincolumn="17" endcolumn="21" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions.primitive" class="IntegralPrimitive" variable="style" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
+Avoid unused local variables such as 'style'.
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/primitive/RealPrimitive.java">
+<violation beginline="11" endline="11" begincolumn="32" endcolumn="45" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions.primitive" class="RealPrimitive" variable="originalString" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'originalString'.
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/statements/CheckedStatement.java">
+<violation beginline="11" endline="11" begincolumn="40" endcolumn="51" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.statements" class="CheckedStatement" variable="CheckedBlock" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'CheckedBlock'.
+</violation>
+</file>
+<file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/statements/ContinueStatement.java">
+<violation beginline="10" endline="10" begincolumn="20" endcolumn="25" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.statements" class="ContinueStatement" variable="Target" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
+Avoid unused private fields such as 'Target'.
+</violation>
+</file>
+</pmd>

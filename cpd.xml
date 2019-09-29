@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd-cpd>
+<duplication lines="37" tokens="222">
+<file line="295" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<file line="355" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<codefragment>
+<![CDATA[
+        Object classifier = null;
+        //check in classes
+        String temp = buildToParent(mn.type.Identifier.Identifier, 
+                mn.type.Identifier.Identifier.length);
+        classifier = getStoredDataType(temp, cPackage);
+
+        Object mOperation = Model.getCoreFactory().buildOperation2(cls, classifier, name);
+        setVisibility(mOperation, cmod);
+        Model.getCoreHelper().setAbstract(mOperation,
+                (cmod & CSharpConstants.ACC_ABSTRACT) > 0);
+        Model.getCoreHelper().setLeaf(mOperation,
+                (cmod & CSharpConstants.ACC_FINAL) > 0);
+        Model.getCoreHelper().setRoot(mOperation, false);
+        Model.getCoreHelper().setStatic(mOperation, 
+                (cmod & CSharpConstants.ACC_STATIC) > 0);
+
+
+        Object parameter = null;
+        if (mn.params != null) {
+            for (ParamDeclNode p : mn.params) {
+
+                classifier = null;
+
+                classifier = getStoredDataType(buildToParent(
+                        p.type.Identifier.Identifier,
+                        p.type.Identifier.Identifier.length), cPackage);
+                parameter =
+                        Model.getCoreFactory().buildParameter(mOperation, classifier);
+                Model.getCoreHelper().setName(parameter, p.name);
+
+            }
+        }
+
+        ele.put(id, mOperation);
+
+
+    }
+]]>
+</codefragment>
+</duplication>
+<duplication lines="38" tokens="203">
+<file line="411" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<file line="674" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<codefragment>
+<![CDATA[
+    void addAttribute(ClassNode cn, FieldNode fn, String cPackage) {
+//        System.out.println("Add attribute");
+        short modifiers = ModifierMap.getUmlModifierForVisibility(fn.modifiers);
+        String typeSpec = buildToParent(fn.type.Identifier.Identifier, 
+                fn.type.Identifier.Identifier.length);
+//        System.out.println("Complete class "+typeSpec);
+        String name = buildToParent(fn.names.get(0).Identifier, 
+                fn.names.get(0).Identifier.length);
+//        System.out.println("Attrib name "+name);
+        String initializer = null;
+        String docs = "";
+        boolean forceIt = false;
+
+
+        String multiplicity = "1_1";
+        Object mClassifier = null;
+        String className = cPackage + "." + cn.Name.Identifier[0];
+//        System.out.println("Class name "+className);
+        Object cls = ele.get(TAG_CLASS + className);
+//        Object cls = getClasesByName(cn.Name.Identifier[0], "");
+//        if (cls == null) {
+//            cls = ele.get(TAG_CLASS + className);
+//        }
+
+        if (typeSpec != null) {
+            if (!arraysAsDatatype && typeSpec.indexOf('[') != -1) {
+                typeSpec = typeSpec.substring(0, typeSpec.indexOf('['));
+                multiplicity = "1_N";
+            }
+            mClassifier = getStoredDataType(typeSpec, cPackage);
+        }
+
+        Object mAttribute = buildAttribute(cls, mClassifier, name);
+        setOwnerScope(mAttribute, modifiers);
+        setVisibility(mAttribute, modifiers);
+        Model.getCoreHelper().setMultiplicity(mAttribute, multiplicity);
+
+        if (initializer != null) {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="30" tokens="162">
+<file line="879" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="942" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<codefragment>
+<![CDATA[
+                default: {
+                    // todo: deal with unicode chars
+                    // check if this is an identifier char
+                    switch (c) {
+                        case (int) 'a':
+                        case (int) 'b':
+                        case (int) 'c':
+                        case (int) 'd':
+                        case (int) 'e':
+                        case (int) 'f':
+                        case (int) 'g':
+                        case (int) 'h':
+                        case (int) 'i':
+                        case (int) 'j':
+                        case (int) 'k':
+                        case (int) 'l':
+                        case (int) 'm':
+                        case (int) 'n':
+                        case (int) 'o':
+                        case (int) 'p':
+                        case (int) 'q':
+                        case (int) 'r':
+                        case (int) 's':
+                        case (int) 't':
+                        case (int) 'u':
+                        case (int) 'v':
+                        case (int) 'w':
+                        case (int) 'x':
+                        case (int) 'y':
+                        case (int) 'z':
+]]>
+</codefragment>
+</duplication>
+<duplication lines="27" tokens="162">
+<file line="909" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="974" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<codefragment>
+<![CDATA[
+                        case (int) 'A':
+                        case (int) 'B':
+                        case (int) 'C':
+                        case (int) 'D':
+                        case (int) 'E':
+                        case (int) 'F':
+                        case (int) 'G':
+                        case (int) 'H':
+                        case (int) 'I':
+                        case (int) 'J':
+                        case (int) 'K':
+                        case (int) 'L':
+                        case (int) 'M':
+                        case (int) 'N':
+                        case (int) 'O':
+                        case (int) 'P':
+                        case (int) 'Q':
+                        case (int) 'R':
+                        case (int) 'S':
+                        case (int) 'T':
+                        case (int) 'U':
+                        case (int) 'V':
+                        case (int) 'W':
+                        case (int) 'X':
+                        case (int) 'Y':
+                        case (int) 'Z':
+                        case (int) '_': {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="19" tokens="152">
+<file line="720" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="856" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<codefragment>
+<![CDATA[
+                                if (c == (int) 'u' || c == (int) 'U') {
+                                    sb.append((char) c);
+                                    numKind = TokenID.ULongLiteral;
+                                    c = src.read();
+                                }
+                            } else if (c == (int) 'u' || c == (int) 'U') {
+                                sb.append((char) c);
+                                numKind = TokenID.UIntLiteral;
+                                c = src.read();
+                                if (c == (int) 'l' || c == (int) 'L') {
+                                    sb.append((char) c);
+                                    numKind = TokenID.ULongLiteral;
+                                    c = src.read();
+                                }
+                            }
+                            //numKind = TokenID.HexLiteral;
+                            loc = this.StringLiterals.size();
+                            this.StringLiterals.add(sb.toString());
+                            tokens.add(new Token(numKind, loc));
+]]>
+</codefragment>
+</duplication>
+<duplication lines="36" tokens="132">
+<file line="445" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<file line="530" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<codefragment>
+<![CDATA[
+        namespaceStack.peek().Classes.add(node);
+
+        if (curAttributes.size() > 0) {
+            node.attributes = curAttributes;
+            curAttributes = new NodeCollection<AttributeNode>();
+        }
+
+        node.Modifiers = curmods;
+        curmods = Modifier.Empty;
+
+        advance(); // advance over Class token
+        node.Name = parseQualifiedIdentifier();
+
+        if (curtok.id == TokenID.Colon) // for base members
+        {
+            advance();
+            node.BaseClasses.add(parseType());
+            while (curtok.id == TokenID.Comma) {
+                advance();
+                node.BaseClasses.add(parseType());
+            }
+        }
+        AssertAndAdvance(TokenID.LCurly);
+
+        while (curtok.id != TokenID.RCurly) // guard for empty
+        {
+            parseClassMember();
+        }
+
+        AssertAndAdvance(TokenID.RCurly);
+
+        typeStack.pop();
+
+    }
+
+    private void parseInterface() throws FeatureNotSupportedException {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="29" tokens="127">
+<file line="13" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/members/InterfaceMethodNode.java"/>
+<file line="17" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/members/MethodNode.java"/>
+<codefragment>
+<![CDATA[
+		public NodeCollection<ParamDeclNode> params =new NodeCollection<ParamDeclNode>();
+
+		public void ToSource(StringBuilder sb)
+		{
+			if (attributes != null)
+			{
+				attributes.ToSource(sb);
+				this.NewLine(sb);
+			}
+			this.TraceModifiers(this.modifiers, sb);
+
+			this.type.ToSource(sb);
+			sb.append(" ");
+
+			this.names.get(0).ToSource(sb);
+			sb.append("(");
+
+			if (params != null)
+			{
+				String comma = "";
+				for (int i = 0; i < params.size(); i++)
+				{
+					sb.append(comma);
+					comma = ", ";
+					params.get(i).ToSource(sb);
+				}
+			}
+
+			sb.append(");");
+]]>
+</codefragment>
+</duplication>
+<duplication lines="26" tokens="114">
+<file line="445" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<file line="488" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<file line="530" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<codefragment>
+<![CDATA[
+        namespaceStack.peek().Classes.add(node);
+
+        if (curAttributes.size() > 0) {
+            node.attributes = curAttributes;
+            curAttributes = new NodeCollection<AttributeNode>();
+        }
+
+        node.Modifiers = curmods;
+        curmods = Modifier.Empty;
+
+        advance(); // advance over Class token
+        node.Name = parseQualifiedIdentifier();
+
+        if (curtok.id == TokenID.Colon) // for base members
+        {
+            advance();
+            node.BaseClasses.add(parseType());
+            while (curtok.id == TokenID.Comma) {
+                advance();
+                node.BaseClasses.add(parseType());
+            }
+        }
+        AssertAndAdvance(TokenID.LCurly);
+
+        while (curtok.id != TokenID.RCurly) // guard for empty
+        {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="11" tokens="112">
+<file line="147" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="176" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<codefragment>
+<![CDATA[
+            if (st != -1) {
+                ed = str.indexOf(">", st);
+                if (ed != -1 && st < ed - 1) {
+                    lastSt = ed + 1;
+                    String t = str.substring(st + 1, ed);
+                    if (t.contains("=") || t.contains("&") || t.contains("|")
+                            || t.contains("-") || t.contains("+")
+                            || t.contains("/") || t.contains("*")
+                            || t.contains("!")) {
+
+                    } else {
+]]>
+</codefragment>
+</duplication>
+<duplication lines="26" tokens="111">
+<file line="448" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<file line="715" path="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<codefragment>
+<![CDATA[
+        if (initializer != null) {
+
+            // we must remove line endings and tabs from the intializer
+            // strings, otherwise the classes will display horribly.
+            initializer = initializer.replace('\n', ' ');
+            initializer = initializer.replace('\t', ' ');
+
+            Object newInitialValue =
+                    Model.getDataTypesFactory()
+                            .createExpression("CSharp",
+                                    initializer);
+            Model.getCoreHelper().setInitialValue(
+                    mAttribute,
+                    newInitialValue);
+        }
+
+        if ((modifiers & CSharpConstants.ACC_FINAL) > 0) {
+            Model.getCoreHelper().setReadOnly(mAttribute, true);
+        } else if (Model.getFacade().isReadOnly(mAttribute)) {
+            Model.getCoreHelper().setReadOnly(mAttribute, true);
+        }
+
+    }
+
+
+    private Object buildReturnParameter(Object operation, Object classifier) {
+]]>
+</codefragment>
+</duplication>
+</pmd-cpd>

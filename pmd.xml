@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pmd version="4.3" timestamp="2019-09-29T09:29:17.147">
+<pmd version="4.3" timestamp="2019-09-29T09:50:52.082">
 <file name="/home/linus/project/argouml/github-repo/argouml-csharp/src/org/argouml/language/csharp/generator/GeneratorCSharp.java">
 <violation beginline="164" endline="167" begincolumn="17" endcolumn="17" rule="CollapsibleIfStatements" ruleset="Basic Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateFile" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#CollapsibleIfStatements" priority="3">
 These nested if statements could be combined

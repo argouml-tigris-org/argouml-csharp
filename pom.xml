@@ -51,8 +51,7 @@ Csharp support for argouml.
   </description>
 
   <scm>
-    <connection>scm:svn:http://argouml-csharp.tigris.org/svn/argouml-csharp/trunk/</connection>
-    <developerConnection>scm:svn:http://argouml-csharp.tigris.org/svn/argouml-csharp/trunk/</developerConnection>
-    <url>http://argouml-csharp.tigris.org/source/browse/argouml-csharp/trunk</url>
+    <!-- Specify this or maven will add artifactId. -->
+    <url>https://github.com/argouml-tigris-org/${github.site.repositoryName}</url>
   </scm>
 </project>

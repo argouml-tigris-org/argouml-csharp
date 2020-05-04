@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pmd-cpd>
 <duplication lines="37" tokens="222">
-<file line="295" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
-<file line="355" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<file line="295" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<file line="355" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
 <codefragment>
 <![CDATA[
         Object classifier = null;
@@ -46,8 +46,8 @@
 </codefragment>
 </duplication>
 <duplication lines="38" tokens="203">
-<file line="411" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
-<file line="674" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<file line="411" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<file line="674" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
 <codefragment>
 <![CDATA[
     void addAttribute(ClassNode cn, FieldNode fn, String cPackage) {
@@ -92,8 +92,8 @@
 </codefragment>
 </duplication>
 <duplication lines="30" tokens="162">
-<file line="879" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
-<file line="942" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="879" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="942" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
 <codefragment>
 <![CDATA[
                 default: {
@@ -130,8 +130,8 @@
 </codefragment>
 </duplication>
 <duplication lines="27" tokens="162">
-<file line="909" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
-<file line="974" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="909" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="974" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
 <codefragment>
 <![CDATA[
                         case (int) 'A':
@@ -165,8 +165,8 @@
 </codefragment>
 </duplication>
 <duplication lines="19" tokens="152">
-<file line="720" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
-<file line="856" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="720" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="856" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
 <codefragment>
 <![CDATA[
                                 if (c == (int) 'u' || c == (int) 'U') {
@@ -192,8 +192,8 @@
 </codefragment>
 </duplication>
 <duplication lines="36" tokens="132">
-<file line="445" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
-<file line="530" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<file line="445" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<file line="530" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
 <codefragment>
 <![CDATA[
         namespaceStack.peek().Classes.add(node);
@@ -236,8 +236,8 @@
 </codefragment>
 </duplication>
 <duplication lines="29" tokens="127">
-<file line="13" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/members/InterfaceMethodNode.java"/>
-<file line="17" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/members/MethodNode.java"/>
+<file line="13" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/members/InterfaceMethodNode.java"/>
+<file line="17" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/members/MethodNode.java"/>
 <codefragment>
 <![CDATA[
 		public NodeCollection<ParamDeclNode> params =new NodeCollection<ParamDeclNode>();
@@ -273,9 +273,9 @@
 </codefragment>
 </duplication>
 <duplication lines="26" tokens="114">
-<file line="445" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
-<file line="488" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
-<file line="530" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<file line="445" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<file line="488" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
+<file line="530" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java"/>
 <codefragment>
 <![CDATA[
         namespaceStack.peek().Classes.add(node);
@@ -308,8 +308,8 @@
 </codefragment>
 </duplication>
 <duplication lines="11" tokens="112">
-<file line="147" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
-<file line="176" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="147" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
+<file line="176" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java"/>
 <codefragment>
 <![CDATA[
             if (st != -1) {
@@ -327,8 +327,8 @@
 </codefragment>
 </duplication>
 <duplication lines="26" tokens="111">
-<file line="448" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
-<file line="715" path="/var/jenkins_home/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<file line="448" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
+<file line="715" path="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java"/>
 <codefragment>
 <![CDATA[
         if (initializer != null) {

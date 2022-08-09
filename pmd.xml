@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<pmd version="4.3" timestamp="2021-09-24T10:39:36.030">
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/generator/GeneratorCSharp.java">
+<pmd version="4.3" timestamp="2022-08-09T17:01:53.851">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/generator/GeneratorCSharp.java">
 <violation beginline="164" endline="167" begincolumn="17" endcolumn="17" rule="CollapsibleIfStatements" ruleset="Basic Rules" package="org.argouml.language.csharp.generator" class="GeneratorCSharp" method="generateFile" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#CollapsibleIfStatements" priority="3">
 These nested if statements could be combined
 </violation>
@@ -41,7 +41,7 @@ Avoid unused private methods such as 'generateMessage(Object)'.
 Avoid unused private methods such as 'generateActionState(Object)'.
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSModeller.java">
 <violation beginline="48" endline="48" begincolumn="21" endcolumn="27" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer" class="CSModeller" variable="project" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
 Avoid unused private fields such as 'project'.
 </violation>
@@ -73,7 +73,7 @@ Avoid unused local variables such as 'docs'.
 Avoid unused local variables such as 'forceIt'.
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSharpImport.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/CSharpImport.java">
 <violation beginline="46" endline="46" begincolumn="8" endcolumn="19" rule="DuplicateImports" ruleset="Import Statement Rules" package="org.argouml.language.csharp.importer" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#DuplicateImports" priority="4">
 Avoid duplicate imports such as 'java.io.File'
 </violation>
@@ -102,12 +102,12 @@ Avoid unused method parameters such as 'pass'.
 Avoid unused method parameters such as 'settings'.
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/collections/ParseStateCollection.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/collections/ParseStateCollection.java">
 <violation beginline="5" endline="5" begincolumn="1" endcolumn="22" rule="UnusedImports" ruleset="Import Statement Rules" package="org.argouml.language.csharp.importer.csparser.collections" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#UnusedImports" priority="4">
 Avoid unused imports such as 'java.util.List'
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Lexer.java">
 <violation beginline="155" endline="157" begincolumn="49" endcolumn="21" rule="EmptyIfStmt" ruleset="Basic Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Lexer" method="removeGenerics" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyIfStmt" priority="3">
 Avoid empty if statements
 </violation>
@@ -121,7 +121,7 @@ Avoid unused local variables such as 'remLength'.
 Avoid empty if statements
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/main/Parser.java">
 <violation beginline="280" endline="280" begincolumn="21" endcolumn="30" rule="UnusedLocalVariable" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.main" class="Parser" method="parsePreprocessorDirective" variable="startCount" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedLocalVariable" priority="3">
 Avoid unused local variables such as 'startCount'.
 </violation>
@@ -138,27 +138,27 @@ Avoid empty if statements
 These nested if statements could be combined
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/members/MemberNode.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/members/MemberNode.java">
 <violation beginline="7" endline="7" begincolumn="1" endcolumn="68" rule="UnusedImports" ruleset="Import Statement Rules" package="org.argouml.language.csharp.importer.csparser.members" externalInfoUrl="http://pmd.sourceforge.net/rules/imports.html#UnusedImports" priority="4">
 Avoid unused imports such as 'org.argouml.language.csharp.importer.csparser.enums.Modifier'
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/MemberAccessExpression.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/MemberAccessExpression.java">
 <violation beginline="32" endline="32" begincolumn="31" endcolumn="44" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions" class="MemberAccessExpression" variable="RankSpecifiers" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
 Avoid unused private fields such as 'RankSpecifiers'.
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/PredefinedTypeNode.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/PredefinedTypeNode.java">
 <violation beginline="25" endline="25" begincolumn="31" endcolumn="44" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions" class="PredefinedTypeNode" variable="RankSpecifiers" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
 Avoid unused private fields such as 'RankSpecifiers'.
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/primitive/CharPrimitive.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/primitive/CharPrimitive.java">
 <violation beginline="23" endline="25" begincolumn="25" endcolumn="25" rule="EmptyIfStmt" ruleset="Basic Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions.primitive" class="CharPrimitive" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyIfStmt" priority="3">
 Avoid empty if statements
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/primitive/IntegralPrimitive.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/primitive/IntegralPrimitive.java">
 <violation beginline="15" endline="15" begincolumn="24" endcolumn="37" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions.primitive" class="IntegralPrimitive" variable="originalString" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
 Avoid unused private fields such as 'originalString'.
 </violation>
@@ -166,17 +166,17 @@ Avoid unused private fields such as 'originalString'.
 Avoid unused local variables such as 'style'.
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/primitive/RealPrimitive.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/nodes/expressions/primitive/RealPrimitive.java">
 <violation beginline="11" endline="11" begincolumn="32" endcolumn="45" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.nodes.expressions.primitive" class="RealPrimitive" variable="originalString" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
 Avoid unused private fields such as 'originalString'.
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/statements/CheckedStatement.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/statements/CheckedStatement.java">
 <violation beginline="11" endline="11" begincolumn="40" endcolumn="51" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.statements" class="CheckedStatement" variable="CheckedBlock" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
 Avoid unused private fields such as 'CheckedBlock'.
 </violation>
 </file>
-<file name="/var/lib/jenkins/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/statements/ContinueStatement.java">
+<file name="/var/snap/jenkins/2767/workspace/ganization_argouml-csharp_master/src/org/argouml/language/csharp/importer/csparser/statements/ContinueStatement.java">
 <violation beginline="10" endline="10" begincolumn="20" endcolumn="25" rule="UnusedPrivateField" ruleset="Unused Code Rules" package="org.argouml.language.csharp.importer.csparser.statements" class="ContinueStatement" variable="Target" externalInfoUrl="http://pmd.sourceforge.net/rules/unusedcode.html#UnusedPrivateField" priority="3">
 Avoid unused private fields such as 'Target'.
 </violation>
